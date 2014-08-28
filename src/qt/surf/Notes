@@ -1,0 +1,4 @@
+Under OSX
+qmake/make doesn't produce Makefile capable of compiling
+isolib.F.  So, after qmake -spec macx-g++ and before make,
+gfortran -c isolib.F

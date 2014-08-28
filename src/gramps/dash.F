@@ -1,0 +1,61 @@
+C *************************************************************
+C This file contains source code for the gMol computer program
+C  Copyright (C) 1981-2010 by TJ O'Donnell and
+C  Copyright (C) 2005-2010 gNova, Inc.
+C It is unlawful to modify or remove this copyright notice.
+C See the accompanying LICENSE file for further information. 
+C *************************************************************
+      SUBROUTINE DASH(ARG)
+C
+      IMPLICIT NONE
+      CHARACTER ARG*(*)
+C
+#include "UDLIST.FOR"
+#include "ERRORS.FOR"
+      INTEGER SIZE
+	INTEGER START, FINISH, DEPTH, LEVEL, I, K, ESID
+	INTEGER DTYPE
+C
+C       THIS ROUTINE MODIFIES THE LINE GENERATOR STATUS
+C       WORD IN A UDL OF AN OBJ SO THAT THE LINE WILL
+C       BE DASHED.
+C
+C       PARSE THE ARGS FOR NAME AND POSSIBLE VALUE
+C
+      POINT=1
+      CALL NAMID(ARG,POINT,ID)
+      IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
+C
+C       ASSUME USER WANTS SHORT DASHES
+C
+      DTYPE=3
+C
+C       UNLESS THERE IS ANOTHER ARG TO SPECIFY THE TYPE
+C
+      IF(POINT.NE.0)THEN
+        CALL GETVLU(ARG,POINT,DTYPE,ADDIT)
+        IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
+      END IF
+C
+C       IF ITS A GROUP, FIND ABOUT THE EXTENT OF THE GROUP
+C       IF ITS THE WORLD (START=0) START WITH THE FIRST OBJ
+C
+      CALL GROUPINFO(ID,START,FINISH,DEPTH,LEVEL,SIZE)
+      IF(START.EQ.0)START=1
+C
+      DO 10 I=START,FINISH
+      K=TREE(I)
+      IF(K.LE.GROUPEND)GOTO 10
+      ESID=IDOBJ(K)
+      DLIST( LOCOBJ(K)-1+UDDASH )=DTYPE
+ 10   CONTINUE
+C
+C       IF ITS THE WORLDS, DO IT TO IT.
+C
+      IF(ID.LE.RWORLD)DLIST( LOCOBJ(ID)-1+UDDASH )=DTYPE
+C
+C       LET DISPLAY KNOW A CHANGE HAS BEEN MADE
+C
+      DCHANGE=.TRUE.
+ 999  RETURN
+      END

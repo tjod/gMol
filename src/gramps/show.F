@@ -1,0 +1,994 @@
+C *************************************************************
+C This file contains source code for the gMol computer program
+C  Copyright (C) 1981-2010 by TJ O'Donnell and
+C  Copyright (C) 2005-2010 gNova, Inc.
+C It is unlawful to modify or remove this copyright notice.
+C See the accompanying LICENSE file for further information. 
+C *************************************************************
+      SUBROUTINE SHOW(ARG,SWITCHES)
+C
+      IMPLICIT NONE
+C
+#include "UDLIST.FOR"
+#include "ERRORS.FOR"
+#include "FILES.FOR"
+C
+      CHARACTER ARG*(*)
+      CHARACTER SWITCHES*(*)
+      CHARACTER*1 BLANK
+      CHARACTER*80 TMPLINE
+      DATA BLANK/' '/
+      BLANK=' '
+C
+C   THIS ROUTINE WRITE INFO TO THE TERMINAL ABOUT
+C   1) THE DIAL ASSIGNMENTS.
+C   2) THE TABLE OF OBJECTS/FRAMES LOCATIONS
+C   3) THE XTREE STATUS OF GRAMPS' DISPLAY
+C   4) THE $ARGS
+C   5) THE GRAMPS SYSTEM VARIABLES.
+C   6) THE TFM VALUES/ASSIGNMENTS OF OBJECTS.
+C   7) THE PERSPECTIVE MATRIX ELEMENTS OF A WORLD.
+C   8) THE FIX MATRIX ELEMENTS OF AN OBJECT.
+C
+C   CHECK FOR THE VARIOUS SWITCHES
+C
+      IF(MATCH(SWITCHES,'DIALS'))THEN
+        CALL SHOWDEV
+        RETURN
+      END IF
+      
+C
+      IF(MATCH(SWITCHES,'TABLE'))THEN
+        CALL SHOWTAB(ARG)
+        RETURN
+      END IF
+C
+      IF(MATCH(SWITCHES,'XTREE'))THEN
+        CALL SHOXTREE
+        RETURN
+      END IF
+C
+      IF(MATCH(SWITCHES,'SYMBOLS'))THEN
+        IF(AGF.NE.1)CALL TELLUSER(NOTCMD,*999)
+        CALL SHOWSYM(ARG)
+        RETURN
+      END IF
+C
+      IF(MATCH(SWITCHES,'POINTS'))THEN
+        CALL SHOWCOORD(ARG)
+        RETURN
+      END IF
+C
+      IF(MATCH(SWITCHES,'PARAMETERS'))THEN
+        IF(AGF.EQ.1)CALL TELLUSER(NOTGIN,*999)
+        CALL SHOWSYM(ARG)
+        RETURN
+      END IF
+C
+      IF(MATCH(SWITCHES,'SYSTEM'))THEN
+        CALL SHOWSYS
+        RETURN
+      END IF
+C
+      IF(MATCH(SWITCHES,'TREE'))THEN
+        CALL SHOWTREE(ARG)
+        RETURN
+      END IF
+C
+      IF(MATCH(SWITCHES,'MENU'))THEN
+        CALL SHOWMENU
+        RETURN
+      END IF
+C
+      IF(MATCH(SWITCHES,'FIXER'))THEN
+        CALL SHOWFIX(ARG)
+        RETURN
+      END IF
+C
+      IF(MATCH(SWITCHES,'TFM'))THEN
+        CALL SHOWTFM(ARG)
+        RETURN
+      ENDIF
+C
+      IF(MATCH(SWITCHES,'PMAT'))THEN
+        CALL SHOWPMAT(ARG)
+        RETURN
+      ENDIF
+C
+      IF(MATCH(SWITCHES,'PICK'))THEN
+        CALL G0SHOWPICK(ARG)
+        RETURN
+      ENDIF
+C
+      IF(MATCH(SWITCHES,'GL'))THEN
+        CALL SHOWGL
+        RETURN
+      ENDIF
+C
+      CALL SHOWOBJ(ARG,SWITCHES)
+C
+ 999  RETURN
+      END
+C
+C
+      SUBROUTINE SHOWOBJ(ARG,SWITCHES)
+C
+      IMPLICIT NONE
+C
+#include "UDLIST.FOR"
+#include "DEFVAL.FOR"
+#include "ERRORS.FOR"
+#include "FILES.FOR"
+C
+      CHARACTER ARG*(*)
+      CHARACTER SWITCHES*(*)
+      CHARACTER*10 AUXKIND
+      INTEGER START, FINISH, DEPTH, LEVEL, SIZE
+      INTEGER K, KTFM
+      INTEGER JID, DIMSKP, NDIM
+      INTEGER NSKIP, NNOW, N1, N2, IOBJ
+      EXTERNAL TRIM
+      CHARACTER*1 BLANK
+      CHARACTER*40 FUNC
+      CHARACTER*120 TMPLINE
+      LOGICAL LWORK(WORKSIZE)
+      EQUIVALENCE (WORK,LWORK)
+C
+      CHARACTER*10 KIND(7)
+      CHARACTER*8 TFMTYP(MTFM), TYPTFM
+      INTEGER NMLEN
+      REAL SCALE
+      CHARACTER*8 WTFTYP(WTFM)
+      SAVE KIND
+      SAVE TFMTYP
+      SAVE WTFTYP
+C
+      DATA BLANK /' '/
+      DATA KIND/'ORDINARY','FRAME','ONEFRAME','GROUP','WORLD',
+     &    'FRAME-CELL','LIGHT'/
+C
+      DATA TFMTYP /'TRAN  :X','      :Y','      :Z','      :W',
+     &     'ROT   :X','      :Y','      :Z',
+     &     'TRAN  :P','      :Q','      :R','      :S',
+     &     'ROT   :P','      :Q','      :R',
+     &     'SCALE :P','      :Q','      :R','      :S',
+     &     'SCALE :X','      :Y','      :Z','      :W',
+     &     'INTEN :T','      :A','      :P','      :D',
+     &     '      :Y','      :E',
+     &     'COLOR :H','      :S','      :V',
+     &     'FRAME :N','      :I'/
+      DATA WTFTYP /'MOVE  :X','      :Y','      :Z','      :W',
+     &     'PERSP :S','      :V','      :P',
+     &     '      :A','      :H','      :Y',
+     &     '      :F','      :D',
+     &     '      :E','      :W'/
+C
+C   PARSE ARGS TO GET NAME OF OBJECT
+C
+      POINT=1
+      CALL NAMID(ARG,POINT,ID)
+      IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
+C
+C   READ THE SWITCHES WHICH SPECIFY WHICH TFMS TO SHOW.
+C
+c  CALL WRESET(SWITCHES)
+      If(WRESET(SWITCHES))CONTINUE
+C
+C   WRITE OUT NAME, SIZE, ETC. OF THE OBJECT
+C
+      IF( (SWITCHES.EQ.BLANK).OR.MATCH(SWITCHES,'INFO') )THEN
+        AUXKIND=' '
+        IF( BTEST(KINDOBJ(ID),RETBIT) )AUXKIND='/RETAIN'//AUXKIND
+        IF( BTEST(KINDOBJ(ID),SYNOBIT) )AUXKIND='/SYNONYM'//AUXKIND
+        IF( BTEST(KINDOBJ(ID),MENUBIT) )AUXKIND='/MENU ITEM'//AUXKIND
+        IF( BTEST(KINDOBJ(ID),TEXTBIT) )AUXKIND='/TEXT'//AUXKIND
+        NMLEN=TRIM(NAMOBJ(ID))
+        WRITE(TMPLINE,1010)NAMOBJ(ID)(:NMLEN),
+     &    ",Type=", KIND(TYPOBJ(ID)+1), AUXKIND,
+     &    ",id=", ID, ",idobj=", IDOBJ(ID),
+     &    ",loc=", LOCOBJ(ID), ",size=", SIZEOBJ(ID),
+     &    ",frmcnt=", FRMCNT(ID), ",idfram=", IDFRAM(ID)-IDOBJ(ID)
+        CALL XBLANK(TMPLINE)
+        CALL GROUT(TMPLINE)
+C
+C   IF THE OBJECT IS A GROUP, FIND OUT AND PRINT OUT
+C   ITS LEVEL IN THE TREE AND ITS DEPTH.
+C
+        IF(TYPOBJ(ID).EQ.GROUP)THEN
+          CALL GROUPINFO(ID,START,FINISH,DEPTH,LEVEL,SIZE)
+          WRITE(TMPLINE,1017)START,FINISH,DEPTH,LEVEL
+          CALL XBLANK(TMPLINE)
+          CALL GROUT(TMPLINE)
+        END IF
+        IF(MATCH(SWITCHES,'INFO'))RETURN
+      END IF
+C 1010 FORMAT(A, A,A,A, 2(1X,I4),2(1X,I8),2(1X,I6) )
+ 1010 FORMAT(A, A,A,A ,8(A,I5) )
+ 1017 FORMAT('Start=',I3,',finish=',I3,',depth=',I3,',level=',I3)
+C
+C
+C   CHECK OUT EACH TRANSFORMATION FOR THIS OBJECT
+C   AND PRINT OUT THE VALUE OF THE TRANSFORMATION
+C   AND THE DEVICE(S) (IF ANY) ASSIGNED FOR UPDATE
+C   OF THIS VALUE.  SEE UPDATE FOR MORE INFO ON THE
+C   BIT ASSIGNMENTS FOR EACH OF THE DEVICES.
+C
+C
+      DO 20 K=1,MTFM
+      IF(.NOT.LWORK(K))GOTO 20
+      KTFM=K
+C
+C   FIND OUT THE DEVICES AND FUNCTIONS ASSOCIATED WITH THE TFM
+C
+      IF(DEVUSE(K,ID).EQ.0)THEN
+        FUNC=BLANK
+      ELSE
+        CALL PFUNCOBJ(FUNC,KTFM,ID)
+      END IF
+C
+      SCALE=UNITS(K)
+      TYPTFM=TFMTYP(K)
+      IF ( BTEST(FNUSE(K,ID),BLABROT) .AND.
+     &   (K.EQ.UROTYY .OR. K.EQ.UAROTY) )TYPTFM(1:4)='/LAB'
+      IF (BTEST(FNUSE(K,ID),BADDINC) )THEN
+        IF( BTEST(FNUSE(K,ID),BLIMIT) )THEN
+          IF( BTEST(FNUSE(K,ID),BSIN) )THEN
+            WRITE(TMPLINE,3040)TYPTFM,SCALE*TFMVAL(K,ID),
+     &    BOUNDS(K,ID),SCALE*INT(TFMINC(K,ID)),FUNC
+          ELSE
+            WRITE(TMPLINE,3030)TYPTFM,SCALE*TFMVAL(K,ID),
+     &    BOUNDS(K,ID),INT(SCALE*TFMINC(K,ID)),FUNC
+          END IF
+        ELSE IF( BTEST(FNUSE(K,ID),BOBJ) )THEN
+          JID=MOD(INT(TFMINC(K,ID)),MOBJ)
+          DIMSKP= TFMINC(K,ID)/MOBJ
+          NDIM=MOD(DIMSKP,10)
+          NSKIP=DIMSKP/10
+          NNOW=(LBOUND(K,ID)-LOCOBJ(JID)-6)/NDIM - NSKIP
+          IF(NNOW.LE.0)NNOW=0
+          WRITE(TMPLINE,3050)TYPTFM,TFMVAL(K,ID),
+     &            NNOW,NAMOBJ(JID)(:TRIM(NAMOBJ(JID))),NSKIP
+        ELSE
+          WRITE(TMPLINE,3000)TYPTFM,SCALE*TFMVAL(K,ID),
+     &    SCALE*TFMINC(K,ID),FUNC
+        END IF
+      ELSE
+        WRITE(TMPLINE,1000)TYPTFM,SCALE*TFMVAL(K,ID),FUNC
+      END IF
+      CALL GROUT(TMPLINE)
+ 20   CONTINUE
+C
+C   IF THE OBJ IS A WORLD, CONSIDER ALSO THE UNIQUE
+C   TFMS OF THE WORLDS (PERSPECTIVE AND MOVE).
+C
+      IF(ID.GT.RWORLD)RETURN
+C
+      DO 40 K=1,WTFM
+      IF(.NOT.LWORK(MTFM+K))GOTO 40
+      KTFM=K
+C
+      IF(DEVWLD(K,ID).EQ.0)THEN
+        FUNC=BLANK
+      ELSE
+        CALL PFUNCWLD(FUNC,KTFM,ID)
+      END IF
+C
+      SCALE=WUNITS(K)
+      IF( BTEST(FNWLD(K,ID),BADDINC) ) THEN
+        IF( BTEST(FNWLD(K,ID),BLIMIT) )THEN
+          IF( BTEST(FNWLD(K,ID),BSIN) )THEN
+            WRITE(TMPLINE,3040)WTFTYP(K),SCALE*WLDVAL(K,ID),
+     &    BOUNDW(K,ID),INT(SCALE*WLDINC(K,ID)),FUNC
+          ELSE
+            WRITE(TMPLINE,3030)WTFTYP(K),SCALE*WLDVAL(K,ID),
+     &    BOUNDW(K,ID),INT(SCALE*WLDINC(K,ID)),FUNC
+          END IF
+        ELSE
+          WRITE(TMPLINE,3000)WTFTYP(K),SCALE*WLDVAL(K,ID),
+     &      SCALE*WLDINC(K,ID),FUNC
+        END IF
+      ELSE
+        WRITE(TMPLINE,1000)WTFTYP(K),SCALE*WLDVAL(K,ID),FUNC
+      END IF
+      CALL GROUT(TMPLINE)
+ 40   CONTINUE
+C
+ 1000 FORMAT(A,F10.4,7X,7X,A)
+ 3000 FORMAT(A,F10.4,'/',F10.4,7X,A)
+ 3030 FORMAT(A,F10.4,'/',F10.4,': ',I6,A)
+ 3040 FORMAT(A,F10.4,'/',F10.4,':S',I6,A)
+ 3050 FORMAT(1X,A,F10.4,'/',I8,'@',A,'@',I2)
+C
+ 999  CONTINUE
+      RETURN
+      END
+C
+C
+      SUBROUTINE SHOWTAB(ARG)
+C
+      IMPLICIT NONE
+C
+      CHARACTER ARG*(*)
+C
+#include "UDLIST.FOR"
+#include "ERRORS.FOR"
+#include "FILES.FOR"
+      EXTERNAL TRIM
+      INTEGER NFRAM
+      INTEGER NMLEN, N1, N2, IOBJ, FRID
+      CHARACTER*80 TMPLINE
+C
+C   FOR THE /TABLE SWITCH, DECODE THE
+C   TABLE OF INFO ABOUT UDL'S, AND RETURN
+C
+      POINT=1
+      CALL NAMID(ARG,POINT,ID)
+      IF(ERROR.NE.0)THEN
+        N1=1
+        N2=NOBJ
+      ELSE
+        N1=ID
+        N2=ID
+      END IF
+C
+      DO 50 IOBJ=N1,N2
+      IF(IOBJ.EQ.MASTSYN(IOBJ))THEN
+      NFRAM=FRMCNT(IOBJ)
+      ELSE
+      NFRAM=0
+      END IF
+      NMLEN=TRIM(NAMOBJ(IOBJ))
+      DO 50 FRID=IDOBJ(IOBJ),IDOBJ(IOBJ)+NFRAM
+      WRITE(TMPLINE,102)NAMOBJ(IOBJ)(:NMLEN),FRMCNT(IOBJ),
+     &    OBJFRID(FRID),IDFRAM(IOBJ)
+      CALL GROUT(TMPLINE)
+      WRITE(TMPLINE,103)IOBJ,FRID,
+     &    LOCOBJ(IOBJ),OBJFRLOC(FRID),
+     &    SIZEOBJ(IOBJ),OBJFRSIZ(FRID)
+      CALL GROUT(TMPLINE)
+ 50   CONTINUE
+C
+ 102  FORMAT(A,' FRAMES= ',I5,
+     &  ' UID=',I12,' NOWFRAME=',I7)
+ 103  FORMAT(' OBJID(FRID) ',I4,'(',I4,')',
+     &  ' AT ',I10,'(',I10,')',
+     &  ' SIZE ',I7,'(',I7,')' )
+C
+ 999  RETURN
+      END
+C
+C
+      SUBROUTINE SHOWDEV
+C
+      IMPLICIT NONE
+C
+#include "UDLIST.FOR"
+#include "ERRORS.FOR"
+#include "FILES.FOR"
+C
+      CHARACTER*80 TMPLINE
+      CHARACTER*3 DEVTYP(32)
+      INTEGER I, J
+      SAVE DEVTYP
+      DATA DEVTYP /'D1:','D2:','D3:','D4:','D5:','D6:','D7:','D8:',
+     &             'X1:','X2:','X3:','X4:','Y1:','Y2:','Y3:','Y4:',
+     &             'S1:','S2:','S3:','S4:','S5:','S6:','S7:','S8:',
+     &             'V1:','V2:','V3:','V4:','V5:','V6:','V7:','V8:'/
+C
+      Integer MAXDEV
+      Parameter (MAXDEV=31)
+C
+C   SUMMARIZE THE USAGE OF EACH DEVICE
+C
+C
+      DO 20 J=0,MAXDEV
+      CALL INITBUFF(DEVTYP(J+1))
+      DO 10 I=1,NOBJ
+      IF( BTEST(DEVUSE(SUMMARY,I),J) )CALL PUTBUFF(NAMOBJ(I))
+ 10   CONTINUE
+      CALL ENDBUFF(' ')
+ 20   CONTINUE
+C
+      RETURN
+      END
+C
+	   SUBROUTINE PUTQUOTED(STRING)
+		CHARACTER*(*) STRING
+		INTEGER TRIM
+		EXTERNAL TRIM
+	   CALL PUTBUFF('"'//STRING(:TRIM(STRING))//'"')
+      RETURN
+		END
+		
+      SUBROUTINE PUTBUFF(STRING)
+C
+      IMPLICIT NONE
+      CHARACTER STRING*(*)
+      CHARACTER*80 BUFFER
+      INTEGER ILEN, BLEN, SLEN
+      EXTERNAL TRIM
+      SAVE BUFFER, ILEN
+#include "UDLIST.FOR"
+C
+      BLEN = TRIM(BUFFER)
+      SLEN = TRIM(STRING)
+      IF( (SLEN + 1 + BLEN) .LT. LEN(BUFFER) )THEN
+        BUFFER(BLEN+1:)=' ' // STRING(:SLEN)
+      RETURN
+      ELSE
+        CALL GROUT(BUFFER)
+      BUFFER=' '
+      BUFFER(ILEN+1:)=STRING
+      END IF
+C
+      ENTRY INITBUFF(STRING)
+C
+      ILEN=TRIM(STRING)
+      BUFFER=STRING
+      RETURN
+C
+      ENTRY ENDBUFF(STRING)
+C
+      CALL GROUT(BUFFER)
+      BUFFER=' '
+      RETURN
+C
+ 5000 FORMAT(6(1X,A))
+      END
+C
+C
+C
+      SUBROUTINE SHOXTREE
+C
+      IMPLICIT NONE
+C
+#include "UDLIST.FOR"
+#include "ERRORS.FOR"
+#include "FILES.FOR"
+C
+C   SET THE FLAG SO THAT THE XTREE WILL BE SHOWN
+C   AND SET TCHANGE=.TRUE. TO FORCE A REXTREE
+C   SO IT WILL BE SHOWN RIGHT AWAY.
+C   BY THE DISPLAY PROGRAM NEXT TIME THROUGH THE DISPLAY
+C
+      SHOWXTREE=.TRUE.
+      TCHANGE=.TRUE.
+C
+      RETURN
+      END
+C
+C
+      SUBROUTINE SHOWSYM(ARG)
+C
+      IMPLICIT NONE
+C
+      CHARACTER ARG*(*)
+C
+#include "UDLIST.FOR"
+#include "ERRORS.FOR"
+#include "FILES.FOR"
+#include "DOLLARGS.FOR"
+C
+      INTEGER I, VPOINT, SYMNUM
+      CHARACTER*80 TMPLINE
+      CHARACTER*1 DOLLAR
+      DATA DOLLAR/'$'/
+      DOLLAR='$'
+C
+      POINT=INDEX(ARG,DOLLAR)
+      IF(POINT.EQ.0)THEN
+        DO 10 I=1,ARGMAX
+        WRITE(TMPLINE,7000)I,ARGLIST(I,AGF)
+        CALL GROUT(TMPLINE)
+ 10     CONTINUE
+      ELSE
+        VPOINT=POINT
+        POINT=POINT+1
+        CALL GETVLU(ARG,POINT,SYMNUM,ADDIT)
+        IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
+        IF( (SYMNUM.LE.0).OR.(SYMNUM.GT.ARGMAX) )THEN
+          POINT=VPOINT
+          CALL TELLUSER(BADDOLARG,*999)
+        END IF
+        WRITE(TMPLINE,7000)SYMNUM,ARGLIST(SYMNUM,AGF)
+        CALL GROUT(TMPLINE)
+      END IF
+C
+ 7000 FORMAT('$',I2,'=',A)
+C
+ 999  RETURN
+      END
+C
+C
+      SUBROUTINE SHOWSYS
+C
+      IMPLICIT NONE
+C
+#include "UDLIST.FOR"
+#include "ERRORS.FOR"
+#include "FILES.FOR"
+C#include "DEVICES.FOR"
+#include "DEFVAL.FOR"
+#include "G0COMMON.FOR"
+C
+      CHARACTER*128 TMPLINE
+      INTEGER G0ITSIZE,G0IXTSCALE,G0IYTSCALE
+      EXTERNAL  G0ITSIZE,G0IXTSCALE,G0IYTSCALE,G0IFONT
+      Character*100 G0IFONT, FONTNAME
+      Integer i
+      EXTERNAL TRIM
+C
+      CHARACTER*10 GDEV(OUTMAX)
+      SAVE GDEV
+      DATA GDEV/'NILL','TEK4010','RAMTEK','VT220','Window'/
+C
+      CALL GROUT(VERSION)
+      WRITE(TMPLINE,5000)UDFREE,NOBJ,NIDS,TREEEND
+      CALL GROUT(TMPLINE)
+      WRITE(TMPLINE,5001)USSIZE, MENUEND
+      CALL GROUT(TMPLINE)
+      WRITE(TMPLINE,6007)DEFDIR
+      CALL GROUT(TMPLINE)
+      WRITE(TMPLINE,6009)GRLIB
+      CALL GROUT(TMPLINE)
+C
+      IF (TUNITS(AGF).EQ.NEWUNITS) Then
+        CALL GROUT('Using new units (1.0)')
+      Else
+        CALL GROUT('Using old units (32767)')
+      End If
+C
+      IF(AUTOCLEAR)THEN
+        CALL GROUT('Automatic clearing is ON')
+      ELSE
+        CALL GROUT('Automatic clearing is OFF')
+      END IF
+C
+      IF(PPAUSE)THEN
+        CALL GROUT('Pause is ON')
+      ELSE
+        CALL GROUT('Pause is OFF')
+      END IF
+C
+      IF(VERIFY)THEN
+        CALL GROUT('Verify is ON')
+      ELSE
+        CALL GROUT('Verify is OFF')
+      END IF
+C
+      IF(COLLECT)THEN
+        WRITE(TMPLINE,6001)'Collecting into file ',
+     &    COLLFILE( 1:INDEX(COLLFILE,' ') )
+        CALL GROUT(TMPLINE)
+      ELSE
+        CALL GROUT('Collect is OFF')
+      END IF
+C
+      IF(OUTTING.NE.0)THEN
+        IF(OUTTING.EQ.OUTQIX)THEN
+          IF(INDEX(OUTFILE,'.QIX').NE.0)THEN
+            WRITE(TMPLINE,6001)'Output directed to file ',
+     &    OUTFILE( 1:INDEX(OUTFILE,' ') )
+          ELSE
+            WRITE(TMPLINE,6001)'Output directed to file ',
+     &      OUTFILE( 1:INDEX(OUTFILE,' ')-1 )//'.QIX'
+          END IF
+        ELSE IF(OUTTING.EQ.OUTPIX)THEN
+          WRITE(TMPLINE,6001)'Output directed to file ',
+     &    OUTFILE( 1:INDEX(OUTFILE,' ') )
+        ELSE IF(OUTTING.GT.0 .AND. OUTTING.LE.OUTMAX)THEN
+          WRITE(TMPLINE,6001)'Output to device ',GDEV(OUTTING)," "
+        I=TRIM(TMPLINE)
+          WRITE( TMPLINE(I+2:) ,'(I4,"x",I4,"+",I4,"+",I4)')
+     &    G0XWIND,G0YWIND,G0XORIG,G0YORIG
+        Call XBLANK(TMPLINE(I+2:))
+        ELSE
+          WRITE(TMPLINE,6001)'Output directed to file ',
+     &  OUTFILE( 1:INDEX(OUTFILE,' ') )
+c      CALL TELLUSER(NEVER,*999)
+        END IF
+        CALL GROUT(TMPLINE)
+      ELSE
+        CALL GROUT('No Output has been set')
+      END IF
+C
+      IF(WATCH)THEN
+        CALL GROUT('Watch is ON')
+      ELSE
+        CALL GROUT('Watch is OFF')
+      END IF
+C
+      IF(HIDESMODE)THEN
+        CALL GROUT('Hidesurf is ON')
+      ELSE
+        CALL GROUT('Hidesurf is OFF')
+      END IF
+C
+      IF(BACKFACE .EQ. 0)THEN
+        CALL GROUT('Backface color is OFF')
+      ELSE IF (BACKFACE .EQ. -1) THEN
+        CALL GROUT('Backface color is DIM')
+      ELSE IF (BACKFACE .EQ. 1) THEN
+        WRITE(TMPLINE,'(A,F5.2,X,F5.2,X,F5.2)')
+     &  'Backface (rgb)color is ', G0BFRGB(1),G0BFRGB(2),G0BFRGB(3)
+        CALL GROUT(TMPLINE)
+      END IF
+C
+      IF(DBLMODE)THEN
+        CALL GROUT('Double buffered display memory')
+      ELSE
+        CALL GROUT('Single buffered display memory')
+      END IF
+C
+      IF(HITTING.NE.0)THEN
+      Write(TMPLINE,'(a,i1)')'Hit Testing using mouse ',HITTING
+        CALL GROUT(TMPLINE)
+      ELSE
+        CALL GROUT('Hit testing is inactive')
+      END IF
+C
+      WRITE(TMPLINE,6002)FPAUSE
+      CALL GROUT(TMPLINE)
+      WRITE(TMPLINE,6006)FCOUNT
+      CALL GROUT(TMPLINE)
+      If (snapping) Then
+        WRITE(TMPLINE,6012)SNAPFILE(:TRIM(SNAPFILE))
+        CALL GROUT(TMPLINE)
+      End If
+      WRITE(TMPLINE,6003)ADSENS
+      CALL GROUT(TMPLINE)
+C      WRITE(TMPLINE,6004)G0ITSIZE()
+      WRITE(TMPLINE,6004)G0FONT
+      CALL GROUT(TMPLINE)
+      FONTNAME=G0IFONT()
+C      WRITE(TMPLINE,6008)FONTNAME(1:TRIM(FONTNAME)),
+C     &  G0IXTSCALE(),G0IYTSCALE()
+C      CALL GROUT(TMPLINE)
+      WRITE(TMPLINE,6010)G0CYLN1, G0CYLR1, G0CYLN2, G0CYLR2
+      CALL GROUT(TMPLINE)
+      WRITE(TMPLINE,6011)G0SPHN1, G0SPHR1, G0SPHN2, G0SPHR2
+      CALL GROUT(TMPLINE)
+C
+ 5000 FORMAT('UDFREE = ',I8,1X,'NOBJ = ',I3,1X,
+     &   'NIDS = ',I3,1X,'TREEEND = ',I3)
+ 5001 FORMAT('USSIZE = ',I6,
+     &  1X,'MENUEND =',I6)
+ 6001 FORMAT(A,A,A,A)
+ 6002 FORMAT('Filmpause is ',F6.2,' seconds')
+ 6003 FORMAT('Device sensitivity is ',F8.3)
+C 6004 FORMAT('Text size is ',I3)
+ 6004 FORMAT('Bitmaptext is ',I3)
+ 6006 FORMAT('Frame count is ',I5)
+ 6007 FORMAT('Default directory: ',A)
+C 6008 FORMAT('Software font: ',A,' is scaled: ',I3,'%',1X,I3,'%')
+ 6009 FORMAT('Library directory: ',A)
+ 6010 FORMAT('Cylinder primitive resolution: ', I3,'.',I1, I3,'.',I1)
+ 6011 FORMAT('Sphere primitive resolution: ', I3,'.',I1, I3,'.',I1)
+ 6012 FORMAT('Snapping to file: ', A)
+C
+ 999  RETURN
+      END
+C
+      SUBROUTINE FUNCOBJ(FUNC,K,J,NID)
+      IMPLICIT NONE
+      CHARACTER FUNC*(*)
+      INTEGER K, J, NID
+C
+#include "UDLIST.FOR"
+#include "ERRORS.FOR"
+#include "FILES.FOR"
+#include "DEFVAL.FOR"
+
+      EXTERNAL TRIM
+      CHARACTER FTMP*40
+      CHARACTER DEVOUT*10
+      CHARACTER*9 DDIV
+      CHARACTER*1 BLANK
+      CHARACTER*2 DEVTYP(32)
+      CHARACTER*1 OPR
+      INTEGER DOT
+      Real SCALE
+      REAL X
+      SAVE DEVTYP
+      DATA DEVTYP /'D1','D2','D3','D4','D5','D6','D7','D8',
+     &             'X1','X2','X3','X4','Y1','Y2','Y3','Y4',
+     &             'S1','S2','S3','S4','S5','S6','S7','S8',
+     &             'V1','V2','V3','V4','V5','V6','V7','V8'/
+C
+      BLANK=' '
+      SCALE=UNITS(K)
+C
+      IF(BTEST(FNUSE(K,NID),BNEGDEV) )THEN
+         DEVOUT='-' // DEVTYP(J+1)
+      ELSE
+         DEVOUT='+' // DEVTYP(J+1)
+      END IF
+C
+      IF(BTEST(FNUSE(K,NID),BFACT) )THEN
+        IF(ABS(DFACT(K,NID)).LT.1.)THEN
+          WRITE(DDIV,2006)1./DFACT(K,NID)
+          OPR='/'
+        ELSE
+          WRITE(DDIV,2006)DFACT(K,NID)
+          OPR='*'
+        END IF
+        DEVOUT(TRIM(DEVOUT)+1:) = OPR // DDIV(SPAN(DDIV,BLANK)+1:)
+      END IF
+C
+      IF( BTEST(FNUSE(K,NID),BBOUNDED) )THEN
+        WRITE(FTMP,2020)SCALE*LBOUND(K,NID),DEVOUT(:TRIM(DEVOUT)),
+     &   SCALE*UBOUND(K,NID)
+        IF(BTEST(FNUSE(K,NID),BBOUNCE) )THEN
+          FUNC='['//FTMP(:TRIM(FTMP))//']'
+        ELSE IF(BTEST(FNUSE(K,NID),BWRAP) )THEN
+          FUNC='\\'//FTMP(:TRIM(FTMP))//'\\'
+        ELSE
+          FUNC=FTMP
+        END IF
+      ELSE
+        FUNC=DEVOUT
+      END IF
+ 2006 FORMAT(F9.3)
+C 2020 FORMAT(G16.4,'<',A,'<',G16.4)
+ 2020 FORMAT(F14.4,'<',A,'<',F14.4)
+      Call xblank(FUNC)
+      RETURN
+C
+C   SAME SORT OF THING, BUT FOR THE WORLD TFMS
+C
+      ENTRY FUNCWLD(FUNC,K,J,NID)
+C
+      BLANK=' '
+      SCALE=WUNITS(K)
+      IF(BTEST(FNWLD(K,NID),BNEGDEV) )THEN
+         DEVOUT='-' // DEVTYP(J+1)
+      ELSE
+         DEVOUT='+' // DEVTYP(J+1)
+      END IF
+C
+      IF(BTEST(FNWLD(K,NID),BFACT) )THEN
+        IF(ABS(DWFACT(K,NID)).LT.1.)THEN
+          WRITE(DDIV,2006)1./DWFACT(K,NID)
+          OPR='/'
+        ELSE
+          WRITE(DDIV,2006)DWFACT(K,NID)
+          OPR='*'
+        END IF
+        DEVOUT(TRIM(DEVOUT)+1:) = OPR // DDIV(SPAN(DDIV,BLANK)+1:)
+      END IF
+C
+      IF( BTEST(FNWLD(K,NID),BBOUNDED) )THEN
+        WRITE(FTMP,2020)SCALE*LWBOUND(K,NID),DEVOUT(:TRIM(DEVOUT)),
+     &   SCALE*UWBOUND(K,NID)
+        IF(BTEST(FNWLD(K,NID),BBOUNCE) )THEN
+          FUNC='['//FTMP(:TRIM(FTMP))//']'
+        ELSE IF(BTEST(FNWLD(K,NID),BWRAP) )THEN
+          FUNC='\\'//FTMP(:TRIM(FTMP))//'\\'
+        ELSE
+          FUNC=FTMP
+        END IF
+      ELSE
+        FUNC=DEVOUT
+      END IF
+      Call xblank(FUNC)
+      Return
+C
+      END
+C
+      SUBROUTINE PFUNCOBJ(FUNC,K,NID)
+C
+      IMPLICIT NONE
+      CHARACTER FUNC*(*)
+      INTEGER K, NID
+C
+#include "UDLIST.FOR"
+#include "DEFVAL.FOR"
+C
+      Integer MAXDEV,J
+      Parameter (MAXDEV=32)
+C
+      FUNC=' '
+      DO 10 J=0,MAXDEV
+      IF(BTEST(DEVUSE(K,NID),J) )THEN
+        CALL FUNCOBJ(FUNC, K, J, NID)
+        RETURN
+      END IF
+ 10   CONTINUE
+C
+      RETURN
+C
+C   SAME SORT OF THING, BUT FOR THE WORLD TFMS
+C
+      ENTRY PFUNCWLD(FUNC,K,NID)
+C
+      FUNC=' '
+      DO 20 J=0,MAXDEV
+      IF(BTEST(DEVWLD(K,NID),J) )THEN
+        CALL FUNCWLD(FUNC, K, J, NID)
+        Return
+      END IF
+ 20   CONTINUE
+C
+      RETURN
+      END
+C
+C
+      SUBROUTINE SHOWCOORD(ARG)
+C
+      IMPLICIT NONE
+C
+#include "UDLIST.FOR"
+#include "DEFVAL.FOR"
+C
+      CHARACTER ARG*(*)
+      CHARACTER*80 TMPLINE
+      INTEGER I, J, NCOORD
+      REAL SFACTOR
+      CHARACTER*80 FMT
+      CHARACTER*1 BLANK
+      DATA BLANK/' '/
+      BLANK=' '
+C
+      IF (TUNITS(AGF).EQ.NEWUNITS) Then
+        SFACTOR=1.0
+        FMT = "('#',I2,'=',4G12.5)"
+      Else
+        SFACTOR=32767.
+        FMT = "('#',I2,'=',4F7.0)"
+      End If
+
+      IF(ARG.EQ.BLANK)THEN
+        DO 10 J=1,NCOORDS
+          WRITE(TMPLINE,FMT)J, (UCOORD(I,J)*SFACTOR,I=1,4)
+          CALL GROUT(TMPLINE)
+ 10     CONTINUE
+      ELSE
+        CALL GETCOORD(ARG,POINT,NCOORD)
+        IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
+        If(NCOORD.LT.0)Then
+          WRITE(TMPLINE,FMT)ABS(NCOORD),
+     &      (-UCOORD(I,ABS(NCOORD))*SFACTOR,I=1,3),
+     &        UCOORD(4,ABS(NCOORD))*SFACTOR
+        Else
+          WRITE(TMPLINE,FMT)ABS(NCOORD),
+     &      (UCOORD(I,ABS(NCOORD))*SFACTOR,I=1,4)
+        End IF
+        CALL GROUT(TMPLINE)
+      END IF
+C
+ 100  FORMAT('#',I2,'=',4F10.3)
+C
+ 999  RETURN
+      END
+C
+C
+      SUBROUTINE SHOWMENU
+C
+      IMPLICIT NONE
+C
+#include "UDLIST.FOR"
+      INTEGER I
+C
+      IF(MENUEND.LE.0)RETURN
+C
+      DO 10 I=1,MENUEND
+      CALL GROUT(NAMOBJ(MENUTREE(I)))
+ 10   CONTINUE
+C
+      RETURN
+      END
+C
+C
+      SUBROUTINE SHOWFIX(ARG)
+C
+      IMPLICIT NONE
+      CHARACTER ARG*(*)
+C
+#include "UDLIST.FOR"
+C
+      CHARACTER*80 TMPLINE
+      INTEGER I, J
+C
+C   PARSE ARGS TO GET NAME OF OBJECT
+C
+      POINT=1
+      CALL NAMID(ARG,POINT,ID)
+      IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
+C
+      DO 10 I=1,4
+      WRITE(TMPLINE,100) (FIXMAT(I,J,ID),J=1,4)
+      CALL GROUT(TMPLINE)
+ 10   CONTINUE
+ 100  FORMAT( 4F10.5 )
+C
+ 999  RETURN
+      END
+C
+      SUBROUTINE SHOWTFM(ARG)
+C
+      IMPLICIT NONE
+C
+#include "UDLIST.FOR"
+C
+      CHARACTER ARG*(*)
+      REAL TFMMAT
+      DIMENSION TFMMAT(4,4)
+      INTEGER I,J
+      CHARACTER*80 TMPLINE
+      CHARACTER*1 BLANK
+      DATA BLANK/' '/
+      BLANK=' '
+C
+C   PARSE ARGS TO GET NAME OF OBJECT
+C
+      POINT=1
+C
+ 1    CONTINUE
+      CALL NAMID(ARG,POINT,ID)
+      IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
+C
+C   GET THE FULL TFM MATRIX FOR THE OBJECT...
+C
+c  CALL WRESET(BLANK)
+      If(WRESET(BLANK))CONTINUE
+      CALL MAKEFIX(ID,BLANK,TFMMAT)
+C
+C   ...AND WRITE IT OUT.
+C
+      DO 10 I=1,4
+      WRITE(TMPLINE,100) (TFMMAT(I,J),J=1,4)
+      CALL GROUT(TMPLINE)
+ 10   CONTINUE
+ 100  FORMAT( 4F10.5 )
+C
+      IF(POINT.NE.0)GOTO 1
+ 999  RETURN
+      END
+C
+      SUBROUTINE SHOWPMAT(ARG)
+      IMPLICIT NONE
+C
+#include "UDLIST.FOR"
+C
+      CHARACTER ARG*(*)
+      REAL PMAT(4,4)
+      CHARACTER*80 TMPLINE
+      Integer I,J
+C
+C   PARSE ARGS TO GET NAME OF OBJECT
+C
+      POINT=1
+C
+ 1    CONTINUE
+      CALL NAMID(ARG,POINT,ID)
+      IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
+C
+      CALL MAKEPER(ID)
+      Call getperspmat(PMAT)
+      DO 10 I=1,4
+      WRITE(TMPLINE,100) (PMAT(I,J),J=1,4)
+      CALL GROUT(TMPLINE)
+ 10   CONTINUE
+ 100  FORMAT( 4F10.5 )
+C
+ 999  Continue
+      Return
+      End
+C
+C  For qtgramps
+      Integer Function getname(GID,NAME)
+      Implicit None
+      Integer GID
+C      Integer TRIM
+      External TRIM
+      Character*(*) NAME
+#include "UDLIST.FOR"
+      if (GID.GT.0 .AND. GID.LE.NOBJ) Then
+        NAME = NAMOBJ(GID)
+        getname = TRIM(NAME)
+      Else
+        NAME = ""
+        getname = 0
+      End If
+      Return
+      End

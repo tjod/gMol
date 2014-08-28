@@ -1,0 +1,1 @@
+convert -depth 8 -size 800x800 rgba:x x.png

@@ -1,0 +1,240 @@
+C *************************************************************
+C This file contains source code for the gMol computer program
+C  Copyright (C) 1981-2010 by TJ O'Donnell and
+C  Copyright (C) 2005-2010 gNova, Inc.
+C It is unlawful to modify or remove this copyright notice.
+C See the accompanying LICENSE file for further information. 
+C *************************************************************
+      SUBROUTINE GET(ARG,SWITCHES)
+C
+      IMPLICIT NONE
+C
+#include "UDLIST.FOR"
+#include "DEFVAL.FOR"
+#include "ERRORS.FOR"
+      CHARACTER ARG*(*)
+      CHARACTER SWITCHES*(*)
+      CHARACTER FILE*255
+      CHARACTER OBJNAME*(NAMMAX)
+	EXTERNAL TRIM
+	INTEGER OPENOBJ, NLEFT, VPOINT, NREAD, UDBEGIN, I
+	Integer SAVEAGF
+      LOGICAL PRESENT, QGET
+#include "FILES.FOR"
+C
+C       GET THE FILE NAME  AND CHECK TO SEE IF
+C       THIS NAME IS ALREADY IN USE.  IF NOT OPEN 
+C       THE FILE.
+C
+	SAVEAGF=TUNITS(AGF)
+	POINT=1
+	VPOINT=1
+	CALL GETSTR(ARG,POINT,FILE)
+	IF(FILE.EQ.'*')THEN
+		QGET=.TRUE.
+	Else IF(FILE.EQ.'-')THEN
+                PFILE = STDIN 
+		QGET=.FALSE.
+	ELSE
+		DEFEXT='pix'
+                PFILE=PUNIT
+		ERROR=OPENFILE(FILE,PFILE,.FALSE.,' ')
+		IF(ERROR.NE.0)THEN
+			POINT=VPOINT
+			CALL TELLUSER(ERROR,*998)
+		END IF
+		QGET=.FALSE.
+	END IF
+C
+C	The /OLD or /NEW switch causes OLD or NEW units to be used.
+C
+	If(MATCH(SWITCHES,'NEW'))Then
+		Call setunits(NEWUNITS)
+		TUNITS(AGF)=NEWUNITS
+	Else If(MATCH(SWITCHES,'OLD'))Then
+		Call setunits(OLDUNITS)
+		TUNITS(AGF)=OLDUNITS
+	End If
+C
+C       CHECK FOR /NAME SWITCH GIVING OBJECT NAME TO USE.
+C       IF NO NAME GIVEN, ASSUME FILE NAME.
+C       THE -DUPNAM IS TO CAUSE NO CARETS FROM TELLUSER (Q.V.)
+C
+	CALL SMATCH(SWITCHES,'NAME',OBJNAME,PRESENT)
+	IF(.NOT.PRESENT)THEN
+		IF(QGET)THEN
+			CALL TELLUSER(NONAME, *998)
+		ELSE
+			OBJNAME=NAME
+		END IF
+	END IF
+	IF(IDNAME(OBJNAME).NE.0)THEN
+		POINT=VPOINT
+		IF(PRESENT)THEN
+			CALL TELLUSER(-DUPNAM,*998)
+		ELSE
+			CALL TELLUSER(DUPNAM,*998)
+		END IF
+	END IF
+	ERROR=0
+C
+C       OPEN THE OBJECT IN THE UNTRANSFORMED DISPLAY LIST
+C       AND READ IN THE FILES, PROCESSED BY GETDSK.
+C       MULTIPLE INPUTS OF FILES ARE ALLOWED, BUT THE
+C       DATA ALL GOES INTO THE SAME (FIRST) OBJECT.
+C
+      NLEFT=OPENOBJ(OBJNAME,ORDINARY)
+      IF(ERROR.NE.0)THEN
+        POINT=VPOINT
+        CALL TELLUSER(ERROR,*998)
+      END IF
+C
+#ifdef USE_SOCK
+	IF(QGET)THEN
+		nread = sockserverinit('gramps')
+		if (nread .lt. 0) Then
+			CALL TELLUSER(NOOPENSOCK, *997)
+		End If
+                Do i=1,20
+                  nread = sockcheck(1000)
+                  if (nread .eq. 2) goto 9
+                End Do
+		CALL TELLUSER(FILEEMPTY, *997)
+ 9		CONTINUE
+		NREAD=QIXREAD(DLIST(UDFREE), NLEFT)
+		IF(NREAD.EQ.0)CALL TELLUSER(FILEEMPTY, *997)
+		IF(NREAD.EQ.-1)THEN
+			CALL CLOSEOBJ(ORDINARY)
+			Goto 998
+		Else
+			LENGTH=LENGTH+NREAD
+			UDFREE=UDFREE+NREAD
+			NLEFT=NLEFT-NREAD
+			GOTO 9
+		END IF
+	END IF
+#endif
+C
+C       INITIALIZE THE GET STUFF
+C
+      I= GETINIT()
+      UDBEGIN=UDFREE
+C
+ 10   CONTINUE
+      NREAD=GETMORE()
+      IF(NREAD.EQ.0)THEN
+        POINT=VPOINT
+        CALL TELLUSER(FILEEMPTY,*997)
+      END IF
+      IF(ERROR.NE.0)THEN
+        POINT=VPOINT
+        CALL TELLUSER(ERROR,*997)
+      END IF
+      IF(MPSERR.EQ.0)THEN
+        IF(POINT.NE.0)THEN
+          CLOSE (UNIT=10)
+          VPOINT=POINT
+          CALL GETSTR(ARG,POINT,FILE)
+          DEFEXT='pix'
+          ERROR=OPENFILE(FILE,PFILE,.FALSE.,' ')
+          IF(ERROR.NE.0)THEN
+            POINT=VPOINT
+            CALL TELLUSER(ERROR,*997)
+          END IF
+          GOTO 10
+        ELSE
+          CALL CLOSEOBJ(ORDINARY)
+          GOTO 998
+        END IF
+      END IF
+      MPSERR=0
+C
+C       ERROR EXIT POINT.  CLEAN UP AND GET OUT.
+C
+ 997  UDFREE=UDBEGIN
+      NOBJ=NOBJ-1
+      NIDS=NIDS-1
+C
+C       EXIT STUFF
+C
+ 998  CONTINUE
+      IF (PFILE .NE. STDIN) CLOSE (UNIT=PFILE)
+#ifdef USE_SOCK
+      If (QGET) Then
+        QGET = .FALSE.
+ 	Call sockserverend
+      End If
+#endif
+ 999  Continue
+c Restore proper units (modified by /NEW or /OLD call to setunits)
+      TUNITS(AGF)=SAVEAGF
+      Call setunits(TUNITS(AGF))
+      RETURN
+      END
+C
+	Integer Function GETMEM(NAME, DATA, SIZE)
+	Implicit NONE
+	Character*(*) NAME
+	Real DATA(*)
+	Integer SIZE
+#include "UDLIST.FOR"
+#include "ERRORS.FOR"
+#include "G0COMMON.FOR"
+C
+	Integer OPENOBJ,NLEFT,I,J,UDBEGIN,ANYERR
+	SAVE UDBEGIN
+	Integer GETMEMMORE,GETMEMDONE,GETMEMUNDO
+	ANYERR = -1
+	If (SIZE.LT.1) Goto 998
+	If (SIZE.GT.G0PMAX*6) Goto 998
+	IF(IDNAME(NAME).NE.0) Then
+		ANYERR = DUPNAM
+		Goto 998
+	End If
+	NLEFT=OPENOBJ(NAME,ORDINARY)
+	IF(ERROR.NE.0)THEN
+		ANYERR = ERROR
+		Goto 998
+	End If
+	If (NLEFT.LT.SIZE) Then
+		ANYERR = TOOBIG
+		Goto 997
+	End If
+
+	I = GETINIT()
+	UDBEGIN=UDFREE
+
+	ENTRY GETMEMMORE(NAME,DATA,SIZE)
+	If (SIZE.LT.1) Goto 998
+	If (SIZE.GT.G0PMAX*6) Then
+		ANYERR = TOOBIG
+		Goto 997
+	End If
+	NLEFT = MAXUDL - UDFREE
+	If (SIZE.GT.NLEFT) Then
+		ANYERR = TOOBIG
+		Goto 997
+	End If
+	J=UDFREE-1
+	Do I=1,SIZE
+		DLIST(J+I) = DATA(I)
+	End Do
+	LENGTH=LENGTH+SIZE
+	UDFREE=UDFREE+SIZE
+C	NLEFT=NLEFT-SIZE
+	ANYERR = 0
+	Goto 998
+
+	ENTRY GETMEMDONE(NAME,DATA,SIZE)
+	CALL CLOSEOBJ(ORDINARY)
+	ANYERR = 0
+	Goto 998
+
+ 997    Continue
+	UDFREE=UDBEGIN
+        NOBJ=NOBJ-1
+        NIDS=NIDS-1
+ 998	Continue
+	GETMEM = ANYERR
+	Return
+	End

@@ -1,0 +1,37 @@
+ g++ -enable-stdcall-fixup \
+  -Wl,-enable-auto-import \
+  -Wl,-enable-runtime-pseudo-reloc \
+  -Wl,-s -mthreads -Wl -Wl,-subsystem,windows \
+  -o release/qtgramps.exe \
+  release/glwidget.o \
+  release/mainwindow.o \
+  release/main.o \
+  release/controls.o \
+  release/gdial.o \
+  release/moc_glwidget.o \
+  release/moc_mainwindow.o \
+  release/moc_controls.o \
+  release/moc_gdial.o \
+  qtgramps.a \
+  -lg2c -L'c:/Qt/2009.03/qt/lib' \
+  -lopengl32 -lglu32 -lgdi32 -luser32 -lmingw32 -lqtmain -ljpeg \
+  -lQtWebKit4 -lQtOpenGL4 -lQtGui4 -lQtCore4
+
+ g++ -enable-stdcall-fixup \
+  -Wl,-enable-auto-import \
+  -Wl,-enable-runtime-pseudo-reloc \
+  -Wl,-s -mthreads -Wl -Wl,-subsystem,windows \
+  -o debug/qtgramps.exe \
+  debug/glwidget.o \
+  debug/mainwindow.o \
+  debug/main.o \
+  debug/controls.o \
+  debug/gdial.o \
+  debug/moc_glwidget.o \
+  debug/moc_mainwindow.o \
+  debug/moc_controls.o \
+  debug/moc_gdial.o \
+  qtgramps.a \
+  -lg2c -L'c:/Qt/2009.03/qt/lib' \
+  -lopengl32 -lglu32 -lgdi32 -luser32 -lmingw32 -lqtmain -ljpeg \
+  -lQtWebKit4 -lQtOpenGL4 -lQtGui4 -lQtCore4

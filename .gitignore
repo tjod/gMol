@@ -1,0 +1,7 @@
+lib/
+bin/
+*.o
+gmol-*/
+gmol.app
+dbchem
+dbsurf

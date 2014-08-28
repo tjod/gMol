@@ -1,0 +1,181 @@
+C *************************************************************
+C This file contains source code for the gMol computer program
+C  Copyright (C) 1981-2010 by TJ O'Donnell and
+C  Copyright (C) 2005-2010 gNova, Inc.
+C It is unlawful to modify or remove this copyright notice.
+C See the accompanying LICENSE file for further information. 
+C *************************************************************
+C
+	SUBROUTINE HELP(ARG)
+C
+	IMPLICIT NONE
+C
+	CHARACTER ARG*(*)
+	INTEGER   NKEYS
+	CHARACTER*20 KEY(9)
+	CHARACTER*20 KEYTMP
+	CHARACTER*80 TMPKEY
+	CHARACTER*14 HLPCMD(5)
+	LOGICAL TELLM
+	INTEGER JKEYS
+	INTEGER MAXKEYS
+	INTEGER I,J,K, NENT, KPOINT, JOK, TLEVEL, HLEVEL, HLINE, IA
+	PARAMETER (MAXKEYS=500)
+	INTEGER IKEY(MAXKEYS)
+	INTEGER FLINE(MAXKEYS)
+	CHARACTER*78  HLPLIN(MAXKEYS), ALINE
+	CHARACTER*50  HLPFIL
+	CHARACTER*18  SPACES
+	CHARACTER*128 TMPLINE
+	CHARACTER*60 DLINE
+C
+#include "UDLIST.FOR"
+#include "FILES.FOR"
+#include "ERRORS.FOR"
+#include "COMMANDS.FOR"
+C
+	EXTERNAL TRIM
+C
+	DO 1 I=1,60
+	DLINE(I:I)='='
+ 1    CONTINUE
+	SPACES=' '
+	NENT=0
+C     CALL GROUT('Picture Names: ')
+C     DO 10 I=1,NOBJ,6
+C     WRITE(TMPLINE,200) (NAMOBJ(J),J=I,MIN(I+5,NOBJ))
+C     CALL GROUT(TMPLINE)
+C10   CONTINUE
+C
+ 200  FORMAT(6(1X,A))
+C
+C     CALL GROUT('Command Names: ')
+	HLPFIL='gramps.hlb'
+	ERROR=OPENFILE(HLPFIL, DFILE, .FALSE., ' ')
+	HLPFIL='gramps.hlp'
+	ERROR=OPENFILE(HLPFIL, HFILE, .FALSE., ' ')
+	IF (ERROR.NE.0)CALL TELLUSER(ERROR,*999)
+C
+	NKEYS=0
+	IF(ARG.EQ.' ')GOTO 40
+ 30   CONTINUE
+	CALL GETSTR(ARG,POINT,TMPKEY)
+	I=INDEX(TMPKEY,'/')
+	IF(I.NE.0)THEN
+	  IF(I.NE.1)THEN
+	    NKEYS=NKEYS+1
+	    KEY(NKEYS)=TMPKEY(:I-1)
+	  END IF
+	K=1
+	  DO WHILE(K.GT.0)
+	  K=INDEX(TMPKEY,'/')
+	  If(k.gt.0)TMPKEY(K:K)=' '
+	  END DO
+	  KPOINT=I
+	  DO WHILE(KPOINT.NE.0)
+	  CALL GETSTR(TMPKEY,KPOINT,KEYTMP)
+	  NKEYS=NKEYS+1
+	  KEY(NKEYS)='/'//KEYTMP
+	  END DO
+	ELSE
+	  NKEYS=NKEYS+1
+	  KEY(NKEYS)=TMPKEY
+	END IF
+	IF(POINT.NE.0 .AND. NKEYS.LT.9) GOTO 30
+C
+ 40   CONTINUE
+C
+	DO 50 j=1,MAXKEYS
+	READ(DFILE,'(A)',END=51)ALINE
+	I=INDEX(ALINE,' ')
+	HLPLIN(j)=ALINE(I+1:)
+	K=INDEX(ALINE,':')
+	IKEY(j)=A2I(ALINE(K+1:I),ERROR)
+	FLINE(j)=A2I(ALINE(1:K-1),ERROR)
+	JKEYS=j
+ 50   CONTINUE
+ 51   CONTINUE
+	FLINE(JKEYS+1)=99999
+C
+	JOK=0
+	TLEVEL=1
+	IF(NKEYS.EQ.0) GOTO 65
+	HLEVEL=1
+	j=1
+	HLINE=1
+C
+	IA=0
+ 60   CONTINUE
+	IF( IKEY(j).LE.NKEYS )THEN
+	  IF( IKEY(j).EQ.HLEVEL )THEN
+	    IF( SCMP(KEY(HLEVEL), HLPLIN(j)) )THEN
+	      IF(IA.NE.0)
+     &	CALL GROUT(DLINE)
+	      CALL GROUT(
+     &	SPACES(1:(HLEVEL-1)*5)//HLPLIN(j)(1:TRIM(HLPLIN(j))) )
+	      IF( HLEVEL.EQ.NKEYS )THEN
+	        IA=1
+	        DO 62 i=HLINE, FLINE(j+1)-1
+	        READ(HFILE,'(A)',END=63)ALINE
+	        IF( I.GT.FLINE(j) .AND. ALINE(1:1) .NE. "#")
+     & 			CALL GROUT(ALINE)
+ 62	     CONTINUE 
+	        HLINE=FLINE(j+1)
+ 63	     CONTINUE
+	      END IF
+	      HLEVEL=HLEVEL+1
+	      TLEVEL=MAX(TLEVEL, HLEVEL)
+	      JOK=j
+	    END IF
+	    j=j+1
+	  ELSE IF( IKEY(j).lt.HLEVEL)THEN
+	    HLEVEL=HLEVEL-1
+	  ELSE IF( IKEY(j).gt.HLEVEL)THEN
+	    j=j+1
+	  END IF
+	ELSE
+	  j=j+1
+	END IF
+	IF(j.LE.JKEYS)GOTO 60
+C
+	IF(IA.EQ.0)THEN
+	   CALL GROUT('No help available on '//KEY(NKEYS))
+	END IF
+ 65   CONTINUE
+C
+	i=0
+	IA=0
+	DO 70 k=JOK+1,JKEYS
+	IF( IKEY(k).lt.TLEVEL)GOTO 71
+	IF( IKEY(k).eq.TLEVEL)THEN
+	  IF(I.GE.5)THEN
+	    IF(IA.EQ.0)THEN
+	      CALL GROUT('Additional information available on:')
+	      IA=1
+	    END IF
+	    WRITE(TMPLINE,200)SPACES(1:(TLEVEL-1)*5),
+     &	    (HLPCMD(J),J=1,5)
+	    CALL GROUT(TMPLINE)
+	    i=0
+	  END IF
+	  i=i+1
+	  HLPCMD(i)=HLPLIN(k)(:INDEX(HLPLIN(k),' '))
+	END IF
+ 70   CONTINUE
+ 71   CONTINUE
+	IF(I.GT.0)THEN
+	  IF(IA.EQ.0)THEN
+	    CALL GROUT('Additional information available on:')
+	    IA=1
+	  END IF
+	  WRITE(TMPLINE,200)SPACES(1:(TLEVEL-1)*5),
+     &	    (HLPCMD(J),J=1,i)
+	  CALL GROUT(TMPLINE)
+	END IF
+C
+C
+ 999  CONTINUE
+	CLOSE(UNIT=DFILE)
+	CLOSE(UNIT=HFILE)
+	RETURN
+	END

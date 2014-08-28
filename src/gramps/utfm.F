@@ -1,0 +1,381 @@
+C *************************************************************
+C This file contains source code for the gMol computer program
+C  Copyright (C) 1981-2010 by TJ O'Donnell and
+C  Copyright (C) 2005-2010 gNova, Inc.
+C It is unlawful to modify or remove this copyright notice.
+C See the accompanying LICENSE file for further information. 
+C *************************************************************
+      SUBROUTINE UMOVE(X,Y,Z,W)
+C
+      IMPLICIT NONE
+      REAL X, Y, Z, W
+#include "UDLIST.FOR"
+C
+      IF(OUTTING.EQ.OUTWINDOW)THEN
+        CALL U0MOVE(X,Y,Z,W)
+      ELSE
+        CALL U1TRAN(X,Y,Z,W)
+      ENDIF
+C
+      RETURN
+      END
+C
+      SUBROUTINE UTRAN(X,Y,Z,W)
+C
+      IMPLICIT NONE
+      REAL X, Y, Z, W
+      REAL SHEAR,FOV,PLAX,ASPECT
+      REAL HITHER,YON,EYE
+      REAL FOG,FDEPTH
+      REAL ANGLE
+#include "UDLIST.FOR"
+C
+      IF(OUTTING.EQ.OUTWINDOW)THEN
+        CALL U0TRAN(X,Y,Z,W)
+      ELSE
+        CALL U1TRAN(X,Y,Z,W)
+      ENDIF
+C
+      RETURN
+C
+      ENTRY      USCALE(X,Y,Z,W)
+C
+      IF(OUTTING.EQ.OUTWINDOW)THEN
+        CALL U0SCALE(X,Y,Z,W)
+      ELSE
+        CALL U1SCALE(X,Y,Z,W)
+      ENDIF
+C
+      RETURN
+C
+      ENTRY      UROTX(ANGLE)
+C
+      IF(OUTTING.EQ.OUTWINDOW)THEN
+        CALL U0ROTX(ANGLE)
+      ELSE
+        CALL U1ROTX(ANGLE)
+      ENDIF
+C
+      RETURN
+C
+      ENTRY      UROTY(ANGLE)
+C
+      IF(OUTTING.EQ.OUTWINDOW)THEN
+        CALL U0ROTY(ANGLE)
+      ELSE
+        CALL U1ROTY(ANGLE)
+      ENDIF
+C
+      RETURN
+C
+      ENTRY      UROTZ(ANGLE)
+C
+      IF(OUTTING.EQ.OUTWINDOW)THEN
+        CALL U0ROTZ(ANGLE)
+      ELSE
+        CALL U1ROTZ(ANGLE)
+      ENDIF
+C
+      RETURN
+C
+C      ENTRY UWINDP(LEFT,RIGHT,BOTTOM,TOP,HITHER,YON,EYE,W,FOG,FDEPTH)
+      ENTRY UWINDP(SHEAR,FOV,PLAX,ASPECT,HITHER,YON,EYE,W,FOG,FDEPTH)
+C
+      IF(OUTTING.EQ.OUTWINDOW)THEN
+       CALL   U0WINDP(SHEAR,FOV,PLAX,ASPECT,HITHER,YON,EYE,W,FOG,FDEPTH)
+      ELSE
+        CALL  U1WINDP(SHEAR,FOV,PLAX,ASPECT,HITHER,YON,EYE,W)
+      ENDIF
+C
+      RETURN
+      END
+C
+      SUBROUTINE U1TRAN(X,Y,Z,W)
+C
+      IMPLICIT NONE
+      REAL X, Y, Z, W
+      REAL HITHER,YON,EYE
+      REAL ANGLE
+      REAL SHEAR,FOV,PLAX,ASPECT
+      REAL HI, YO, EY, FV, SH, PX, AS, TFV
+C
+      REAL COS,SIN
+      REAL A,B,C,D,E,F
+      REAL ANGSCALE
+      PARAMETER (ANGSCALE=2*3.1415927)
+#include "TFMMAT.FOR"
+C
+C       THIS ROUTINE BUILDS A TRANSLATION MATRIX AND
+C       CONCATENATES IT WITH THE CURRENT TFM MATRIX.
+C
+      IF(X.EQ.0 .AND. Y.EQ.0 .AND. Z.EQ.0)RETURN
+      CALL UNIT(TMPMAT)
+      TMPMAT(4,1)=X
+      TMPMAT(4,2)=Y
+      TMPMAT(4,3)=Z
+      TMPMAT(1,1)=W
+      TMPMAT(2,2)=W
+      TMPMAT(3,3)=W
+      TMPMAT(4,4)=W
+      GOTO 100
+C
+      ENTRY U1SCALE(X,Y,Z,W)
+C       BUILDS A SCALE MATRIX
+C
+      IF(X.EQ.W .AND. Y.EQ.W .AND. Z.EQ.W)RETURN
+      CALL UNIT(TMPMAT)
+      TMPMAT(1,1)=X/W
+      TMPMAT(2,2)=Y/W
+      TMPMAT(3,3)=Z/W
+      TMPMAT(4,4)=1.
+      GOTO 100
+C
+      ENTRY U1ROTX(ANGLE)
+C       BUILDS AN X-ROTATION MATRIX
+C
+      IF(ANGLE.EQ.0)RETURN
+      CALL UNIT(TMPMAT)
+      A=COS(ANGLE*ANGSCALE)
+      B=SIN(ANGLE*ANGSCALE)
+      TMPMAT(2,2)=A
+      TMPMAT(3,3)=A
+      TMPMAT(3,2)=-B
+      TMPMAT(2,3)=B
+      GOTO 100
+C
+      ENTRY U1ROTY(ANGLE)
+C       GUESS...
+C
+      IF(ANGLE.EQ.0)RETURN
+      CALL UNIT(TMPMAT)
+      A=COS(ANGLE*ANGSCALE)
+      B=SIN(ANGLE*ANGSCALE)
+      TMPMAT(1,1)=A
+      TMPMAT(3,3)=A
+      TMPMAT(1,3)=-B
+      TMPMAT(3,1)=B
+      GOTO 100
+C
+      ENTRY U1ROTZ(ANGLE)
+C        GUESS AGAIN...
+C
+      IF(ANGLE.EQ.0)RETURN
+      CALL UNIT(TMPMAT)
+      A=COS(ANGLE*ANGSCALE)
+      B=SIN(ANGLE*ANGSCALE)
+      TMPMAT(1,1)=A
+      TMPMAT(2,2)=A
+      TMPMAT(2,1)=-B
+      TMPMAT(1,2)=B
+      GOTO 100
+C
+C     ENTRY U1WINDP(LEFT,RIGHT,BOTTOM,TOP,HITHER,YON,EYE,W)
+      ENTRY U1WINDP(SHEAR,FOV,PLAX,ASPECT,HITHER,YON,EYE,W)
+C
+C       BUILDS A PERSP MATRIX
+C
+      IF(FOV.EQ.0 .OR. EYE.EQ.0)THEN
+	RETURN
+      ELSE
+	CALL UNIT(TMPMAT)
+	SH=SHEAR/W
+	FV=FOV/W
+	PX=PLAX/W
+	AS=ASPECT/W
+	EY=EYE/W
+	IF(EY.LT.0)EY=0.001
+	HI=EY-HITHER/W
+	YO=EY-YON/W
+	IF(FV.LT.2.001)FV=2.001
+	IF(HI.LT.0.001)HI=0.001
+	IF(YO.LE.HI)YO=HI+0.001
+	CALL G0HIYO(HI, YO, EY)
+	TFV=1./TAN(FV/2. /180. *3.1415927)
+	TMPMAT(1,1)=TFV/AS
+	TMPMAT(2,2)=TFV
+	TMPMAT(3,3)=   (YO+HI)/(YO-HI)
+	TMPMAT(4,3)=2.*(YO*HI)/(YO-HI)
+	TMPMAT(4,4)=0.
+	TMPMAT(3,4)=-1.
+	CALL MATCON(TFMMTX(1,1,CURRENT),TMPMAT)
+c shear matrix ! lookat
+C
+	CALL UNIT(TMPMAT)
+	TMPMAT(4,3)=-EY
+      ENDIF
+      GOTO 100
+C
+C       BY CONVENTION HITHER=YON (E=0) MEANS LET YON=INFINITY.
+C       BY CONVENTION HITHER=EYE (F=0) MEANS ORTHOGRAPHIC PROJECTION.
+C       THE A=0 AND C=0 CHECKS ARE JUST THERE TO PREVENT CRASHES...
+C       THE FIX UP (A=1 OR C=1) IS ENTIRELY ARBITRARY.
+C
+CLRTB      IF(HITHER.EQ.EYE)RETURN
+CLRTB      B=(RIGHT+LEFT)/4/32767.
+CLRTB      D=(TOP+BOTTOM)/4/32767.
+CLRTB      IF(HITHER.NE.EYE)THEN
+CLRTB        A=(RIGHT-LEFT)/4/32767.
+CLRTB        C=(TOP-BOTTOM)/4/32767.
+CLRTB        E=(YON-HITHER)/2/32767.
+CLRTB        F=(HITHER-EYE)/2/32767.
+CLRTB        CALL UNIT(TMPMAT)
+CLRTB        IF(A.EQ.0)THEN
+CLRTB          TMPMAT(1,1)=1.
+CLRTB        ELSE
+CLRTB          TMPMAT(1,1)=1/A
+CLRTB        END IF
+CLRTB        IF(C.EQ.0)THEN
+CLRTB          TMPMAT(2,2)=1.
+CLRTB        ELSE
+CLRTB          TMPMAT(2,2)=1/C
+CLRTB        END IF
+CLRTB        IF(E.EQ.0)THEN
+CLRTB          TMPMAT(3,3)=1/F
+CLRTB        ELSE
+CLRTB          TMPMAT(3,3)=1/E + 1/F
+CLRTB        END IF
+CLRTB        TMPMAT(4,4)=1/(W/32767.)
+CLRTB        TMPMAT(3,4)=1/F
+CLRTB        CALL MATCON(TFMMTX(1,1,CURRENT),TMPMAT)
+CLRTB      END IF
+CLRTBC
+CLRTB      CALL UNIT(TMPMAT)
+CLRTB      TMPMAT(1,1)=W/32767.
+CLRTB      TMPMAT(2,2)=W/32767.
+CLRTB      TMPMAT(3,3)=W/32767.
+CLRTB      TMPMAT(4,4)=W/32767.
+CLRTB      TMPMAT(4,1)=-B
+CLRTB      TMPMAT(4,2)=-D
+CLRTB      TMPMAT(4,3)=-HITHER/32767.
+CLRTB      GOTO 100
+C
+ 100  CONTINUE
+      CALL MATCON(TFMMTX(1,1,CURRENT),TMPMAT)
+      RETURN
+C
+      END
+C
+      SUBROUTINE UNIT(MATRIX)
+      IMPLICIT NONE
+C
+      REAL MATRIX(4,4)
+      Integer i,j
+C
+      DO 10 I=1,4
+      DO 10 J=1,4
+      IF(I.EQ.J)THEN
+        MATRIX(I,I)=1.
+      ELSE
+        MATRIX(I,J)=0.
+      END IF
+ 10   CONTINUE
+C
+      RETURN
+      END
+C
+      SUBROUTINE U0TRAN(X,Y,Z,W)
+      IMPLICIT NONE
+C
+#include "G0COMMON.FOR"
+      REAL X,Y,Z,W,ANGLE
+      REAL HITHER,YON,EYE
+      REAL FOG,FDEPTH
+      REAL    LE  ,RI   ,BO    ,TO ,HI    ,YO ,EY
+      REAL SHEAR,FOV,PLAX,ASPECT
+      REAL       FV
+      REAL FOG_START, FOG_END
+      REAL    SH,       PX,  AS
+      EXTERNAL SCALE
+      REAL fog_color(4)
+C
+      REAL ANGSCALE
+      PARAMETER (ANGSCALE= 360.)
+      REAL XS,YS,ZS
+C
+      IF(X.EQ.0 .AND. Y.EQ.0 .AND. Z.EQ.0)RETURN
+      XS=X/W
+      YS=Y/W
+      ZS=Z/W
+      CALL TRANSL(XS,YS,ZS)
+      RETURN
+C
+      ENTRY U0SCALE(X,Y,Z,W)
+C
+      IF(X.EQ.W .AND. Y.EQ.W .AND. Z.EQ.W)RETURN
+      XS= X/W
+      YS= Y/W
+      ZS= Z/W
+      CALL SCALE(XS,YS,ZS)
+      RETURN
+C
+      ENTRY U0ROTX(ANGLE)
+C
+      IF(ANGLE.EQ.0)RETURN
+      CALL XROT(ANGLE*ANGSCALE)
+      RETURN
+C
+      ENTRY U0ROTY(ANGLE)
+C
+      IF(ANGLE.EQ.0)RETURN
+      CALL YROT(ANGLE*ANGSCALE)
+      RETURN
+C
+      ENTRY U0ROTZ(ANGLE)
+C
+      IF(ANGLE.EQ.0)RETURN
+      CALL ZROT(ANGLE*ANGSCALE)
+      RETURN
+C
+      ENTRY U0WINDP(SHEAR,FOV,PLAX,ASPECT,HITHER,YON,EYE,W,FOG,FDEPTH)
+C
+C      AS=ASPECT/W
+C ration does not vary with W
+      AS=ASPECT
+C      FV=FOV/W
+C angle does not vary with W
+      FV=FOV
+C perspective is a division-based tfm compared to others, so multiply by W
+      SH=SHEAR*W
+      PX=PLAX*W
+      EY=EYE*W
+C
+	IF(EY.LT.0)EY=0.01
+	HI=EY-HITHER*W
+	YO=EY-YON*W
+	IF(FV.LT.2.01)FV=2.01
+        If(HI.GT.EY)HI=EY-0.01
+	IF(HI.LT.0.01)HI=0.01
+	IF(YO.LE.HI)YO=HI+0.01
+	IF(FOV.EQ.0 .OR. EYE.EQ.0)THEN
+		CALL ORTHO(-AS, AS, -1., 1., HI,YO)
+C		CALL LOOKAT(SH,0.,EY,PX,0.,0.)
+	ELSE
+                fog_color(1) = G0BKRGB(1)
+                fog_color(2) = G0BKRGB(2)
+                fog_color(3) = G0BKRGB(3)
+                fog_color(4) = 1.0
+                CALL PERSPE(FV, AS, HI, YO, EY, SH, PX)
+C front is front intensity, back is back intensity of fog for depth cueing */
+C fog_size = Near - Far;
+C
+CGLfloat fog_start;
+CGLfloat fog_end;
+Cfog_start = *hither + *front;
+Cfog_end   = *yon  + *back;
+Csetfog(fog_start, fog_end, fog_color);
+                FOG_START = EY - FOG*W
+                FOG_END =   FOG_START + FDEPTH*W
+                Call SETFOG(FOG_START, FOG_END, fog_color)
+C  		CALL LOOKAT(SH,0.,EY,PX,0.,0.)
+	ENDIF
+	RETURN
+C
+      ENTRY U0MOVE(X,Y,Z,W)
+C
+      IF(X.EQ.0 .AND. Y.EQ.0 .AND. Z.EQ.0)RETURN
+      XS=X/W
+      YS=Y/W
+      ZS=Z/W
+      CALL TRANSL(XS,YS,ZS)
+      RETURN
+      END

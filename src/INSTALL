@@ -1,0 +1,42 @@
+----------------------------------------------------------------------
+INSTALLATION VIA COMPILATION 
+----------------------------------------------------------------------
+gMol is developed using linux although it builds neatly using Windows
+or OSX.  Qt4 is a requirement, along with it's qmake system.
+You will also need to have installed OpenBabel.
+This is available at http://www.openbabel.org.
+If you use Ubuntu or RedHat/CentOS, you can get it using the package manager.
+Building gMol is as simple as type make from the directory where this
+INSTALL is located (gmol/src).
+
+OK, it's not really that simple.
+You will probably need to edit qt/ChemDB/chemdb.pro and qt/surf/dbsurf.pro
+to reflect where you've installed OpenBabel.
+
+Linux, Windows or OSX
+The Makefile in this gmol/src directory is set to compile and install
+
+If you want to compile for a Windows system, I recommend using mingw.
+You then need to edit gmol/src/Makefile to use the makefile.mingw32
+
+If you want to compile for a OSX system, you need to install gfortran.
+You then need to edit gmol/src/Makefile to use the makefile.osx
+
+Parts of gMol (gramps) use the gfortran compiler, which you will probably have to
+install.  Mingw includes gfortran (http://www.mingw.org/wiki/MinGW).   
+Use your package manager under linux.  
+For OSX, start here: (http://www.macresearch.org/xcode_gfortran_plugin_update)
+----------------------------------------------------------------------
+RUNNING gMol
+----------------------------------------------------------------------
+gMol uses the environment variables gmol_lib and gramps_lib to locate startup files
+and various picture and command files.  It should be assigned before
+running gMol, e.g.
+ export gmol_lib=$PWD/../lib
+ export gramps_lib=$gmol_lib/gramps
+ cd qt
+ ./gmol
+On osx, instead of "./gmol" you start gmol using the command
+ ./gmol.app/Contents/MaxOS/gmol
+Of course, this all depends on where you've installed gmol.  The example
+above is relative to the directory where this INSTALL is located.

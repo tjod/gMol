@@ -1,0 +1,265 @@
+C *************************************************************
+C This file contains source code for the gMol computer program
+C  Copyright (C) 1981-2010 by TJ O'Donnell and
+C  Copyright (C) 2005-2010 gNova, Inc.
+C It is unlawful to modify or remove this copyright notice.
+C See the accompanying LICENSE file for further information. 
+C *************************************************************
+	SUBROUTINE JSON(ARG, SWITCHES)
+	IMPLICIT NONE
+	CHARACTER ARG*(*), SWITCHES*(*)
+	LOGICAL MATCH
+C
+	If (MATCH(SWITCHES,'TREE')) Then
+ 	  Call JSONTREE(ARG)
+        Else
+ 	  Call JSONOBJ(ARG)
+	End  If
+	RETURN
+	END
+C
+	SUBROUTINE JSONTREE(ARG)
+C
+	IMPLICIT NONE
+	CHARACTER ARG*(*)
+C
+	INTEGER START, FINISH, DEPTH, LVL, SIZE
+	INTEGER TRLVL, LEVEL, I, J
+	LOGICAL  JTREE
+#include "UDLIST.FOR"
+#include "ERRORS.FOR"
+	INTEGER NLEN
+C
+C	 IF NOTHING IN THE TREE, FORGET IT
+C
+	CALL JSONLITES
+	IF(TREEEND.EQ.0)GOTO 999
+	IF(ARG.NE.' ')THEN
+	  POINT=1
+	  CALL NAMID(ARG,POINT,ID)
+	  IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
+	  CALL GROUPINFO(ID,START,FINISH,DEPTH,LVL,SIZE)
+	  IF(ID.LE.RWORLD)START=1
+	  IF(POINT.NE.0)THEN
+	    CALL GETVLU(ARG,POINT,TRLVL,ADDIT)
+	    IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
+	    IF(TRLVL.LE.0)TRLVL=0
+	  ELSE
+	    TRLVL=0
+	  END IF
+	ELSE
+	  TRLVL=0
+	  START=1
+	  FINISH=TREEEND
+	END IF
+	LEVEL=0
+C
+C	 DISPLAY THE NAMES OF OBJECTS IN THE ORDER THAT THEY HAVE
+C	 IN THE TREE.  A LEVEL OF GROUPING IS INDICATED BY TABING
+C	 BEFORE WRITING THE GROUP NAME.  AFTER THE GROUP_END
+C	 GO BACK A LEVEL (A TAB).
+C
+      DO 10 I=START,FINISH
+        J=TREE(I)
+        IF (J.LE.GROUPEND)THEN
+          LEVEL=LEVEL-1
+	  CALL GROUT("]}")
+	  If (TREE(I+1).GT.GROUPEND)CALL GROUT(",")
+        ELSE
+	  IF((TRLVL.EQ.0).OR.(LEVEL+1.LE.TRLVL)) Then
+	    If (JTREE(J,TRLVL,LEVEL)) Then
+	      If (TREE(I+1).GT.GROUPEND)CALL GROUT(",")
+	    End If
+	  End If
+	END IF
+        IF (TYPOBJ(J).EQ.GROUP) LEVEL=LEVEL+1
+ 10   CONTINUE
+C
+ 999    CONTINUE
+	CALL GROUT(']}')
+	RETURN
+	END
+C
+	LOGICAL FUNCTION JTREE(J,TRLVL,LEVEL)
+	IMPLICIT NONE
+	INTEGER J,TRLVL,LEVEL
+#include "UDLIST.FOR"
+	EXTERNAL TRIM
+	CALL INITBUFF('{"name":')
+	CALL PUTQUOTED(NAMOBJ(J))
+	IF( BTEST(KINDOBJ(J),SYNOBIT).AND. J.NE.MASTSYN(J) )Then
+	   CALL PUTBUFF(',"synonym":')
+	   CALL PUTQUOTED(NAMOBJ(FRMCNT(J)))
+	End If
+	IF( BTEST(KINDOBJ(J),BLNKBIT) )THEN
+		CALL PUTBUFF(',"blanked":true')
+	End If
+        IF (TYPOBJ(J).EQ.GROUP)Then
+		CALL PUTBUFF(',"children":[')
+        	JTREE = .FALSE.
+	Else
+		CALL PUTBUFF('}')
+        	JTREE = .TRUE.
+	End If
+	CALL ENDBUFF
+	RETURN
+	END
+C
+	SUBROUTINE JSONLITES
+	IMPLICIT NONE
+C
+#include "UDLIST.FOR"
+	INTEGER I, NLEN, LOBJ
+	EXTERNAL TRIM
+C
+	CALL INITBUFF('{"Lights":[')
+	DO 10 i=1,NLITES
+	  lobj = GLITE1 + i - 1
+	  if (i.gt.1) CALL PUTBUFF(",")
+	  CALL PUTBUFF('{')
+	  CALL PUTQUOTED(NAMOBJ(lobj))
+	  IF( BTEST(KINDOBJ(lobj),BLNKBIT) ) Then
+	    CALL PUTBUFF( ':false}')
+	  ELSE
+	    CALL PUTBUFF( ':true}')
+	  END IF
+ 10	CONTINUE
+	CALL PUTBUFF( "],")
+	IF(STEREO.NE.NOSTEREO) Then
+		CALL PUTQUOTED(NAMOBJ(RWORLD))
+		CALL PUTBUFF(':true,')
+	End If
+	CALL PUTQUOTED(NAMOBJ(LWORLD))
+	CALL PUTBUFF( ':[' )
+	CALL ENDBUFF
+C
+	RETURN
+	END
+C
+      SUBROUTINE JSONOBJ(ARG)
+C
+      IMPLICIT NONE
+C
+#include "UDLIST.FOR"
+#include "DEFVAL.FOR"
+#include "ERRORS.FOR"
+#include "FILES.FOR"
+C
+      CHARACTER ARG*(*)
+      CHARACTER*10 AUXKIND
+      INTEGER START, FINISH, DEPTH, LEVEL, SIZE
+      INTEGER K, KTFM
+      INTEGER JID, DIMSKP, NDIM
+      INTEGER NSKIP, NNOW, N1, N2, IOBJ
+      EXTERNAL TRIM
+      CHARACTER*1 BLANK
+      CHARACTER*40 FUNC
+      CHARACTER*200 TMPLINE
+      LOGICAL LWORK(WORKSIZE)
+      EQUIVALENCE (WORK,LWORK)
+C
+      CHARACTER*12 KIND(7)
+      CHARACTER*8 TFMTYP(MTFM), TYPTFM
+      INTEGER NMLEN
+      REAL SCALE
+      CHARACTER*8 WTFTYP(WTFM)
+      SAVE KIND
+      SAVE TFMTYP
+      SAVE WTFTYP
+C
+      DATA BLANK /' '/
+      DATA KIND/'"ORDINARY"','"FRAME"','"ONEFRAME"','"GROUP"','"WORLD"',
+     &    '"FRAMECELL"','"LIGHT"'/
+C
+C   PARSE ARGS TO GET NAME OF OBJECT
+C
+      POINT=1
+      CALL NAMID(ARG,POINT,ID)
+      IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
+C
+C   WRITE OUT NAME, SIZE, ETC. OF THE OBJECT
+C
+      NMLEN=TRIM(NAMOBJ(ID))
+      CALL GROUT('{"name":"'//NAMOBJ(ID)(:NMLEN)//'"')
+      IF( BTEST(KINDOBJ(ID),RETBIT)  )CALL GROUT(',"retain":true')
+      IF( BTEST(KINDOBJ(ID),SYNOBIT) )CALL GROUT(',"synonym":true')
+      IF( BTEST(KINDOBJ(ID),MENUBIT) )CALL GROUT(',"menu":true')
+      IF( BTEST(KINDOBJ(ID),TEXTBIT) )CALL GROUT(',"text":true')
+      WRITE(TMPLINE,1006) KIND(TYPOBJ(ID)+1),
+     &  IDOBJ(ID),
+     &  LOCOBJ(ID),
+     &  SIZEOBJ(ID),
+     &  FRMCNT(ID),
+     &  IDFRAM(ID)-IDOBJ(ID)
+ 1006 FORMAT(',"type":',a,',"id":',i5,',"loc":',i8,',"size":',i8,
+     &  ',"framecount":',i5,',"idframe":',i5)
+      CALL GROUT(TMPLINE)
+C
+C   IF THE OBJECT IS A GROUP, FIND OUT AND PRINT OUT
+C   ITS LEVEL IN THE TREE AND ITS DEPTH.
+C
+      IF(TYPOBJ(ID).EQ.GROUP)THEN
+        CALL GROUPINFO(ID,START,FINISH,DEPTH,LEVEL,SIZE)
+        WRITE(TMPLINE,1017)START,FINISH,DEPTH,LEVEL
+        CALL GROUT(TMPLINE)
+      END IF
+ 1017 FORMAT(',"start":',I3,',"finish":',I3,
+     &  ',"depth":',I3,',"level":',I3)
+C
+C
+      IF(ID.LE.RWORLD) Then
+        WRITE(TMPLINE,1000) WLDVAL(WMOVEX,ID),
+     &          WLDVAL(WMOVEY,ID),
+     &          WLDVAL(WMOVEZ,ID),
+     &          WLDVAL(WMOVEW,ID) 
+ 1000  FORMAT(',"move":{"x":',g12.5,',"y":',g12.5,
+     &  ',"z":',g12.5,',"w":',g12.5,'}')
+      CALL GROUT(TMPLINE)
+C
+        WRITE(TMPLINE,1001)WLDVAL(WWINDS,ID),WLDVAL(WWINDV,ID),
+     &          WLDVAL(WWINDP,ID),WLDVAL(WWINDA,ID),
+     &          WLDVAL(WWINDH,ID),WLDVAL(WWINDY,ID),
+     &          WLDVAL(WWINDE,ID),WLDVAL(WWINDW,ID),
+     &          WLDVAL(WFOG,ID),WLDVAL(WDEPTH,ID)
+ 1001  FORMAT(',"perspective":{"shear":',g12.5,',"v":',g12.5,
+     &  ',"p":',g12.5,',"aspect":',g12.5,
+     &  ',"hither":',g12.5,',"yon":',g12.5,',"eye":',g12.5,',"w":',g12.5,
+     &  ',"fog":',g12.5,',"depth":',g12.5,'}')
+      CALL GROUT(TMPLINE)
+      End If
+C
+       WRITE(TMPLINE,1002) TFMVAL(UTRANX,ID),
+     &  TFMVAL(UTRANY,ID),
+     &  TFMVAL(UTRANZ,ID),TFMVAL(UTRANW,ID),
+     &  TFMVAL(UATRANX,ID),
+     &  TFMVAL(UATRANY,ID),
+     &  TFMVAL(UATRANZ,ID), TFMVAL(UATRANW,ID)
+ 1002  FORMAT(',"translate":{"x":',g12.5,',"y":',g12.5,',"z":',g12.5,
+     & ',"w":',g12.5,',"p":',g12.5,',"q":',g12.5,',"r":',g12.5,
+     & ',"s":',g12.5,'}')
+      CALL GROUT(TMPLINE)
+C
+       WRITE(TMPLINE,1003) TFMVAL(UROTXX,ID),
+     &  TFMVAL(UROTYY,ID), TFMVAL(UROTZZ,ID),
+     &  TFMVAL(UAROTX,ID), TFMVAL(UAROTY,ID), TFMVAL(UAROTZ,ID)
+ 1003  FORMAT(',"rotate":{"x":',g12.5,',"y":',g12.5,',"z":',g12.5,
+     &    ',"p":',g12.5,',"q":',g12.5,',"r":',g12.5,'}')
+      CALL GROUT(TMPLINE)
+C
+       WRITE(TMPLINE,1004) TFMVAL(USCALEX,ID),
+     &  TFMVAL(USCALEY,ID),
+     &  TFMVAL(USCALEZ,ID),TFMVAL(USCALEW,ID),
+     &  TFMVAL(UASCALX,ID),
+     &  TFMVAL(UASCALY,ID),
+     &  TFMVAL(UASCALZ,ID), TFMVAL(UASCALW,ID)
+ 1004  FORMAT(',"scale":{',
+     &     '"x":',g12.5,',"y":',g12.5,',"z":',g12.5,',"w":',g12.5,
+     &    ',"p":',g12.5,',"q":',g12.5,',"r":',g12.5,',"s":',g12.5,
+     &  '}')
+      CALL GROUT(TMPLINE)
+
+      CALL GROUT("}")
+C
+ 999  CONTINUE
+      RETURN
+      END

@@ -1,0 +1,91 @@
+C *************************************************************
+C This file contains source code for the gMol computer program
+C  Copyright (C) 1981-2010 by TJ O'Donnell and
+C  Copyright (C) 2005-2010 gNova, Inc.
+C It is unlawful to modify or remove this copyright notice.
+C See the accompanying LICENSE file for further information. 
+C *************************************************************
+      SUBROUTINE REMOVE(ARG,SWITCHES)
+C
+      IMPLICIT NONE
+      CHARACTER ARG*(*), SWITCHES*(*)
+C
+	INTEGER ASTART, AEND, ADEPTH, ALEVEL, ASIZE
+	INTEGER VPOINT, I, J
+	INTEGER SHIFT, TMP
+#include "UDLIST.FOR"
+#include "ERRORS.FOR"
+C
+C       THIS ROUTINE MANIPULATED THE TREE BY REMOVING
+C       AN OBJECT FROM ALL GROUPING BY PLACING THE
+C       OBJECT AT THE VERY END OF THE TREE
+C
+      POINT=1
+      VPOINT=1
+      CALL NAMID(ARG,POINT,ID)
+      IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
+C
+C       CHECK FOR THE /MENU SWITCH
+C       REMOVE THE OBJ FROM THE MENUTREE AND PUT IT
+C       AT THE END OF THE DISPLAY TREE.
+C
+      IF(MATCH(SWITCHES,'MENU'))THEN
+        DO 15 I=1,MENUEND
+        IF(MENUTREE(I).EQ.ID)THEN
+          DO 10 J=I,MENUEND
+          MENUTREE(J)=MENUTREE(J+1)
+ 10       CONTINUE
+          MENUEND=MENUEND-1
+          TREEEND=TREEEND+1
+          TREE(TREEEND)=ID
+          KINDOBJ(ID)=IEOR(KINDOBJ(ID),MENUBYTE)
+          MCHANGE=.TRUE.
+          TCHANGE=.TRUE.
+          RETURN
+        END IF
+ 15     CONTINUE
+        POINT=VPOINT
+        CALL TELLUSER(NOTINMENU,*999)
+      END IF
+C
+C       LOOK FOR THE OBJECT 
+C
+      CALL GROUPINFO(ID,ASTART,AEND,ADEPTH,ALEVEL,ASIZE)
+      IF(ASTART.EQ.0)THEN
+        POINT=VPOINT
+        CALL TELLUSER(NOTINTREE,*999)
+      END IF
+C
+C       IF ITS NOT A GROUP, SHIFT UP THE TREE AND
+C       PUT THE OBJECTS ID AT THE END
+C
+      IF(TYPOBJ(ID).NE.GROUP)THEN
+        DO 20 I=ASTART,TREEEND
+  20    TREE(I)=TREE(I+1)
+        TREE(TREEEND)=ID
+        TCHANGE=.TRUE.
+        RETURN
+      END IF
+C
+C
+C       SINCE IT IS A GROUP, THE SHIFT IS MORE COMPLICATED.
+C       REARRANGE THE TREE BY SHIFTING DOWN ALL GROUP
+C       MEMBERS AS MANY TIMES AS NECESSARY.  
+C
+      SHIFT=TREEEND-AEND
+      IF(SHIFT.EQ.0)RETURN
+C
+      DO 50 I=1,SHIFT
+      TMP=TREE(AEND+I)
+C
+        DO 40 J=AEND+I,ASTART+I,-1
+ 40     TREE(J)=TREE(J-1)
+C
+      TREE(ASTART+I-1)=TMP
+ 50   CONTINUE
+C
+C       LET DISPLAY KNOW A CHANGE HAS BEEN MADE
+C
+      TCHANGE=.TRUE.
+ 999  RETURN
+      END

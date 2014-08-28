@@ -1,0 +1,510 @@
+C *************************************************************
+C This file contains source code for the gMol computer program
+C  Copyright (C) 1981-2010 by TJ O'Donnell and
+C  Copyright (C) 2005-2010 gNova, Inc.
+C It is unlawful to modify or remove this copyright notice.
+C See the accompanying LICENSE file for further information. 
+C *************************************************************
+      SUBROUTINE DUMPBUFF
+C
+      IMPLICIT NONE
+C
+#include "UDLIST.FOR"
+#include "FILES.FOR"
+#include "ERRORS.FOR"
+C
+C       THIS ROUTINE DUMPS DATA BUFFER
+C       TO THE APPROPRIATE PLACE (FILE, GRAPHICS DEVICE...)
+C
+      IF (OUTTING.EQ.0)CALL TELLUSER(NEVER,*999)
+      IF (OUTTING.EQ.OUTTDL)THEN
+        CALL TELLUSER(NOTIMPL,*999)
+      ELSE IF(OUTTING.LE.OUTMAX)THEN
+        CALL DUMPOUT(USLIST,USSIZE)
+      ELSE
+        CALL TELLUSER(NEVER,*999)
+      END IF
+C
+ 999  RETURN
+      END
+C
+C
+      SUBROUTINE DUMPOUT(ALIST,ASIZE)
+C
+      IMPLICIT NONE
+C
+      INTEGER ASIZE
+      REAL ALIST(ASIZE)
+C
+C       SUBROUTINE TO INTERPRET THE CONTENTS OF THE TRANSFORMED
+C       DISPLAY LIST BUFFER IN ALIST AND DUMP IT OUT TO A
+C
+C       1) .QIX FILE (GLOBAL OUTTING=OUTQIX)
+C       2) THIS ROUTINE DOESN'T HANDLE OUTTING=OUTTDL, DUMPTDL DOES.
+C       3) .PIX FILE (GLOBAL OUTTING=OUTPIX)
+C       4) OUTPUT TO GRAPHICS DEVICE (OUTTING=OUTRAM,OUTTEK,...)
+C
+#include "UDLIST.FOR"
+#include "FILES.FOR"
+#include "ERRORS.FOR"
+#include "DEFVAL.FOR"
+C
+      CHARACTER XYZPOS*40
+      CHARACTER*1 BLANK
+      CHARACTER*80 CHLINE
+      LOGICAL COLRV, BEAMON, TNORML
+      Integer NORML
+      INTEGER BUFSIZE
+      PARAMETER (BUFSIZE=256)
+      INTEGER SPOT,ICTMP
+      REAL SFACT
+      REAL X,Y,Z,CRAD,W, CYLRAD, SPHRAD
+      CHARACTER*4 FFONT
+      REAL XBASE, YBASE, ZBASE, WBASE, WW
+      REAL XSCALE, YSCALE
+      REAL N, LDM1, LDM2
+      REAL ZERO, SIX, MINUSONE, ONE, FIVE, THREE
+      REAL HUE, SAT, VALU
+      INTEGER NDIM, NTEST, JDIM, NWORDS, IDUMMY, NWRITE
+      INTEGER CSIZE, CLEN
+      INTEGER LSPEED
+      INTEGER I, J, K, NUMBUF
+      CHARACTER*80 TMPLINE
+      LOGICAL CWISE, MESH
+      SAVE CWISE
+      CHARACTER*20 FMT(9)
+      DATA FMT/
+     &   '( (G11.5)',
+     &   '( (G11.5,'',''),G11.5)',
+     &   '(2(G11.5,'',''),G11.5)',
+     &   '(3(G11.5,'',''),G11.5)',
+     &   '(4(G11.5,'',''),G11.5)',
+     &   '(5(G11.5,'',''),G11.5)',
+     &   '(6(G11.5,'',''),G11.5)',
+     &   '(7(G11.5,'',''),G11.5)',
+     &   '(8(G11.5,'',''),G11.5)'/
+C
+      DATA BLANK/' '/
+      DATA ZERO /0/,SIX/6/,MINUSONE/-1/,ONE/1/,FIVE/5/,THREE/3/
+C
+      BLANK=' '
+      ZERO=0
+      SIX=6
+      MINUSONE=-1
+      ONE=1
+      FIVE=5
+      THREE=3
+      CYLRAD=0.1
+      SPHRAD=0.1
+C
+C       DEFAULT DIMENSIONS AND BASES
+C
+      NDIM=3
+      XBASE=0
+      YBASE=0
+      ZBASE=0
+      WBASE=0
+C
+C     IF(OUTTING.EQ.OUTQIX)THEN
+C       WRITE(OFILE)ZERO,SIX,NDIM
+C       WRITE(OFILE)ZERO,FIVE,THREE
+C     ELSE IF(OUTTING.EQ.OUTPIX)THEN
+C       WRITE(OFILE,1)ZERO,SIX,NDIM
+C       WRITE(OFILE,1)ZERO,FIVE,THREE
+C     END IF
+C1    FORMAT(I1,',',I1,',',I1)
+C
+C       THE FIRST LINE MUST BE A INFO LINE
+C
+C       CHECK OUT THE POSSIBILITES
+C            N>0  SPECIFIES A LINE TO BE DRAWN OF N POINTS
+C            N=0  SPECIFIES A SPECIAL FUNCTION
+C            N<0  END OF THIS OBJECT, BUT FILE HAS MORE OBJECTS (FRAMES)
+C
+      SPOT=1
+C     DO WHILE(SPOT.LT.ASIZE)
+ 5    CONTINUE
+      IF(SPOT.GE.ASIZE)GOTO 999
+      N=ALIST(SPOT)
+      LDM1=ALIST(SPOT+1)
+      LDM2=ALIST(SPOT+2)
+      SPOT=SPOT+3
+      IF(N.EQ.0 .AND. LDM1.EQ.7)THEN
+        CONTINUE
+      ELSE
+        IF(OUTTING.EQ.OUTQIX)THEN
+          WRITE(OFILE)N,LDM1,LDM2
+        ELSE IF (OUTTING.EQ.OUTPIX)THEN
+          WRITE(OFILE,7)IFIX(N),IFIX(LDM1),IFIX(LDM2)
+        END IF
+      END IF
+ 6    FORMAT(4G11.5)
+ 7    FORMAT(I5,',',I5,',',I5)
+ 8    FORMAT(I5,',',I5,',',I5,',',G11.5)
+      IF(N)999,25,15
+C
+C       PROCESS THE N POINTS THAT FOLLOW, IN GROUPS OF
+C       THE SIZE OF THE BUFFER.
+C
+ 15   CONTINUE
+C
+C  LDM2 has a lot to tell about the data to follow.
+C
+      NTEST=ABS(LDM2)
+      COLRV=LDM1.EQ.9 .OR. LDM1.EQ.10
+C
+      IF(LDM1.EQ.8)THEN
+        JDIM=3
+      ELSE IF(LDM1.GE.0 .AND. LDM1.LE.13)THEN
+        TNORML=NTEST.EQ.1 .OR. NTEST.EQ.2 .OR.
+     &         NTEST.EQ.5 .OR. NTEST.EQ.6
+        IF(TNORML)THEN
+          JDIM=NDIM*2
+        ELSE IF(NTEST.EQ.0 .OR. NTEST.EQ.7)THEN
+          JDIM=NDIM+1
+        ELSE
+          JDIM=NDIM
+        END IF
+        IF(COLRV)JDIM=JDIM+3
+      END IF
+      NWORDS=N*JDIM
+C
+C     NTEST=ABS(LDM2)
+      IF(WBASE.EQ.0)THEN
+        IF     (NTEST.EQ.0 .OR. NTEST.EQ.1 .OR.
+     &    NTEST.EQ.2 .OR. NTEST.EQ.3)THEN
+          WW=1.
+        ELSE IF(NTEST.EQ.4 .OR. NTEST.EQ.5 .OR.
+     &    NTEST.EQ.6 .OR. NTEST.EQ.7)THEN
+          WW=32767.
+        END IF
+      ELSE
+        WW=WBASE
+      END IF
+C
+C  If we're outputing to a file, just out the data.
+C
+      IF(OUTTING.EQ.OUTQIX)THEN
+        NUMBUF=(NWORDS-1)/BUFSIZE+1
+        DO 16 IDUMMY=1,NUMBUF
+        NWRITE=MIN(BUFSIZE*JDIM,NWORDS)
+        WRITE(OFILE) ( ALIST(I+SPOT-1),I=1,NWRITE )
+        NWORDS=NWORDS-NWRITE
+        SPOT=SPOT+NWRITE
+ 16     CONTINUE
+      ELSE IF(OUTTING.EQ.OUTPIX)THEN
+        DO 17 I=1,INT(N)
+        IF(LDM1.EQ.8)THEN
+          WRITE(OFILE,7)(IFIX(ALIST(SPOT+J-1)),J=1,JDIM)
+        ELSE
+          WRITE(OFILE,FMT(JDIM))(ALIST(SPOT+J-1),J=1,JDIM)
+        END IF
+        SPOT=SPOT+JDIM
+ 17     CONTINUE
+C
+C  Outputing to a device means thinking a bit more....
+C
+C  Points and lines, cylinders cones, and spheres...
+C
+      ELSE 
+        IF(LDM1.EQ.0)THEN
+          BEAMON=.FALSE.
+        ELSE IF (LDM1.EQ.1) THEN
+          BEAMON=.FALSE.
+        ELSE IF (LDM1.EQ.2) THEN
+          BEAMON=.FALSE.
+        ELSE IF (LDM1.EQ.3) THEN
+          BEAMON=.FALSE.
+        ELSE IF (LDM1.EQ.12) THEN
+          BEAMON=.FALSE.
+        ELSE IF (LDM1.EQ.13) THEN
+          BEAMON=.FALSE.
+        ELSE IF (LDM1.EQ.4 .OR. LDM1.EQ.11) THEN
+          CONTINUE
+        ELSE IF (LDM1.EQ.5) THEN
+          CONTINUE
+C
+C  Polygons and triangle meshes
+C
+        ELSE IF (LDM1.EQ.6 .OR. LDM1.EQ.7 .OR.
+     &     LDM1.EQ.9 .OR. LDM1.EQ.10) THEN
+        IF(LDM2.LT.0)THEN
+          CWISE=.TRUE.
+        ELSE
+          CWISE=.FALSE.
+        END IF
+C     NTEST=ABS(LDM2)
+        IF(NTEST.EQ.3 .OR. NTEST.EQ.4)THEN
+          NORML=0
+        ELSE IF(NTEST.EQ.1 .OR. NTEST.EQ.5)THEN
+          NORML=1
+        ELSE IF(NTEST.EQ.2 .OR. NTEST.EQ.6)THEN
+          NORML=-1
+        END IF
+        IF(LDM1.EQ.6 .OR. LDM1.EQ.9)THEN
+          MESH=.FALSE.
+        ELSE IF (LDM1.EQ.7 .OR. LDM1.EQ.10)THEN
+          MESH=.TRUE.
+        END IF
+        CALL G0POLY(ALIST(SPOT), WW, INT(N), JDIM,
+     &  NORML, CWISE, COLRV, MESH)
+        SPOT=SPOT+N*JDIM
+
+        ELSE IF(LDM1.EQ.8)THEN
+          IF(LDM2.LT.0)THEN
+            CWISE=.TRUE.
+          ELSE
+            CWISE=.FALSE.
+         END IF
+          CALL G0MESH(ALIST(SPOT), WW, INT(N), JDIM,
+     &    NORML, CWISE, COLRV, INT(LDM2) )
+          SPOT=SPOT+N*JDIM
+C
+C  Whoops...
+C
+        ELSE
+          WRITE(TMPLINE,'(I4,A)')INT(LDM1),' BAD LDM1 VALUE'
+          CALL GROUT(TMPLINE)
+          GOTO 26
+        END IF
+C
+C  Now, there's still more to do for points and lines, cyl and cone.
+C
+        IF(LDM1.LE.5  .OR. LDM1.EQ.11 .OR.
+     &     LDM1.EQ.12 .OR. LDM1.EQ.13)THEN
+          IF(OUTTING.EQ.OUTPOSTSCR)THEN
+            Write(OFILE,'(a)')'newpath'
+          End If
+c
+          DO 19 I=1,INT(N)
+          IF(NDIM.EQ.4)THEN
+            W=ALIST(SPOT+3)
+          ELSE
+            W=WW
+          ENDIF
+          IF(NDIM.LE.2)THEN
+            Z=ZBASE
+          ELSE
+            Z=ALIST(SPOT+2)/W
+          ENDIF
+          X=ALIST(SPOT  )/W
+          Y=ALIST(SPOT+1)/W
+C
+          IF(LDM1.EQ.4)THEN
+            CALL G0DOT(X,Y,Z)
+          Else IF(LDM1.EQ.11)THEN
+            CALL G0SPOT(X,Y,Z)
+          ELSE IF(LDM1.EQ.5)THEN
+            If (JDIM.EQ.4) Then
+              CRAD=ALIST(SPOT+NDIM)/W
+            Else
+              CRAD=SPHRAD
+            End If
+            CALL G0SPHERE(X,Y,Z,CRAD)
+          ELSE
+            IF(BEAMON)THEN
+              IF(LDM1.EQ.1 .OR. LDM1.EQ.3)THEN
+                CALL G0CYL(X,Y,Z,CYLRAD)
+              Else IF(LDM1.EQ.12 .OR. LDM1.EQ.13)THEN
+C               CALL G0CONE(X,Y,Z,CYLRAD)
+              ELSE
+                CALL G0DRAW(X,Y,Z)
+              END IF
+            ELSE
+              CALL G0MOVE(X,Y,Z)
+            END IF
+            IF((LDM1.EQ.0) .OR. (LDM1.EQ.1) .OR. (LDM1.EQ.12))THEN
+              BEAMON=.NOT.BEAMON
+            ELSE
+              BEAMON=.TRUE.
+            END IF
+          END IF
+          SPOT=SPOT+JDIM
+ 19       CONTINUE
+          CALL G0POUT
+          IF(OUTTING.EQ.OUTPOSTSCR)THEN
+            Write(OFILE,'(a)')'stroke'
+          End If
+        END IF
+C
+C  END OF DEVICE OUTPUT STUFF
+      END IF
+C
+      IF(ERROR.GT.0)GOTO 26
+      GOTO 10
+C
+C       SPECIAL FUNCTION REQUIRES LOOKING AT LDM1 TO
+C       DETERMINE WHICH SPECIAL FUNCTION
+C
+ 25   CONTINUE
+      GOTO (100,200,300,400,500,600,700,800,400,900) INT(LDM1 + 1)
+C
+C       IF WE GET HERE, AN ILLEGAL SPECIAL FUNCTION VALUE WAS SUPPLIED
+C
+ 26   WRITE(TMPLINE,'(A,I8,I5)')'ERROR IN DUMPBUFF AT ',SPOT, INT(LDM1)
+      CALL GROUT(TMPLINE)
+      GOTO 999
+C
+C       SET THE BASE REGISTER FOR SUBSEQUENT DRAWS
+C
+ 100  CONTINUE
+C
+C       READ THE BASE IN ON THE NEXT LINE, UNLESS IT WAS
+C  0,0,0 WHICH IS A NO-OP OR COMMENT.
+C
+      IF(LDM2.EQ.0)THEN
+        XBASE=ALIST(SPOT)
+        YBASE=ALIST(SPOT+1)
+        ZBASE=ALIST(SPOT+2)
+        WBASE=ALIST(SPOT+3)
+        SPOT=SPOT+4
+c  Don't output base, its being taken care of by tfmcoor.
+c        IF(OUTTING.EQ.OUTQIX)THEN
+c          WRITE(OFILE)XBASE,YBASE,ZBASE,WBASE
+c        ELSE IF (OUTTING.EQ.OUTPIX)THEN
+c          WRITE(OFILE,FMT(4))XBASE,YBASE,ZBASE,WBASE
+c        END IF
+      ELSE
+        WBASE=LDM2
+      END IF
+      GOTO 10
+C
+C  Set the cylinder radius
+C       INFO ALREADY STORED AS N,LDM1,LDM2
+C
+ 200  CONTINUE
+      CYLRAD=LDM2
+c      Call G0RCYL(0,0,0,CYLRAD)
+      GOTO 10
+C
+C       MAKE THE FOLLOWING LINES DASHED.  LDM2 SPECIFIES
+C       THE POSSIBLE DASHED OPTIONS AVAILABLE.
+C
+C       NO CHECKING IS DONE HERE FOR ILLEGAL VALUES
+C
+ 300  CONTINUE
+      CALL G0DASH(INT(LDM2))
+      GOTO 10
+C
+C       TEXT STRING TO BE DISPLAYED WITH CTEXTL
+C       REQUIRES TWO ADDITIONAL LINES OF INPUT:
+C        1)  THE 4-D COORDINATES OF THE TEXT
+C        1a) XSCALE,YSCALE AND FONT
+C        2)  THE TEXT STRING ITSELF: TRAILING BLANKS IGNORED
+C
+ 400  CONTINUE
+C
+C    TEXT is ALWAYS 4-dimensional
+C
+      X=ALIST(SPOT  )
+      Y=ALIST(SPOT+1)
+      Z=ALIST(SPOT+2)
+      W=ALIST(SPOT+3)
+      IF(W.EQ.0)W=WBASE
+      IF(W.EQ.0)W=UNITS(UTRANW)
+      IF(OUTTING.EQ.OUTQIX .OR. OUTTING.EQ.OUTPIX)THEN
+        IF(OUTTING.EQ.OUTQIX)THEN
+          WRITE(XYZPOS,FMT(4))X,Y,Z,W
+          WRITE(OFILE)XYZPOS
+        ELSE IF(OUTTING.EQ.OUTPIX)THEN
+          WRITE(OFILE,FMT(4))X,Y,Z,W
+        END IF
+      END IF
+      SPOT=SPOT+4
+C
+      CSIZE=LDM2
+      XSCALE=ALIST(SPOT)
+      YSCALE=ALIST(SPOT+1)
+      DO 402 K=1,4
+      FFONT(K:K)=CHAR(INT(ALIST(SPOT+K+1)))
+ 402  CONTINUE
+      IF(OUTTING.EQ.OUTQIX)THEN
+        WRITE(OFILE)FFONT,XSCALE,YSCALE
+      ELSE IF(OUTTING.EQ.OUTPIX)THEN
+        WRITE(OFILE,4001)FFONT,XSCALE,YSCALE
+      END IF
+      SPOT=SPOT+6
+ 4001 FORMAT('''',A,''',',G11.5,',',G11.5)
+C
+      CLEN=ALIST(SPOT)
+      SPOT=SPOT+1
+C
+      CHLINE=BLANK
+      DO 404 K=1,CLEN
+      CHLINE(K:K)=CHAR(INT(ALIST(SPOT+K-1)))
+ 404  CONTINUE
+      IF(OUTTING.EQ.OUTQIX .OR. OUTTING.EQ.OUTPIX)THEN
+        CHLINE(CLEN+1:)=BLANK
+        IF(OUTTING.EQ.OUTQIX)THEN
+          WRITE(OFILE)CHLINE
+        ELSE
+          WRITE(OFILE,407)CHLINE
+        END IF
+      ELSE 
+C       CHLINE(CLEN+1:CLEN+1)='\'
+        CALL G0TEXT(X/W,Y/W,Z/W,CHLINE,CLEN,FFONT,XSCALE,YSCALE,CSIZE)
+      END IF
+      SPOT=SPOT+CLEN
+ 407  FORMAT(A)
+C
+      GOTO 10
+C
+C       SET THE COLOR FOR THIS PICTURE.
+C       READ THE NEXT WORD WHICH HAS HUE, SATURATION and VALUE.
+C
+ 500  CONTINUE
+      HUE=ALIST(SPOT)
+      SAT=ALIST(SPOT+1)
+      VALU=ALIST(SPOT+2)
+      IF(OUTTING.EQ.OUTQIX) THEN
+        WRITE(OFILE)HUE,SAT,VALU
+      ELSE IF(OUTTING.EQ.OUTPIX)THEN 
+        WRITE(OFILE,7)IFIX(HUE),IFIX(SAT),IFIX(VALU)
+      ELSE 
+        Call g0setHSV(HUE,SAT,VALU)
+C        Call g0inten(LWORLD)
+Cc       Call g0setambi(0.4)
+Cc       Call g0setdiff(0.4)
+Cc       Call g0setshin(0.8)
+         CALL G0COLOR(0)
+      END IF
+      SPOT=SPOT+3
+      GOTO 10
+C
+C       SET THE LSPEED GIVEN IN LDM2.  VESTIGE OF MPS VERSION.
+C
+ 600  CONTINUE
+      LSPEED=LDM2
+      GOTO 10
+C
+C       CHANGE DEFAULT DIMENSION.
+C
+ 700  CONTINUE
+C     IF(NDIM.NE.4)CALL TELLUSER(NEVER,*999)
+      NDIM=LDM2
+      GOTO 10
+C
+C       WRITE NEXT LINE - INTENSITY FRONT AND SIZE.  NOT IMPLEMENTED.
+C
+ 800  CONTINUE
+C      IFRONT=ALIST(SPOT)
+C      ISIZE=ALIST(SPOT+1)
+C     WRITE(OFILE)IFRONT,ISIZE,ZERO
+      SPOT=SPOT+2
+      GOTO 10
+
+ 900  CONTINUE
+      SPHRAD=LDM2
+c      Call G0RCYL(0,0,0,CYLRAD)
+C
+C
+ 10   CONTINUE
+C     END DO   !USED TO END THE BIG DO WHILE WAY UP TOP (SPOT.LT.ASIZE)
+      GOTO 5
+C
+C       END A FRAME AND RETURN.
+C
+ 999  CONTINUE
+      RETURN
+C
+      END

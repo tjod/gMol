@@ -1,0 +1,73 @@
+To build gmol, you must first build the qtgramps.so
+shared library, or qtgramps.a static library.
+So, in the ../ directory above this qt directory:
+
+Ubuntu (and other linux?) {
+ > make -f makefile.gfortran qtgramps.so
+creates qt/qtgramps.so
+}
+OSX {
+ > make -f makefile.osx qtgramps.a
+creates qt/qtgramps.a
+}
+Win32 (using mingw) {
+ > make -f makefile.mingw qtgramps.a
+creates qt/libqtgramps.a
+}
+
+Then in this qt directory:
+Ubuntu (and other linux?) {
+ > qmake
+}
+Win32 (using mingw) {
+ > qmake 
+}
+OSX {
+ > qmake -spec macx-g++
+}
+will make the necessary Makefiles. Then
+
+Ubunbtu {
+ > make
+creates gmol executable
+}
+OSX {
+ > make
+creates gmol.app bundle/directory containing the gmol executable
+}
+Win32 {
+ > make
+creates release/gmol.exe or debug/gmol.exe
+}
+
+Then run make in the surf and ChemDb directories.  Copy the executables for
+dbsurf (see Notes there) and dbchem from there into this gmol directory, so that they are availble
+for use by gmol when it is run.
+
+Linux {
+ > ln -s surf/dbsurf .
+ > ln -s ChemDb/dbchem .
+}
+Win32 {
+ > cp surf/dbsurf.exe .
+ > cp ChemDb/dbchem.exe .
+}
+OSX {
+ > ln -s surf/dbsurf .
+ > ln -s ChemDb/dbchem .
+}
+
+On OSX, you can (must?) add executables dbsurf and dbchem to the Resources fork of gmol.app from
+their corresponding locations in ChemDb/dbchem and surf/dbsurf.  You must also add residue.db.
+You must also add index.html and gmol and gramps lib files.  Those are essentially ../../lib
+bash appmake will do all this for you.
+slim:qt tj$ ls -l gmol.app/Contents/Resources/
+total 49608
+-rwxr-xr-x    1 tj  staff    425964 Aug  9 13:05 dbchem
+-rwxr-xr-x    1 tj  staff    416088 Aug  9 13:06 dbsurf
+-rw-r--r--    1 tj  staff         0 Jun  8 15:51 empty.lproj
+-rw-r--r--@   1 tj  staff    202167 Jun  8 15:52 gmol.icns
+drwxr-xr-x  117 tj  staff      3978 Feb 22 14:05 gramps
+-rw-r--r--    1 tj  staff      2788 Feb 22 14:05 index.html
+drwxr-xr-x   12 tj  staff       408 Feb 22 14:05 js
+-rw-r--r--    1 tj  staff  24344576 Feb 22 14:15 residue.db

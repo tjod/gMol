@@ -1,0 +1,10 @@
+set GMOL=%~dp0%
+set GMOL_LIB=%GMOL%\lib
+set GRAMPS_LIB=%GMOL_LIB%\gramps
+set HOME=%USERPROFILE%\Documents
+set GMOLBIN=%GMOL%\bin\win32
+set BABEL_DATADIR=%GMOLBIN%\OpenBabel\share\openbabel\2.3.2
+set BABEL_LIBDIR=%GMOLBIN%\OpenBabel\lib\openbabel\2.3.2
+set PATH=%GMOLBIN%\Qt\4.8.4\bin;%GMOLBIN%\MinGW\bin;%GMOLBIN%\OpenBabel\bin
+cd %GMOLBIN%
+gmol.exe %*

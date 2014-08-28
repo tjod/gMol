@@ -1,0 +1,23 @@
+----------------------------------------------------------------------
+gMol is Copyright (c) 1981-2010 by TJ O'Donnell
+2005-2010 gNova, Inc., San Diego, CA, USA.
+http://www.gnova.com EMAIL: tjo@gnova.com
+----------------------------------------------------------------------
+gMol is an OPEN SOURCE program.
+Please see the LICENSE file for additional information.
+----------------------------------------------------------------------
+See INSTALL for installation instructions
+----------------------------------------------------------------------
+The gMol program has the following external dependencies:
+  Qt (http://qt.nokia.com/products/) and it's associated dependencies, specifically
+    1. OpenGL
+    2. SQLite3 
+    3. WebKit
+Portions of the gMol system's associated independent processes depend on:
+  1. OpenBabel (http://www.openbabel.org) or use your package manager under linux
+  2. SQLite3 (http://www.sqlite.org)
+
+Parts of gMol (gramps) use the gfortran compiler, which you will probably have to
+install.  Mingw includes gfortran (http://www.mingw.org/wiki/MinGW).
+Use your package manager under linux.
+For OSX, start here: (http://www.macresearch.org/xcode_gfortran_plugin_update)

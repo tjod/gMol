@@ -1,0 +1,15 @@
+#! /bin/bash
+# to make gmol.app into distributable app via dmg.
+DIST=$1
+if [[ -z "$1" ]]
+then
+  echo "Must supply dist number, e.g. 1.7"
+  exit
+fi
+DIR=gmol-$DIST
+rm -rf $DIR
+mkdir $DIR
+cp -r gmol.app $DIR
+cd $DIR
+macdeployqt gmol.app -executable=gmol.app/Contents/MacOS/dbchem -executable=gmol.app/Contents/MacOS/dbsurf  -verbose=3 -dmg >log 2>&1
+#hdiutil create gmol.dmg -srcfolder .
