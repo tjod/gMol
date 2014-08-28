@@ -1,0 +1,17 @@
+BODY.nav {
+ background:lightgrey;
+ font-size:12;
+}
+
+A {
+ text-decoration:none;
+}
+P.indent     {
+ margin-left:5%;
+}
+SPAN.command {
+ font-family:courier;
+}
+SPAN.switch {
+ font-family:courier;
+}

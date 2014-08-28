@@ -1,0 +1,15 @@
+getf/name=vp1 vp1.$1
+getf/name=vp2 vp2.$1
+getf/name=vp3 vp3.$1
+getf/name=vp4 vp4.$1
+group vp1 vp4 vpp
+col vp1 h 6000
+col vp2 h 9000
+col vp3 h 15000
+col vp4 h 25000
+frame vpp n y4*10<32767
+rename vp1 s_vp1
+rename vp2 s_vp2
+rename vp3 s_vp3
+rename vp4 s_vp4
+rename vpp s_vpp

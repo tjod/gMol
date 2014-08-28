@@ -1,0 +1,65 @@
+ROTATE      surf X, -77.626:$1
+ROTATE      surf Z, -138.61:$1
+TRANSLATE   surf P,-0.42265:$1
+TRANSLATE   surf Q,-0.57451:$1
+SCALE       surf X, 0.55139:$1
+SCALE       surf Y, 0.57520:$1
+SCALE       surf Z, 0.57520:$1
+TRANSLATE   bline X, 0.40001:$1
+ROTATE      bline Z,  90.003:$1
+TRANSLATE   bline P,  1.0000:$1
+COLOR       bline S,0:$1
+COLOR       bline V, 0.48830:$1
+TRANSLATE   aline Y, 0.88000:$1
+TRANSLATE   aline P,  1.0000:$1
+COLOR       aline S,0:$1
+COLOR       aline V, 0.48830:$1
+TRANSLATE   water X,  1.0000:$1
+TRANSLATE   water Y,  1.0000:$1
+COLOR       water H,  142.83:$1
+FRAME       water N, -1.0000:$1
+TRANSLATE   square X,  1.0000:$1
+TRANSLATE   square Y,  1.0000:$1
+!TRANSLATE   square Z,-0.80000:$1
+ROTATE      square X,  180.00:$1
+ROTATE      square Z,  45.001:$1
+SCALE       square X,  2.3000:$1
+SCALE       square Y,  2.3000:$1
+INTENSITY   square T, 0.60000:$1
+COLOR       square H,  239.29:$1
+COLOR       square S,0:$1
+SCALE       axes Z, 0.61035:$1
+SCALE       axes W, 0.48828:$1
+COLOR       axes H,  87.893:$1
+COLOR       axes S,0:$1
+TRANSLATE   bline X,  1.6250:$1
+TRANSLATE   aline Y,  1.9197:$1
+TRANSLATE   zline X,  1.6250:$1
+TRANSLATE   zline Y,  1.9197:$1
+TRANSLATE   zline Z, -1.3123:$1
+SCALE       zline Z,  2.4414:$1
+COLOR       zline H,  318.61:$1
+TRANSLATE   H2O X, 0.61037:$1
+TRANSLATE   H2O Y, 0.76296:$1
+SCALE       H2O X, 0.18311:$1
+SCALE       H2O Y, 0.18311:$1
+SCALE       H2O Z, 0.18311:$1
+ROTATE      HH Z, -90.003:$1
+TRANSLATE   Ha X, 0.95983:$1
+SCALE       Ha X,  1.3428:$1
+SCALE       Ha Y,  1.3428:$1
+SCALE       Ha Z,  1.3428:$1
+SCALE       Ha W,  2.9297:$1
+COLOR       Ha S,0:$1
+TRANSLATE   Hb X,-0.95983:$1
+SCALE       Hb X,  1.3428:$1
+SCALE       Hb Y,  1.3428:$1
+SCALE       Hb Z,  1.3428:$1
+SCALE       Hb W,  2.9297:$1
+COLOR       Hb S,0:$1
+TRANSLATE   O Y, -1.6250:$1
+SCALE       O X,  2.0327:$1
+SCALE       O Y,  2.0327:$1
+SCALE       O Z,  2.0327:$1
+SCALE       O W,  2.9297:$1
+COLOR       O H,  219.73:$1

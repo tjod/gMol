@@ -1,0 +1,173 @@
+set oldunits
+TR,TORSO,Y,152
+TR,TOR1,Y,4176
+GET$2,THI$1
+GET$2,CALF$1
+RENAME,THI,RBICEP
+RENAME,CALF,RFORARM
+GET$2,CALF$1
+RENAME,CALF,RPALM
+GET$2,TOES$1
+RENAME,TOES,RFINGS
+GR,RPALM,RFINGS,RHAND
+RENAME,RFORARM,RWRIST
+GR,RWRIST,RHAND,RFORARM
+GR,RBICEP,RFORARM,RARM
+INSERT RARM,UPTORSO
+GET$2 HEAD$1
+INSERT HEAD UPTORSO
+TRANSLATE   RARM         X, -7696
+TRANSLATE   RARM         Y,  1128
+TRANSLATE   RARM         Z,     0
+ROTATE      RARM         X,     0
+ROTATE      RARM         Y,     0
+ROTATE      RARM         Z,     0
+TRANSLATE   RARM         P,     0
+TRANSLATE   RARM         Q,     0
+TRANSLATE   RARM         R,     0
+ROTATE      RARM         P,     0
+ROTATE      RARM         Q,     0
+ROTATE      RARM         R,     0
+SCALE       RARM         P,  8192
+SCALE       RARM         Q,  8192
+SCALE       RARM         R,  8192
+SCALE       RARM         S,  8192
+SCALE       RARM         X,  8192
+SCALE       RARM         Y,  8192
+SCALE       RARM         Z,  8192
+SCALE       RARM         W,  8192
+FRAME       RARM         N,     0
+TRANSLATE   RBICEP       X,     0
+TRANSLATE   RBICEP       Y,     0
+TRANSLATE   RBICEP       Z,     0
+ROTATE      RBICEP       X,     0
+ROTATE      RBICEP       Y,     0
+ROTATE      RBICEP       Z,     0
+TRANSLATE   RBICEP       P,     0
+TRANSLATE   RBICEP       Q,     0
+TRANSLATE   RBICEP       R,     0
+ROTATE      RBICEP       P,     0
+ROTATE      RBICEP       Q,     0
+ROTATE      RBICEP       R,     0
+SCALE       RBICEP       P,  8192
+SCALE       RBICEP       Q,  8192
+SCALE       RBICEP       R,  8192
+SCALE       RBICEP       S,  8192
+SCALE       RBICEP       X,  4776
+SCALE       RBICEP       Y,  9248
+SCALE       RBICEP       Z,  5976
+SCALE       RBICEP       W,  8192
+FRAME       RBICEP       N,     0
+TRANSLATE   RFORARM      X,   -40
+TRANSLATE   RFORARM      Y,-10664
+TRANSLATE   RFORARM      Z,     0
+ROTATE      RFORARM      X,     0
+ROTATE      RFORARM      Y,     0
+ROTATE      RFORARM      Z,     0
+TRANSLATE   RFORARM      P,     0
+TRANSLATE   RFORARM      Q,     0
+TRANSLATE   RFORARM      R,     0
+ROTATE      RFORARM      P,     0
+ROTATE      RFORARM      Q,     0
+ROTATE      RFORARM      R,     0
+SCALE       RFORARM      P,  8192
+SCALE       RFORARM      Q,  8192
+SCALE       RFORARM      R,  8192
+SCALE       RFORARM      S,  8192
+SCALE       RFORARM      X,  8192
+SCALE       RFORARM      Y,  8192
+SCALE       RFORARM      Z,  8192
+SCALE       RFORARM      W,  8192
+FRAME       RFORARM      N,     0
+TRANSLATE   RWRIST       X,     0
+TRANSLATE   RWRIST       Y,     0
+TRANSLATE   RWRIST       Z,     0
+ROTATE      RWRIST       X,     0
+ROTATE      RWRIST       Y,     0
+ROTATE      RWRIST       Z,     0
+TRANSLATE   RWRIST       P,     0
+TRANSLATE   RWRIST       Q,     0
+TRANSLATE   RWRIST       R,     0
+ROTATE      RWRIST       P,     0
+ROTATE      RWRIST       Q,     0
+ROTATE      RWRIST       R,     0
+SCALE       RWRIST       P,  8192
+SCALE       RWRIST       Q,  8192
+SCALE       RWRIST       R,  8192
+SCALE       RWRIST       S,  8192
+SCALE       RWRIST       X,  4952
+SCALE       RWRIST       Y,  5928
+SCALE       RWRIST       Z,  5488
+SCALE       RWRIST       W,  8192
+FRAME       RWRIST       N,     0
+TRANSLATE   RHAND        X,     0
+TRANSLATE   RHAND        Y, -6304
+TRANSLATE   RHAND        Z,     0
+ROTATE      RHAND        X,     0
+ROTATE      RHAND        Y,     0
+ROTATE      RHAND        Z,     0
+TRANSLATE   RHAND        P,     0
+TRANSLATE   RHAND        Q,     0
+TRANSLATE   RHAND        R,     0
+ROTATE      RHAND        P,     0
+ROTATE      RHAND        Q,     0
+ROTATE      RHAND        R,     0
+SCALE       RHAND        P,  8192
+SCALE       RHAND        Q,  8192
+SCALE       RHAND        R,  8192
+SCALE       RHAND        S,  8192
+SCALE       RHAND        X,  8192
+SCALE       RHAND        Y,  8192
+SCALE       RHAND        Z,  8192
+SCALE       RHAND        W,  8192
+FRAME       RHAND        N,     0
+TRANSLATE   RPALM        X,     0
+TRANSLATE   RPALM        Y,     0
+TRANSLATE   RPALM        Z,     0
+ROTATE      RPALM        X,     0
+ROTATE      RPALM        Y,     0
+ROTATE      RPALM        Z,     0
+TRANSLATE   RPALM        P,     0
+TRANSLATE   RPALM        Q,     0
+TRANSLATE   RPALM        R,     0
+ROTATE      RPALM        P,     0
+ROTATE      RPALM        Q,     0
+ROTATE      RPALM        R,     0
+SCALE       RPALM        P,  8192
+SCALE       RPALM        Q,  8192
+SCALE       RPALM        R,  8192
+SCALE       RPALM        S,  8192
+SCALE       RPALM        X,  4784
+SCALE       RPALM        Y,  1648
+SCALE       RPALM        Z,  2144
+SCALE       RPALM        W,  8192
+FRAME       RPALM        N,     0
+TRANSLATE   RFINGS       X,     0
+TRANSLATE   RFINGS       Y, -1704
+TRANSLATE   RFINGS       Z,     0
+ROTATE      RFINGS       X,     0
+ROTATE      RFINGS       Y,     0
+ROTATE      RFINGS       Z,     0
+TRANSLATE   RFINGS       P,     0
+TRANSLATE   RFINGS       Q,     0
+TRANSLATE   RFINGS       R,     0
+ROTATE      RFINGS       P,     0
+ROTATE      RFINGS       Q,     0
+ROTATE      RFINGS       R,     0
+SCALE       RFINGS       P,  8192
+SCALE       RFINGS       Q,  8192
+SCALE       RFINGS       R,  8192
+SCALE       RFINGS       S,  8192
+SCALE       RFINGS       X,  1952
+SCALE       RFINGS       Y,  8192
+SCALE       RFINGS       Z,   424
+SCALE       RFINGS       W,  8192
+FRAME       RFINGS       N,     0
+COPY,RARM,LARM
+INSERT,LARM,UPTORSO
+TR,LARM,X,7696
+DO,RENAME
+DEASSIGN,D2,D3,D4,D6,D7
+SC,HEAD,X,D2,Y,D3,Z,D4
+TR,HEAD,Y,4528
+SC,HEAD,X,10008,Y,6544,Z,11240

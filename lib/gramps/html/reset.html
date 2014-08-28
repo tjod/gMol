@@ -1,0 +1,48 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>RESET</H2>
+ The <SPAN CLASS=command>reset</SPAN> command will reset all transformation values to their
+ original values. This is 0.0 for rotations and translations and 1.0
+ for scales. The syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>reset</SPAN> <i>name</i>
+<BR 3>
+or
+<BR 3>
+RESET/switch <i>name</i>
+<BR 3>
+<BR 1>
+</P CLASS=indent> Each of these switches may be used alone or in combination with any of
+ the other allowed switches of the <SPAN CLASS=command>reset</SPAN> command. Many of the switches
+ have optional values (designated by the [ ] braces.)
+<H4>/color</H4>
+ <SPAN CLASS=switch>/color</SPAN>[=HSV] - Fixes the hue, saturation and/or value for the object.
+<H4>/frame</H4>
+ <SPAN CLASS=switch>/frame</SPAN> - Resets the frame of a framed picture.
+<H4>/group</H4>
+ <SPAN CLASS=switch>/group</SPAN> - The <SPAN CLASS=command>reset</SPAN> command may also operate on groups, in which case
+ it will affect only the group's transformations. If,
+ however, the <SPAN CLASS=switch>/group</SPAN> switch is used, then each member of the
+ group will also be affected as well as the group itself.
+<H4>/intensity</H4>
+ <SPAN CLASS=switch>/intensity</SPAN>[=FST] - Fixes the front, size and/or transparent intensity
+ of the object.
+<H4>/leave</H4>
+ <SPAN CLASS=switch>/leave</SPAN> - Any assignments of transformations to dials is cancelled,
+ unless the <SPAN CLASS=switch>/leave</SPAN> switch is specified.
+<H4>/move</H4>
+ <SPAN CLASS=switch>/move</SPAN>[=XYZ] - Resets the <A HREF=move.html><SPAN CLASS=command>move</SPAN></A> transformations affecting the <A HREF=worlds.html><i>Worlds</i></A> for
+ the specified axes.
+<H4>/perspective</H4>
+ <SPAN CLASS=switch>/perspective</SPAN>[=LRBTHYEW] - Resets the perspective windows affecting the
+ <A HREF=worlds.html><i>Worlds</i></A>. The optional values are <A HREF=perspective.html><SPAN CLASS=command>perspective</SPAN></A> keywords.
+<H4>/rotate</H4>
+ <SPAN CLASS=switch>/rotate</SPAN>[=XYZPQR] - Resets the <A HREF=rotate.html><SPAN CLASS=command>rotate</SPAN></A> transformation. The optional
+ value resets the rotation for the axis or axes specified.
+<H4>/scale</H4>
+ <SPAN CLASS=switch>/scale</SPAN>[=XYZWPQRS] - Resets the scale transformation of the specifed axes.
+<H4>/translate</H4>
+ <SPAN CLASS=switch>/translate</SPAN>[=XYZWPQRS] - Resets the translation transformations of the
+ specified axes.
+<H4>/unfix</H4>
+ <SPAN CLASS=switch>/unfix</SPAN> - The <SPAN CLASS=command>reset</SPAN> command allows the <SPAN CLASS=switch>/unfix</SPAN> <i>switch</i>. If this switch
+ is used, the effect of any previous <A HREF=fix.html><SPAN CLASS=command>fixes</SPAN></A> (see the
+ description of <A HREF=fix.html><SPAN CLASS=command>fix</SPAN></A>) will be cancelled.

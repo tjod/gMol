@@ -1,0 +1,36 @@
+set oldunits
+set rgb
+!
+!!This is a representation of the interaction of
+!! water with glyphosate (Roundup).
+!!
+!!The surfaces were generated using the gramps utility
+!! program isosurf which produces 3-D contours from a 3-D
+!! grid of data (a scalar field).
+!! The data were generated using the Grin/grid programs
+!! from Molecular Discovery, Ltd.  The data are potential
+!! energies of interaction of a water probe with the
+!! glyphosate molecule.
+!!
+!!The light blue surface is a contour at 0.01 kcal, just
+!! where the potential is becoming repulsive (positive).
+!! This represents a "water-accessible" surface.  This
+!! surface may be made transparent using the mouse wheel.
+!!
+!!The gold surface is a contour at -9 kcal, near the minimum
+!! at -9.5kcal.  This locates where a water molecule  most
+!! favorably interacts with glyphosate.  Other contours,
+!! at -7, -5 and -3 kcal may be displayed using the right
+!! mouse button.
+!!
+!!Summary of mouse button useage:
+!!         left:     rotate the whole scene
+!!         wheel:    transparency of blue surface
+!!         right:    change contour level of gold surface
+deass x1,x2,x3
+deass y1,y2,y3
+glypp
+scale LWorld w 50000
+rotate/lab LWorld x -y1 y x1
+set backhsv 22000 30000 5000
+3Lights

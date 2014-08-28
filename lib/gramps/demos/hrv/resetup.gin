@@ -1,0 +1,3 @@
+deblank bicos,aicos
+blank s_vpp, a_vpp, c_vpp, tri
+reset/rot/tran/lea  LW

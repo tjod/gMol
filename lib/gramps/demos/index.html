@@ -1,0 +1,45 @@
+<HTML>
+<HEAD>
+<TITLE>Demos</TITLE>
+<SCRIPT>
+ function demo(name) {
+   gramps.cmd("restart");
+   gramps.cmd("set default $gramps_lib/demos/"+name);
+   gramps.cmd("setup");
+   document.location = name+"/index.html";
+}
+</SCRIPT>
+</HEAD>
+<BODY>
+<H2>Gramps demos</H2>
+These demonstrations show some of the types of things you can do using Gramps.
+<p>
+<!-- 
+<A HREF="javascript:self.close()">close</A>
+-->
+<P>
+The following demonstrate Gramps' capabilities in manipulating graphical objects to explain chemical, physical and mathematical concepts:
+<Table>
+<tr><td><A HREF="javascript:demo('hrv')">hrv</A></td><td> human rhino-virus</td></tr>
+<tr><td><A HREF="javascript:demo('water')">water</A></td><td>H<sub>2</sub>O potential energy surface</td></tr>
+<tr><td><A HREF="javascript:demo('glypp')">glyphosate</A></td><td>glyphosate molecule GRID surface</td></tr>
+<tr><td><A HREF="javascript:demo('icos')">icosohedron</A></td><td> animated icoshedron assembly</td></tr>
+<tr><td><A HREF="javascript:demo('adam')">adam</A></td><td> a dial-activated man</td></tr>
+</Table>
+<P>
+The following demonstrate Gramps' general functionality and use of javascript to interact with Gramps:
+<Table>
+<tr><td><A HREF="../../js/movie.html">Movie maker</A></td><td>simple movie maker</td></tr>
+<!--
+<tr><td><A HREF="../../js/gramps/index.html">Gramps Web</A></td><td>Gramps Web User Interface</td></tr>
+-->
+<tr><td><A HREF="../../js/gramps/index-dev.html">Gramps Web</A></td><td>Gramps Web User Interface (Development)</td></tr>
+<tr><td><A HREF="../../js/gramps/index-dbg.html">Gramps Web</A></td><td>Gramps Web User Interface (Debug)</td></tr>
+<tr><td><A HREF="../../js/gmol/index-dev.html">gMol Web</A></td><td>gMol Web User Interface (Development)</td></tr>
+<tr><td><A HREF="../../js/gmol/index-dbg.html">gMol Web</A></td><td>gMol Web User Interface (Debug)</td></tr>
+
+</table>
+<P>
+<input type=button value="Clear" onClick="javascript:gramps.cmd('restart')"> graphics window
+</BODY>
+</HTML>

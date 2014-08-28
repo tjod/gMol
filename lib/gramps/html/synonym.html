@@ -1,0 +1,38 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>SYNONYM</H2>
+ The <SPAN CLASS=command>synonym</SPAN> command is similar to the <A HREF=copy.html><SPAN CLASS=command>copy</SPAN></A> command in that it causes
+ another object to be displayed on the screen which uses the same data
+ as an object already on display. The syntax of the <SPAN CLASS=command>synonym</SPAN> command
+ is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>synonym</SPAN> <i>name</i> NEWNAME
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i> is an object known to the system, and NEWNAME is the name
+ of the new object.
+<P>
+ Whereas the <A HREF=copy.html><SPAN CLASS=command>copy</SPAN></A> command makes a copy of an object which can transform
+ independantly of the original, <SPAN CLASS=command>synonym</SPAN> creates an object whose
+ transformations are always identical to those of the original object.
+ It would appear that the newly created <SPAN CLASS=command>synonym</SPAN> has no purpose other
+ than to have an object drawn twice, effectively doubling its
+ intensity. Using the <A HREF=group.html><SPAN CLASS=command>group</SPAN></A> command, however, it is possible to have
+ an object and its synonym appear differently on the screen. See the
+ section on <A HREF=group.html><SPAN CLASS=command>group</SPAN></A> OPERATIONS in the GRAMPS document for more details
+ about <SPAN CLASS=command>synonyming</SPAN> <A HREF=group.html><SPAN CLASS=command>groups</SPAN></A>.
+<P>
+ If a framed picture is <SPAN CLASS=command>synonymed</SPAN>, the resulting object will transform
+ like the original. However, since framing is not a transformation,
+ the <SPAN CLASS=command>synonym</SPAN> will be able to be <A HREF=frame.html><SPAN CLASS=command>framed</SPAN></A> as if it were an independent
+ object.
+<H4>/mark</H4>
+ <SPAN CLASS=switch>/mark</SPAN> - The <SPAN CLASS=command>synonym/mark</SPAN> command will mark an object as a synonym
+ without creating another object. The <SPAN CLASS=command>synonym/mark</SPAN> command
+ accepts only one object name as an ARGUMENT. The purpose of
+ this command is to cause implicit duplicates of this object
+ (created when it is a member of a <A HREF=group.html><SPAN CLASS=command>group</SPAN></A> that is being <A HREF=copy.html><SPAN CLASS=command>copyed</SPAN></A>
+ or <SPAN CLASS=command>synonymed</SPAN>) to be <SPAN CLASS=command>synonyms</SPAN> when the duplicates are created.
+<H4>/prefix</H4>
+ <SPAN CLASS=switch>/prefix</SPAN>=name - The <SPAN CLASS=command>synonym</SPAN> command will accept a <SPAN CLASS=switch>/prefix</SPAN> <i>switch</i> which
+ allows the user to define the prefix to be used when
+ constructing new names during the <SPAN CLASS=command>synonyming</SPAN> of a
+ <A HREF=group.html><SPAN CLASS=command>group</SPAN></A>.

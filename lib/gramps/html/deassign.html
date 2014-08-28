@@ -1,0 +1,16 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>DEASSIGN</H2>
+ The <SPAN CLASS=command>deassign</SPAN> command is used to deassign <A HREF=function.html><i>devices</i></A>. The effect of the
+ command is to permanently remove all assignments of the specified
+ device to any picture transformations, thus freeing the <A HREF=function.html><i>device</i></A> for
+ other uses. The syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>deassign</SPAN> <A HREF=function.html><i>device</i></A>
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <A HREF=function.html><i>device</i></A> is a device name such as D3 or PY. Several DEVICES may
+ be specified on a single command line, e.g., <SPAN CLASS=command>deassign</SPAN> D1,D2,D3. If an
+ object is <A HREF=freeze.html><SPAN CLASS=command>freezed</SPAN></A>, then any <SPAN CLASS=command>deassignments</SPAN> will not affect the
+ transformations of that object.
+<P>
+ The command <SPAN CLASS=command>deassign/all</SPAN> will deassign all dial assignments except
+ those applying to LWorld and RWorld.

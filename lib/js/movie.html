@@ -1,0 +1,58 @@
+<html>
+<head>
+ <script>
+  function doCmd(cmd) {
+  // do a gramps command and deal with any error output
+    var err = gramps.cmd(cmd);
+    if (err.length == 2 && err[0][0] == '^' && err[1][0] == '?') {
+      //alert(cmd+"\n"+err[0].substr(1)+"\n"+err[1].substr(1));
+      alert(cmd + "\n" + err[1]);
+      return true;
+    }
+    return false;
+  }
+  function movie(root, nframes) {
+    if (!parseInt(nframes) || nframes < 1) {
+      alert("invalid number of frames");
+      return;
+    }
+    var speed = 2.0 / nframes; // -0.5 to +0.5 is a range of 2.0
+    gramps.cmd("pause");
+    gramps.cmd("persp LWorld s 0 cs " + speed.toFixed(8) + " cs [-0.5<d0<0.5]");
+    if (doCmd("snap/advance " + root)) return;
+    gramps.cmd("advance " + nframes);
+    gramps.cmd("snap/noadvance");
+    }
+ </script>
+ <title>Movie Maker</title>
+</head>
+<body>
+<H1>Movie Maker</H1>
+This program will rock the Gramps image and output many jpg files into a folder in your home directory.
+These files can be processed to make a movie using various programs, such as jpeg2swf.
+<form>
+<table>
+<tr><td>Folder name:</td><td> <input type=text name=folder value="$HOME/movie"></td></tr>
+<tr><td>File prefix:</td><td> <input type=text name=pfx value="frame"></td></tr>
+<tr><td>Number of frames:</td><td> <input type=text name=nframes value=100></td></tr>
+<tr><td><input type=button value="Go" onClick="movie(folder.value+'/'+pfx.value, nframes.value)"></td></tr>
+</table>
+</form>
+Now what?
+<br>
+In the folder where your files are stored, try
+<ul>
+ jpeg2swf -r 30 -o movie.swf frame*.jpg
+</ul>
+and load movie.swf into your browser.
+<p>
+But, you probably do not have jpeg2swf installed on your system.
+There are many programs that can input multiple jpg images and create a movie in various movie formats.  Try googling "jpeg to movie".
+Here are two programs I've used.
+<ul>
+<LI><a href="http://www.swftools.org/download.html">JPG2SWF</a> to make a Flash animation (source and binaries for linux and windows)
+<LI><a href="http://www.imagemagick.org/script/index.php">ImageMagick/Convert</a> to make an animated gif, mpeg or other movie (source and binaries for linux, macosx and windows)
+</ul>
+<p>
+</body>
+</html>

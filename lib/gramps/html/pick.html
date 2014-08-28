@@ -1,0 +1,84 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>PICK</H2>
+ The <SPAN CLASS=command>pick</SPAN> command assigns to VARIABLE the name of an object or a
+ coordinate point of an object. The syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>pick/switch</SPAN> VARIABLE [<A HREF=function.html><i>value</i></A>]
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>switch</i> is <i>symbol</i>, <i>parameter</i>, or <i>point</i>. VARIABLE is either a #N
+ (a point variable), a $<i>symbol</i>, or a $PARAMTER. <A HREF=function.html><i>value</i></A> is optional. If
+ <A HREF=function.html><i>value</i></A> is missing, then the VARIABLE is assigned a <A HREF=function.html><i>value</i></A> by using the
+ mouse to pick the $<i>symbol</i>, $<i>parameter</i>, or #N point. If the <A HREF=function.html><i>value</i></A> is
+ given, then the VARIABLE is assigned that <A HREF=function.html><i>value</i></A>, and the mouse is not
+ used. The <SPAN CLASS=switch>/wait</SPAN> switch is used in combination with the switches in
+ gin files. See also <A HREF=use.html><SPAN CLASS=command>use/axis</SPAN></A>. 
+<H4>/parameter</H4>
+ <SPAN CLASS=switch>/parameter</SPAN> - The value of a $<i>parameter</i> may be changed by using the
+ <SPAN CLASS=command>pick/parameter</SPAN> command. The syntax of this command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>pick/parameter</SPAN> $<i>parameter</i> "string"
+<BR 3>
+<BR 1>
+</P CLASS=indent> where $<i>parameter</i> is a $<i>parameter</i> ($1 through $10) and
+ "string" is any character string up to 40 characters.
+ The double quotation marks are not necessary unless the
+ string contains DELIMITERs or a string which could be
+ interpreted as a $<i>parameter</i>. This latter restriction is
+ necessary since a $<i>parameter</i> may be assigned the value of
+ another $<i>parameter</i>.
+<P>
+ The <SPAN CLASS=command>pick/parameter</SPAN> command is only valid in .gin command
+ files. Usually, the <SPAN CLASS=switch>/wait</SPAN> switch is used with <SPAN CLASS=switch>/parameter</SPAN>
+ in .gin files.
+<P>
+ If the "string" is not given in the command, then GRAMPS
+ will assign the $<i>parameter</i> the <i>name</i> of the next object
+ picked using the mouse.
+<H4>/point</H4>
+ <SPAN CLASS=switch>/point</SPAN> - The <SPAN CLASS=command>pick/point</SPAN> command has the following syntax:
+<P>
+<P CLASS=indent><SPAN CLASS=command>pick/point</SPAN> #NUMBER [X,Y,Z,W]
+<BR 3>
+<BR 1>
+</P CLASS=indent> where NUMBER is any value from 1 through 10. The other
+ arguments are <A HREF=function.html><i>values</i></A> specifying the coordinates of a point.
+ The symbol # is a required part of the syntax of this
+ command. The effect of the <SPAN CLASS=command>pick/point</SPAN> command is to store
+ the coordinates of a point in a variable named by #1 through
+ #10. The current limit on the number of axes that may be
+ picked and remembered is 10 (1 through 10.) Once two points
+ are picked, they may be used in the <A HREF=use.html><SPAN CLASS=command>use/axis</SPAN></A> command.
+<P>
+ If no <A HREF=function.html><i>value</i></A> is specified, then the mouse is used by GRAMPS to
+ fill in the <A HREF=function.html><i>value</i></A>.
+<H4>/symbol</H4>
+ <SPAN CLASS=switch>/symbol</SPAN> - The value of a $<i>symbol</i> may be changed by using the
+ <SPAN CLASS=command>pick/symbol</SPAN> command. The syntax of this command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>pick/symbol</SPAN> $<i>symbol</i> "string"
+<BR 3>
+<BR 1>
+</P CLASS=indent> where $<i>symbol</i> is a $<i>symbol</i> ($1 through $10) and "string" is
+ any character string up to 12 characters. The double
+ quotation marks are not necessary, unless the string
+ contains DELIMITERs or a string which could be interpreted
+ as a $<i>symbol</i>. This latter restriction is necessary since a
+ $<i>symbol</i> may be assigned the value of another $<i>symbol</i>.
+<P>
+ The <SPAN CLASS=command>pick/symbol</SPAN> command is only valid at GRAMPS terminal
+ command level.
+<P>
+ If the "string" is not given in the command, then GRAMPS
+ will assign the $<i>symbol</i> the <i>name</i> of the next object picked
+ using the mouse.
+<H4>/wait</H4>
+ If a <SPAN CLASS=command>pick</SPAN> command is used within a gin file, you will probably
+ want to wait until the user <SPAN CLASS=command>picks</SPAN> the object before
+ continuing.  The <SPAN CLASS=switch>/wait</SPAN> switch will ensure that GRAMPS waits
+ until a hit does occur.  If you do not use the <SPAN CLASS=switch>/wait</SPAN> switch,
+ the results of the <SPAN CLASS=command>pick</SPAN> may be incorrect.  If you want to pick
+ both a <i>parameter</i> and a <i>point</i>, give the <SPAN CLASS=switch>/wait</SPAN> <i>switch</i> only on the
+ latter of the two commands. For example, <i>pick/parameter/wait</i> $1
+ followed by <i>pick/point/wait</i> #3 will require two pen picks;
+ <SPAN CLASS=command>pick/parameter</SPAN> $2 followed by <i>pick/point/wait</i> #5 will require
+ only one pick, but will return $2 and #5.

@@ -1,0 +1,9 @@
+!! You can select one of several demos.
+!! You may chose any of the available demos listed here.
+!!    adam:  a dial-activated man
+!!    hrv:   human rhino-virus
+!!    water: H2O potential energy surface
+!!    glypp: glyphosate (Roundup) GRID surface
+!!    dodec: animated dodecahedron assembly
+!!    icos:  animated icoshedron assembly
+!! For example, type: demo adam

@@ -1,0 +1,113 @@
+<HTML>
+<HEAD>
+<TITLE>
+Writing web pages to control gramps
+</TITLE>
+</HEAD>
+<BODY>
+<H2>Writing web pages to control gramps</H2>
+There are several ways to use html and javascript to execute gramps commands
+from within gmol's web viewer.
+<H3>Using the gramps.cmd javascript function</H3>
+<UL>
+<LI>in HTML links
+<A HREF="javascript:gramps.cmd('get icos')">get icos</A>
+<A HREF="javascript:gramps.cmd('forget icos')">forget icos</A>
+<br>The code for this is like:
+<br>
+&lt;A HREF="javascript:gramps.cmd('get icos')"&gt;get icos&lt;/A&gt;
+<FORM ACTION="javascript:gramps.cmd('red icos')">
+<LI>in a form's button to color icos
+<INPUT TYPE=SUBMIT VALUE=red>
+</FORM>
+<br>
+The code for this is:
+<br>
+&lt;FORM ACTION="javascript:gramps.cmd('red icos')"&gt;
+<br>
+&lt;INPUT TYPE=SUBMIT VALUE=red&gt;
+<br>
+&lt;/FORM&gt;
+</UL>
+Learn <A HREF=#jsgramps>more</A> about the gramps.cmd function
+
+<!--
+<h3>Using the gramps: protocol</h3>
+<UL>
+<li>in HTML links.
+<A HREF="gramps:get cube">get cube</A>
+<A HREF="gramps:forget cube">forget cube</A>
+<br>The code for this is:
+<br>
+&lt;A HREF="gramps:get cube"&gt;get cube&lt;/A&gt;
+<br>
+&lt;A HREF="gramps:forget cube"&gt;forget cube&lt;/A&gt;
+<br>
+<li>
+<FORM ACTION="gramps:cyan cube">
+in a form's button to color cube
+<INPUT TYPE=SUBMIT VALUE=cyan>
+</FORM>
+The code for this is:
+<br>
+&lt;FORM ACTION="gramps:cyan cube"&gt;
+<br>
+&lt;INPUT TYPE=SUBMIT VALUE=cyan&gt;
+<br>
+&lt;/FORM&gt;
+<li> Select File/Open Url... from the menubar and type in gramps:get icos
+</UL>
+Learn <A HREF=#gramps>more</A> about the gramps: protocol.
+-->
+
+<A name=jsgramps>
+<H4>More on the gramps.cmd javascript function</H4>
+Every page loaded into gmol's web viewer can use the gramps.cmd function.
+This function takes one argument - a gramps command string.
+For example, you could create a link,
+<A HREF="javascript:gramps.cmd('get icos')">icos</A>
+to display icos.pix in gramps.  The code for this is:
+<br>
+&lt;A HREF="javascript:gramps.cmd('get icos')"&gt;icos&lt;/A&gt;
+</p>
+<p>
+The gramps.cmd function can be used in any javascript function that you
+use in this application window.  The examples here concentrate on short
+in-line javascript, but your functions can be much more elaborate and
+included in the HEAD or SCRIPT of your documents.
+<p>
+The gramps.cmd function returns a string that is the normal output of that command.
+The output is also diplayed in the Log tab.
+An error message is returned if the command fails.
+The error message is also shown in the status bar at the bottom of the main window.
+</p>
+<p>
+<FORM ACTION="javascript:alert(gramps.cmd('show/system'))">
+Here is an example of how the returned string might be used.
+<INPUT TYPE=SUBMIT VALUE=Show>
+</FORM>
+The code for this is:
+<br>
+&lt;FORM ACTION="javascript:alert(gramps.cmd('show/system'))"&gt;
+<br>
+&lt;INPUT TYPE=SUBMIT VALUE=Show&gt;
+<br>
+&lt;/FORM&gt;
+</p>
+
+<!--
+<A NAME=gramps>
+<H4>More on the gramps: protocol</H4>
+<p>
+In a typical URL, the protocol is http:, as in http://www.google.com.
+One sometimes sees the mailto: protocol, as in mailto:info@gnova.com.
+In QtGramps, we have created the gramps: protocol, as in gramps:get cube.
+This protocol will only work within this QtGramps application.
+This gramps: protocol can be used in any URL served by this QtGramps application.
+Any output or error messages from these commands is shown in the Log tab,
+which you can view by clicking the Log tab at the bottom of the main window.
+Errors are also shown in the status bar at the bottom of the main window.
+-->
+
+</BODY>
+</HTML>

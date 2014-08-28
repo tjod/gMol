@@ -1,0 +1,12 @@
+! massage to show icos structure more clearly
+insert 5FACE 5mer
+insert 4FACE 5mer
+insert 3FACE 5mer
+insert 2FACE 5mer
+
+insert a5mer 10mer
+
+insert a10mer 20mer
+
+insert b20mer bicos
+insert a20mer bicos

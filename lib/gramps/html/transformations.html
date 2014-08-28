@@ -1,0 +1,32 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>Transformations</H2>
+ The available picture transformations are <A HREF=rotate.html><SPAN CLASS=command>rotate</SPAN></A>, <A HREF=scale.html><SPAN CLASS=command>scale</SPAN></A>, <A HREF=translate.html><SPAN CLASS=command>translate</SPAN></A>,
+ <A HREF=perspective.html><SPAN CLASS=command>perspective</SPAN></A>, and <A HREF=move.html><SPAN CLASS=command>move</SPAN></A>. The way to set up these transformations is
+ detailed under the particular command name, e.g., <A HREF=rotate.html><SPAN CLASS=command>rotate</SPAN></A>. This
+ section describes the syntax which is necessary to set up a
+ transformation for a picture.
+<P>
+ GRAMPS transformation commands fit the following syntax:
+<P>
+<P CLASS=indent><i>command</i> <i>name</i> <i>keyword</i> <A HREF=function.html><i>function</i></A>
+<BR 3>
+<BR 1>
+</P CLASS=indent> where the "parts of speech" are those described in the Command Syntax
+ help topic. <i>keyword</i> is a specification of an axis to which the
+ transformation is to be referred, typically X, Y, or Z. <A HREF=function.html><i>function</i></A> is
+ typically a <A HREF=function.html><i>device</i></A> name or a <A HREF=function.html><i>value</i></A>. See the help information on
+ <A HREF=function.html><i>function</i></A>.
+<P>
+ Every transformation command has a <i>command</i>, a <i>name</i> and a pair of
+ {<i>keyword</i>, <A HREF=function.html><i>function</i></A>}. In any transformation command line, additional
+ pairs of {<i>keyword</i>, <A HREF=function.html><i>function</i></A>} may be added. They will apply to the
+ <i>name</i> and <i>command</i> already given on that line.
+<H4>Continuous transformations</H4>
+ All transformations allow continuous variation of a picture simply by
+ continuously turning the dial associated with the particular
+ transformation. It is also possible to make a continuous
+ transformation automatically occur without having to continuously turn
+ a dial. In this case, the postion of the dial is interpreted as the
+ rate of continuous transformation.
+<P>
+ To specify a continuous transformation, the letter "C" is included
+ with the <i>keyword</i> or <i>axis</i> specification in any transformation command.

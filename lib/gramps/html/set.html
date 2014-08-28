@@ -1,0 +1,352 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>SET</H2>
+ The <SPAN CLASS=command>set</SPAN> command is used to set various system parameters and variables
+ which may tailor the GRAMPS environment to your particular needs.
+ Many of the parameters which may be set using the <SPAN CLASS=command>set</SPAN> command are
+ shown using the <A HREF=show.html><SPAN CLASS=command>show</SPAN></A> command. The syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> SPECIFIER
+<BR 3>
+<BR 1>
+</P CLASS=indent> where the various SPECIFIERs are described in the subtopics below.
+<H4>Alpha</H4>
+ When using transparency (See <A HREF=intensity.html><SPAN CLASS=command>intensity</SPAN></A> and the T <i>keyword</i>), the
+ <SPAN CLASS=command>set</SPAN> ALPHA command can control how the transparency is accomplished.
+ If your machine has "alpha-planes", gramps can use them to do
+ the transparency.  If not, it will use a "screen-door" pattern
+ to fill polygons.  The density of the screen determines the amount
+ of transparency.  If you do not have alpha planes, then the
+ <SPAN CLASS=command>set</SPAN> ALPHA command has no effect and the screen-door transparency
+ is used.  If you do have alpha planes, <SPAN CLASS=command>set</SPAN> NOALPHA will cause
+ the screen-door transparency to be used.  <SPAN CLASS=command>set</SPAN> ALPHA 4 5 will cause
+ the alpha planes transparency to be used.  If you have the
+ alpha planes hardware, you may experiment with other <SPAN CLASS=command>set</SPAN> ALPHA
+ numbers, but <SPAN CLASS=command>set</SPAN> ALPHA 4 5 will always work OK, as will <SPAN CLASS=command>set</SPAN> NOALPHA.
+<H4>Noalpha</H4>
+ This turns off transparency using alpha-planes and instead uses a
+ "screen-door" patten to simulate transparency.  <SPAN CLASS=command>set</SPAN> NOALPHA is equivalent to
+ <SPAN CLASS=command>set</SPAN> ALPHA -1, -1.
+<H4>Backface and nobackface</H4>
+ For polygon and triangle mesh surfaces (including spheres), the backward facing 
+polygons can be switched off by giving the <SPAN CLASS=command>set</SPAN> nobackface 
+command. Set backface causes back-facing poygons to be shown. Nobackface means 
+they are not shown. Three optional arguments, after the backface keyword, specify 
+how bright the backfacing surfaces will be. For example set backface 0.5,1,0 causes 
+the back-facing surface to be shown at half ambient intensity, full diffuse intensity 
+and zero specular intensity. If the /color switch is used, the backfacing polygons 
+are shown in the color specified by three arguments (after the backface keyword). 
+These arguments are the hue, saturation and value. For example, set backface 120,0.5,0.5 
+shows the backfacing surfaces as a reddish grey. Removing back-facing polygons 
+can speed the display of objects. If your surface is totally enclosed, as is a 
+sphere, back-facing polygons will always be invisible anyway, so it behooves you 
+to use set backface in those cases. 
+<P>
+<H4>Background</H4>
+ The  <SPAN CLASS=command>set</SPAN> BACKGROUND <A HREF=function.html><i>value</i></A>  command is  used to set the background color on 
+ your window.  The <A HREF=function.html><i>value</i></A> ranges from 0 to 255.  0 is black, 255 is white
+ and other colors are shades of grey.
+<H4>Backhsv</H4>
+ The <SPAN CLASS=command>set</SPAN> BACKHSV command is used to set the background color on your
+ workstation. Three numbers should follow the BACKHSV <i>keyword</i>. They
+ define the hue, saturation and value of the color to use.
+ See the <A HREF=color.html><SPAN CLASS=command>color</SPAN></A> command for more information on how these values
+ are interpreted.
+<H4>Backrgb</H4>
+ The <SPAN CLASS=command>set</SPAN> BACKRGB command is used to set the background color on your
+ workstation. Three numbers should follow the BACKRGB <i>keyword</i>. They
+ define the red, green and blue components of the color to use.
+ The values are in the range of 0.0 to 1.0.
+<H4>Collect </H4>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> COLLECT
+<BR 3>
+<SPAN CLASS=command>set</SPAN> NOCOLLECT
+<BR 3>
+<BR 1>
+</P CLASS=indent> The <SPAN CLASS=command>set</SPAN> COLLECT command is used to collect commands typed at the
+ terminal into a file for later use. The syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> COLLECT FILENAME
+<BR 3>
+<BR 1>
+</P CLASS=indent> If no extension is given for for FILENAME, an extension of gin is
+ assumed. If no FILENAME is given, the FILENAME from the previous <SPAN CLASS=command>set</SPAN>
+ COLLECT command is used. If no previous <SPAN CLASS=command>set</SPAN> COLLECT command had been
+ given, then GRAMPS reports an error. Only one <SPAN CLASS=command>set</SPAN> COLLECT may be in
+ effect at any one time.
+<P>
+ The effect of the <SPAN CLASS=command>set</SPAN> COLLECT command is to cause each command line to
+ be written into the file FILENAME after the line is interpreted by
+ GRAMPS. Any command lines which cause an error to be printed are not
+ stored in the file. Certain commands, such as <A HREF=show.html><SPAN CLASS=command>show</SPAN></A> and <A HREF=help.html><SPAN CLASS=command>help</SPAN></A> are also
+ not collected. If a command line begins with the symbol %, then
+ the line is interpreted but not collected. If a command line begins
+ with %%, then the line is COLLECTed, but not interpreted. If the
+ typed command is a <A HREF=do.html><SPAN CLASS=command>do</SPAN></A> command, that command is stored in the file, but
+ the contents of the file that is <A HREF=do.html><SPAN CLASS=command>done</SPAN></A> are not stored in the new file.
+ If the <A HREF=do.html><SPAN CLASS=command>doing</SPAN></A> of the file causes an error to be printed, the <A HREF=do.html><SPAN CLASS=command>do</SPAN></A> that
+ referred to that file will still appear in FILENAME. The <SPAN CLASS=command>set</SPAN>
+ NOCOLLECT command closes FILENAME and stops the collection of command
+ lines until another <SPAN CLASS=command>set</SPAN> COLLECT command is given. See also the <A HREF=save.html><SPAN CLASS=command>save</SPAN></A>
+ command.
+<H4>Default</H4>
+ The <SPAN CLASS=command>set</SPAN> DEFAULT command requires another argument: a string
+ specifying a default directory for all <A HREF=get.html><SPAN CLASS=command>gets</SPAN></A>, <A HREF=getframe.html><SPAN CLASS=command>getframes</SPAN></A>, <A HREF=do.html><SPAN CLASS=command>dos</SPAN></A>, and <SPAN CLASS=command>set</SPAN>
+ COLLECTs. The saved default directory will be used for commands that
+ read or write files.
+<P>
+ If the directory name
+ begins with a dollar sign ($), it is interpreted as an
+ environment variable, set by the use before starting GRAMPS.
+<H4>Display</H4>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> DISPLAY
+<BR 3>
+<SPAN CLASS=command>set</SPAN> NODISPLAY
+<BR 3>
+<BR 1>
+</P CLASS=indent> It is possible to <SPAN CLASS=command>set</SPAN> NODISPLAY, which instructs GRAMPS to disallow
+ display of all objects until the <SPAN CLASS=command>set</SPAN> DISPLAY command is given.
+<H4>Echo</H4>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> ECHO
+<BR 3>
+<SPAN CLASS=command>set</SPAN> NOECHO
+<BR 3>
+<BR 1>
+</P CLASS=indent> The <SPAN CLASS=command>set</SPAN> ECHO command causes GRAMPS to echo each command line received
+ by GRAMPS. Normally, the line need not be echoed since it will have
+ been typed in at the terminal. It is possible for a user-written 
+ program to communicate with GRAMPS. For example, a program could
+ construct GRAMPS command lines and send them to GRAMPS via the 
+ interprocess communcation through which GRAMPS accepts commands. In
+ that case, it may be useful to have the command lines echoed. The
+ <SPAN CLASS=command>set</SPAN> NOECHO command causes command to no longer be echoed.
+<P>
+ If the <SPAN CLASS=command>set</SPAN> VERIFY command is in effect while <SPAN CLASS=command>set</SPAN> ECHO is also in
+ effect, then command lines retrieved from a file will also be printed.
+<P>
+ An asterisk (*) as the first character of a GRAMPS line will cause the
+ line not to be echoed, regardless of the state of the ECHO flags.
+ This is useful when reading a GRAMPS response through interprocess
+ communication, without having to worry whether the command line will
+ be echoed before the response.
+<H4>Filmpause</H4>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> FILMPAUSE number
+<BR 3>
+<BR 1>
+</P CLASS=indent> The <SPAN CLASS=command>set</SPAN> FILMPAUSE command requires an additional number argument.
+ This number is interpreted as a number of seconds (the number need not
+ be an integer) to pause between <A HREF=advance.html><SPAN CLASS=command>advances</SPAN></A>. If <SPAN CLASS=command>set</SPAN> FILMPAUSE 0 is
+ given, then no pause will be made.
+<H4>Framecount</H4>
+ When filming, the <A HREF=advance.html><SPAN CLASS=command>advance</SPAN></A> command is used to advance the display one
+ cycle and to ring the bell on the terminal (to trigger a camera.)
+ GRAMPS keeps a count of the number of <A HREF=advance.html><SPAN CLASS=command>advances</SPAN></A> that have occurred.
+ This count is shown with the <A HREF=show.html><SPAN CLASS=command>show/system</SPAN></A> command. It is possible to
+ set this counter to any number using the <SPAN CLASS=command>set</SPAN> FRAMECOUNT command. The
+ syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> FRAMECOUNT NUMBER
+<BR 3>
+<BR 1>
+</P CLASS=indent> When GRAMPS is
+ initialized, the frame counter is 0. <A HREF=restart.html><SPAN CLASS=command>restart</SPAN></A> also resets the frame
+ counter to 0.
+<H4>Fullerror</H4>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> FULLERROR
+<BR 3>
+<SPAN CLASS=command>set</SPAN> NOFULLERROR
+<BR 3>
+<BR 1>
+</P CLASS=indent> Normally, GRAMPS prints out errors messages when it encounters
+ something in a command line that it cannot deal with. In general,
+ when <SPAN CLASS=command>set</SPAN> FULLERROR is in effect, any FORTRAN run time errors that
+ accompany normal GRAMPS errors will be reported. <SPAN CLASS=command>set</SPAN> NOFULLERROR
+ turns off this mode of error reporting.
+<H4>Hidesurf and nohidesurf</H4>
+ Objects composed of polygons, triangle meshes and/or spheres can
+ hide each other when one passes in front of the other.  This effect
+ can be switched on with HIDESURF and off with NOHIDESURF.
+ This essentially corrsponds to using z-buffering (or not).
+<H4>Gouraud and flat</H4>
+ Polygons are shaded based on the angle between the Light source(s)
+ and the normal vector perpendicular to the polygon.  When the
+ polygon is shaded all the same color, it appears flat.  If the
+ shading is varied, depending on the normals of the neighboring
+ polygons and well as the normal of the the polygon being shaded,
+ a smoother shading effect results.  Use <SPAN CLASS=command>set</SPAN> GOURAUD to get this
+ smoother shading; use <SPAN CLASS=command>set</SPAN> FLAT for flat shading.
+<H4>Library</H4>
+ The <SPAN CLASS=command>set</SPAN> LIBRARY command requires another argument: a string
+ specifying a possible directory for any <A HREF=get.html><SPAN CLASS=command>gets</SPAN></A>, <A HREF=getframe.html><SPAN CLASS=command>getframes</SPAN></A>, <A HREF=do.html><SPAN CLASS=command>dos</SPAN></A>, and <SPAN CLASS=command>set</SPAN>
+ COLLECTs. The default directory (see <SPAN CLASS=command>set</SPAN> DEFAULT) will be used for
+ commands that read or write files. If the file cannot be found in
+ the default direcotry, the library directory will be searched.
+<P>
+ Under UNIX, if the directory name
+ begins with a dollar sign ($), it is interpreted as an
+ environment variable, set by the user before starting GRAMPS.
+<H4>Lowercase</H4>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> LOWERCASE
+<BR 3>
+<SPAN CLASS=command>set</SPAN> NOLOWERCASE
+<BR 3>
+<BR 1>
+</P CLASS=indent> Normally, GRAMPS will translate lower case letters to upper case. If
+ you do not want this translation to occur, use the command <SPAN CLASS=command>set</SPAN>
+ NOLOWERCASE. To restore GRAMPS to normal, use the command <SPAN CLASS=command>set</SPAN>
+ LOWERCASE. In either mode of operation, no translation from lower
+ case to upper case will take place for strings enclose in quotation
+ marks. This is most useful with the <A HREF=text.html><SPAN CLASS=command>text</SPAN></A> command in order to draw
+ text using both upper and lower case letters.
+<H4>Maxdepth ** esoteric **</H4>
+ GRAMPS uses a matrix stack for pushing and popping transformation
+ matrices. The software and or hardware may be limited in the size, or
+ depth of this stack. The <SPAN CLASS=command>set</SPAN> MAXDEPTH command allows the user to
+ change the maximum depth to which <A HREF=group.html><SPAN CLASS=command>grouping</SPAN></A> can be used (the maximum
+ amount of the stack that will be utilized.) The syntax of the command
+ is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> MAXDEPTH NUMBER
+<BR 3>
+<BR 1>
+</P CLASS=indent> where NUMBER is any number greater than 0. If the number you give is
+ greater than the hardware stack limit minus 1, then the display
+ may freak out and give you odd transformations; GRAMPS may even crash.
+ The MAXDEPTH is set at the correct maximum value in GRAMPS and there is
+ no reason to alter its value, except for play.
+<H4>Nooutput</H4>
+ The <SPAN CLASS=command>set</SPAN> NOOUTPUT command stops any graphics output from coming to
+ your terminal or to an output file. See the <SPAN CLASS=command>set</SPAN> OUTPUT command.
+<H4>Output</H4>
+ The <SPAN CLASS=command>set</SPAN> OUTPUT command is used to direct the display output of
+ GRAMPS somewhere, since it has no preordained place to go.
+ Display output may go to a file in .pix or .qix format, or to
+ your display screen.
+<P>
+ If you type <SPAN CLASS=command>set</SPAN> OUTPUT filename, then output will go to a .pix file
+ with the name 'filename'. You can also type <SPAN CLASS=command>set</SPAN> OUTPUT filename.qix
+ to create an output file in .qix format.
+<P>
+ If you <SPAN CLASS=command>set</SPAN> OUTPUT WINDOW, output will go to a window on your
+ display. You will have to open a window according to the
+ method normally used by your window manager for opening new
+ windows with the mouse.  If you do not want to use the mouse,
+ you may specify the window size and location of the upper left
+ as in the following example:
+<P>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> OUTPUT WINDOW 1024x1024+500+100
+<BR 3>
+<BR 1>
+</P CLASS=indent> will make a window 1024 by 1024 pixels, with the origin
+ at 500 right and 100 (up or down).
+<P>
+ The <A HREF=advance.html><SPAN CLASS=command>advance</SPAN></A> command is necessary to initiate any and all displays
+ into a file. The <SPAN CLASS=command>set</SPAN> NOOUTPUT command causes further display
+ output to stop, until you use <SPAN CLASS=command>set</SPAN> OUTPUT again.
+<H4>Report</H4>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> REPORT
+<BR 3>
+<SPAN CLASS=command>set</SPAN> NOREPORT
+<BR 3>
+<BR 1>
+</P CLASS=indent> When GRAMPS encounters an error it cannot handle, that error is
+ normally reported to the user. The use of the <SPAN CLASS=command>set</SPAN> NOREPORT command
+ causes GRAMPS to neglect reporting of error messages. <SPAN CLASS=command>set</SPAN> REPORT
+ restores the normal error reporting operation.
+<H4>Sensitivity</H4>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> SENSITIVITY number
+<BR 3>
+<BR 1>
+</P CLASS=indent> The effect of the command is to multiply all subsequent dial values by
+ the NUMBER given. A large NUMBER decreases the sensitivity with which
+ the dials may be used. The default value for the sensitivity is 1.0.
+ Real numbers may be used. If the NUMBER given is less than 1.0, then
+ the sensitivity will be increased.
+<P>
+ This command has no effect on the mouse since it is treated in GRAMPS
+ as absolute rather than relative devices.
+<H4>Smoothline</H4>
+ 
+<p>On a raster system, lines can appear jagged, especially those lines which are 
+  nearly but not exactly horizontal or vertical. This is an effect of using discreet 
+  pixels on a video screen. Using a method sometimes call anti-aliasing, this 
+  effect can be lessened. Use the command <SPAN CLASS=command>set</SPAN> SMOOTHLINE 
+  to enable anti-aliasing of lines. Use the command <SPAN CLASS=command>set</SPAN> 
+  NOSMOOTHLINE to disable anti-aliasing. *** BUT BEWARE **** Because of the way 
+  SMOOTHLINE is implemented, fewer colors are available when SMOOTHLINE is set 
+  on. Depth-cueing is also affected; there are fewer levels of intensity depth-cueing 
+  when <SPAN CLASS=command>set</SPAN> SMOOTHLINE is used. These effects are due 
+  to the color map modifications which are made to make smooth lines. Because 
+  the color map is modified, there are differences in the shades of colors corresponding 
+  to color values when SMOOTHLINE mode is set. FINALLY, <A HREF=text.html><SPAN CLASS=command>text</SPAN></A> 
+  AND POLYGONS ARE NOT DRAWN CORRECTLY WHEN SMOOTHLINE IS <SPAN CLASS=command>set</SPAN>. 
+</p>
+<h4>Sphere</h4>
+<p>The sphere primitive is rendered as a set of shaded triangles. The set sphere 
+  command allows you to specify how high a resolution should be used. The set 
+  sphere command takes two arguments, each composed of two integers separated 
+  by a dot. For example, set sphere 2.2, 5.2. The first number (2.2 in the example) 
+  represents how the sphere should be rendered while the scene is being manipulated 
+  using the mouse (or dials) and the second represents how the spheres should 
+  be rendered when the scene is still (usually a higher resolution). For each 
+  value, the first integer to the left of the dot represents how many triangles 
+  (actually how many subdivisions of an icosohedron) should be used and the second 
+  number to the right of the dot represents the style (point, line, shaded triangle). 
+  So, a value of 1.1 would represent a sphere as an icosohedron using lines and 
+  5.2 would represent a sphere as a highly-subdivided icosohedron using shaded 
+  triangles. The default values are 2.2 and 5.2.</p>
+<H4>Stereo **** use the stereo macro-command ****</H4>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> STEREO
+<BR 3>
+<SPAN CLASS=command>set</SPAN> NOSTEREO
+<BR 3>
+<BR 1>
+</P CLASS=indent> The <SPAN CLASS=command>set</SPAN> STEREO command causes two drawings of every object to appear
+ on the screen. The effect is to create a cross-eyed stereo picture.
+ The <SPAN CLASS=command>set</SPAN> NOSTEREO command returns the display to the normal mode of
+ operation. The <SPAN CLASS=command>set</SPAN> STEREO command also accepts an optional <A HREF=function.html><i>value</i></A>
+ which specifies the amount of X translation (stereo separation) to be
+ used. The general syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> STEREO <A HREF=function.html><i>value</i></A>
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <A HREF=function.html><i>value</i></A> is any number in the range -1 to +1 (default is
+ 0.2.) For a lesser stereo effect, use a <A HREF=function.html><i>value</i></A> less than 0.2. For a
+ heightened stereo effect use a <A HREF=function.html><i>value</i></A> greater than 0.2. To cause the
+ <SPAN CLASS=command>set</SPAN> STEREO command to create a non-cross-eyed (wall-eyed?) stereo
+ view, use a negative <A HREF=function.html><i>value</i></A>.
+<P>
+ Any transformations applying to LWorld at the time <SPAN CLASS=command>set</SPAN> STEREO is put
+ into effect are copied to RWorld before the <A HREF=perspective.html><SPAN CLASS=command>perspective</SPAN></A>, <A HREF=translate.html><SPAN CLASS=command>translate</SPAN></A>,
+ and <A HREF=move.html><SPAN CLASS=command>move</SPAN></A> commands are executed.
+<H4>Textsize </H4>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> TEXTSIZE value
+<BR 3>
+<BR 1>
+</P CLASS=indent> The <SPAN CLASS=command>set</SPAN> TEXTSIZE command requires a <A HREF=function.html><i>value</i></A> argument in the range 1 to
+ 100. All subsequent <A HREF=text.html><SPAN CLASS=command>text</SPAN></A> commands will output characters to the screen
+ using the text size specified here. 1 is small and 10 is large. The
+ default value used by GRAMPS is 7.
+<H4>Verify</H4>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> VERIFY
+<BR 3>
+<SPAN CLASS=command>set</SPAN> NOVERIFY
+<BR 3>
+<BR 1>
+</P CLASS=indent> The <SPAN CLASS=command>set</SPAN> VERIFY command will cause each line of a gin file which is
+ being <A HREF=do.html><SPAN CLASS=command>done</SPAN></A> to be printed at the terminal as it is being interpreted.
+ The <SPAN CLASS=command>set</SPAN> NOVERIFY command stops this mode of operation. Commands which
+ are typed in at the terminal are not printed since they will already
+ appear on the terminal. See also the <SPAN CLASS=command>set</SPAN> ECHO command.
+<H4>Watch</H4>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> WATCH
+<BR 3>
+<SPAN CLASS=command>set</SPAN> NOWATCH
+<BR 3>
+<BR 1>
+</P CLASS=indent> The effect of <SPAN CLASS=command>set</SPAN> WATCH is to have the display reflect the changes
+ made by a gin file as each line is interpreted. Normally, the total
+ effect is seen only after the entire file has finished being
+ interpreted. The <SPAN CLASS=command>set</SPAN> WATCH option increases the time for
+ interpretation of the gin file slightly, but it is quite entertaining
+ and useful for debugging, too. <SPAN CLASS=command>set</SPAN> NOWATCH cancels this mode of
+ operation of GRAMPS.

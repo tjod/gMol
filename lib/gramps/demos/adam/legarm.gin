@@ -1,0 +1,8 @@
+deass y2,x2,y3,x3
+
+leglift L,Y2
+leglift R,X2
+set oldunits
+ROT RARM x -20000<x3<20000
+ROT RFOR x 0<y3<30000
+ROT RARM z -20000<-y7<0

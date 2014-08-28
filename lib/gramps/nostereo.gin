@@ -1,0 +1,4 @@
+set newunits
+SET NOSTEREO
+PERSP LW ps 0
+PERSP RW ps 0

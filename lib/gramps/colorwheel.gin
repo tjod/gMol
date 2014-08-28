@@ -1,0 +1,16 @@
+get/name=wheel colorwheel
+get/name=sample ssphere
+get/name=label colorwheel.lab
+group wheel,label colorwheel
+rotate colorwheel y 180 z 90
+translate sample p 0.6
+scale sample xyz .2
+scale wheel xy .8 z 0
+scale lab xy .95
+
+rotate sample z 0 z 0<x1<360
+color  sample h 0 h 0<x1<360
+
+reset/leave LW
+freeze LW
+translate colorwheel z 1

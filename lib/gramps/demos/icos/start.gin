@@ -1,0 +1,18 @@
+TRANSLATE   MOTIF  Q,  0.28868:s$1 ! sqrt(3)/6
+ROTATE      BMOTIF X,  42.840:s$1
+ROTATE      BMOTIF Z,  180.00:s$1
+
+ROTATE      PAIR X, -53.280:s$1
+TRANSLATE   PAIR R,  1.1547:s$1 ! sqrt(3) * 2/3
+
+ROTATE      5PAIR Y,  144.00:s$1 ! 360/5
+ROTATE      4PAIR Y,  72.000:s$1
+ROTATE      3PAIR Y, -144.00:s$1
+ROTATE      2PAIR Y, -72.000:s$1
+
+TRANSLATE   5mer  Y,  -0.50:s$1
+ROTATE      a5mer X, 180.00:s$1
+rot MO xyzpqr 0:s$1
+
+adv $1
+dials

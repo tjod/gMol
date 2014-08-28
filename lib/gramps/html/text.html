@@ -1,0 +1,19 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>TEXT</H2>
+ The <SPAN CLASS=command>text</SPAN> command is used to draw text characters on the screen. The
+ syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>text</SPAN> STRING <i>name</i> <A HREF=function.html><i>value</i></A>,<A HREF=function.html><i>value</i></A>,<A HREF=function.html><i>value</i></A>
+<BR 3>
+<BR 1>
+</P CLASS=indent> STRING is any string of one or more characters. If STRING is to
+ contain DELIMITERs (blanks or commas) it must be enclosed in double
+ quotation marks. If the string contains lower case letters, even if
+ it contains no DELIMITER characters, it should also be enclosed in
+ double quotation marks to ensure no translation to upper case is done.
+ <i>name</i> must be a new name not already known to the system.
+<P>
+ The <A HREF=function.html><i>values</i></A> are interpreted as X, Y, and Z coordinates for placement of
+ the lower left corner of the first character in STRING. These <A HREF=function.html><i>values</i></A>
+ are optional. For the <A HREF=function.html><i>values</i></A> which are omitted, an assumption is
+ made. If the X or Y coordinate is missing, then the default value of
+ 0 is used. If the Z coordinate is missing, the default value used is 0.

@@ -1,0 +1,28 @@
+!!The full alpha-carbon model including vp1, vp2, vp3
+!! and vp4 can be displayed by typing the following commands
+!! in the command window.
+!! Vp4 will be gold; the others are colored as above.
+!!      blank MOTIF
+!!      deblank a_vpp
+!!To restore the quadrilateral model:
+!!      blank a_vpp
+!!      deblank MOTIF
+!!
+!!A surface model of the capsid may be displayed:
+!!      blank  a_vpp, MOTIF
+!!      deblank s_vpp
+!!
+!!A cartoon model of the capsid may be displayed:
+!!      blank  a_vpp, s_vpp, MOTIF
+!!      deblank c_vpp
+!!      blank coils
+!!      blank strands
+!!      blank helices
+!!
+!!Try this, too:
+!!      blank bicos
+!!      deblank 5mer
+!!
+!!Summary of mouse button useage:
+!!   left:   rotate entire scene
+!!   wheel:  scale entire scene

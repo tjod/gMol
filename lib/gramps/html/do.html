@@ -1,0 +1,95 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>DO</H2>
+ GRAMPS commands are normally interpreted as they are typed in. I
+ is possible, however, to have GRAMPS read commands from a command
+ procedure file (a gin file.) This is accomplished by using the <SPAN CLASS=command>do</SPAN>
+ command.
+<P>
+ The <SPAN CLASS=command>do</SPAN> command is useful for executing a list of commands stored in a
+ disk file. The syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>do</SPAN> FILENAME
+<BR 3>
+<BR 1>
+</P CLASS=indent> where FILENAME is the name of a file known to the operating system.
+ A default extension of gin is assumed by GRAMPS but may be overridden
+ by explicitly typing the extension as part of the FILENAME. If the
+ FILENAME is not found in your directory, GRAMPS will search the
+ library directory $gramps_lib for the FILENAME.  $gramps_lib must be
+ defined as a UNIX enviroment variable.
+<P>
+ The file specified by FILENAME is read and its contents are
+ interpreted as GRAMPS commands. A gin file may contain the <SPAN CLASS=command>do</SPAN> command
+ itself, but such nesting may occur only up to 10 levels deep.
+<P>
+ If the <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> VERIFY command has been given, then commands from gin files
+ which are being <SPAN CLASS=command>done</SPAN> will be echoed to the terminal as they are
+ interpreted.
+<P>
+ If the <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> WATCH command is given before <SPAN CLASS=command>doing</SPAN> a file, then the effect
+ of each command (if there is a visible effect) on the screen will be
+ displayed during the interpretation of the gin file.
+<H4>Parameters</H4>
+ Parameters may also be passed to command procedures. Like $<i>symbols</i>,
+ $<i>parameters</i> have names consisting of a $ followed by a number. These
+ $<i>parameters</i> are local to the gin file in which they are used and have
+ no effect on $<i>symbols</i> available at GRAMPS command level or on
+ $<i>parameters</i> named in any other gin file. The current limit for this
+ number is 10.
+<P>
+ $PARAMETERS may be assigned values using the <A HREF=pick.html><SPAN CLASS=command>pick/parameter</SPAN></A> command,
+ but again, the $<i>parameter</i> assigned the value will not be the $<i>symbol</i>
+ with the same name, but will be the local $<i>parameter</i>. More
+ conveniently, however, $<i>parameters</i> may be assigned values at the time
+ the gin file is <SPAN CLASS=command>done</SPAN>. So, when writing a gin file which contains
+ $PARAMETERS, you are implying a syntax in the order in which the
+ $PARAMETERS are specified when <SPAN CLASS=command>doing</SPAN> the file. $1 always refers to
+ the first string specified after the file name, $2 to the second, $6
+ to the sixth, and so forth. The <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> VERIFY command will echo each
+ command as it is read from the gin file before the $<i>parameter</i>
+ replacement has occurred. It is possible to use the <A HREF=show.html><SPAN CLASS=command>show/parameter</SPAN></A>
+ command to show the value of any $<i>parameter</i> within the gin file. The
+ syntax of the command is:
+<P>
+<P CLASS=indent><A HREF=show.html><SPAN CLASS=command>show/parameter</SPAN></A> $<i>parameter</i>
+<BR 3>
+<BR 1>
+</P CLASS=indent> where $<i>parameter</i> is the name of any $<i>parameter</i>. If this argument is
+ omitted, the value of each $<i>parameter</i> is shown. Since $<i>parameters</i> are
+ local to a gin file, using the command <A HREF=show.html><SPAN CLASS=command>show/parameter</SPAN></A> at GRAMPS
+ command level will not refer to the $<i>parameters</i> of any gin file. The
+ <A HREF=show.html><SPAN CLASS=command>show/symbol</SPAN></A> command may be used at GRAMPS command level. $<i>symbols</i> may
+ be thought of as $<i>parameters</i> local to GRAMPS command level. $<i>symbols</i>
+ are local to GRAMPS command level, since reference to $1 within a gin
+ file will produce the value of the $<i>parameter</i> $1 and not the $<i>symbol</i>
+ $1.
+<P>
+ Parameters may be concatenated with character strings and other
+ parameters. See the help topic SYMBOLS CONCATENATION.
+<H4>Adding commands</H4>
+ GRAMPS syntax allows a command procedures to be used in such a way
+ that they appear to be new commands. When a command line is
+ interpreted by GRAMPS, a table of GRAMPS commands is searched. If no
+ match for the command name is found, GRAMPS will then search the
+ current default directory for a gin file with a name identical to the
+ command name not in the command table. If such a gin file is found,
+ it is <SPAN CLASS=command>done</SPAN> with replacement of $PARAMETERS as usual. For example, you
+ might give the following command:
+<P>
+<P CLASS=indent>SPIN ADNA D3
+<BR 3>
+<BR 1>
+</P CLASS=indent> GRAMPS would find no command named SPIN, but would find a file called
+ SPIN.gin created as in the previous examples. The file would be <SPAN CLASS=command>done</SPAN>,
+ after replacement of $PARAMETERS with the strings "ADNA" and "D3".
+ Thus it appears as if SPIN were a GRAMPS command. Users can define
+ any number of gin files in this way. Remember, however, that gin
+ files can be nested only to a current maximum of 10 levels.
+<P>
+ When constructing gin command files for use as GRAMPS commands,
+ remember that GRAMPS allows abbreviations for its own command names,
+ but not for your gin file command names. Also, remember that GRAMPS
+ will interpret any <i>command</i> typed in as a GRAMPS <i>command</i>, if possible,
+ before it searches for a gin file.  There are several .gin files in
+ the gramps_lib directory, which gramps always searches for gin files
+ AFTER it searches your current directory.  See the '<A HREF=help.html><SPAN CLASS=command>help</SPAN></A> macro'
+ entry for some info on these useful files.

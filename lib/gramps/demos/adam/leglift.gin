@@ -1,0 +1,3 @@
+set oldunits
+ROT,$1$LEG,X,0<$2$<25000
+ROT,$1$LLEG,X,-25000<-$2$<0

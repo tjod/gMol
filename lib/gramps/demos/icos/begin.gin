@@ -1,0 +1,6 @@
+! a single advance let's me "return" from here and domore carries out the rest
+adv
+icostri $1
+scale LW w 1:s100
+adv 100
+dials

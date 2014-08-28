@@ -1,0 +1,32 @@
+set newunits
+get helix_vp1
+get helix_vp2
+get helix_vp3
+group helix_vp1,helix_vp3 helices
+
+get strand_vp1
+get strand_vp2
+get strand_vp3
+group strand_vp1, strand_vp3, strands
+
+get coil_vp1
+get coil_vp2
+get coil_vp3
+get coil_vp4
+group coil_vp1,coil_vp4 coils
+group helices,coils c_vpp
+
+scal c_vpp w 100
+blank c_vpp
+insert c_vpp FACE
+
+cyan helix_vp1
+cyan coil_vp1
+cyan strand_vp1
+blue helix_vp2
+blue coil_vp2
+blue strand_vp2
+purple helix_vp3
+purple coil_vp3
+purple strand_vp3
+color coil_vp4 h 275

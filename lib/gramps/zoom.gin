@@ -1,0 +1,5 @@
+perspective LWorld e $1:20 w $2:20
+! let continuous-ness take care of this
+!adv 20
+! let advanceDone signal/slot take care of this
+!perspective LWorld e 0.01<-y2<50

@@ -1,0 +1,12 @@
+deass x1
+deass y1
+deass x3
+ROTATE      surf  X,-Y1
+ROTATE      surf  Z, X1 
+set oldunits
+tran zl x 0<-y3<63000 y 0<x3<63000
+tran O  y -63000<y3<0
+tran Ha x 0<x3/2<31500
+tran Hb x -31500<-x3/2<0
+tran aline y 0<x3<63000
+tran bline x 0<-y3<63000

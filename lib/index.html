@@ -1,0 +1,104 @@
+<html>
+<head>
+<title>
+gMol1.7
+</title>
+</head>
+
+<body>
+<h2>Welcome to gMol v1.7</h2>
+<p>
+ gMol is a desktop app to display and animate molecular models.
+ To return to this page, select Help/gMol from the menu bar.
+ Use the File/Open menu above to select a PDB or SDF file to display.
+ Various styles of atom and bond drawing are available, including "cartoon" drawings for proteins.
+ It is also possible to display molecular surfaces, electrostatic potential surfaces,
+ electron density surfaces.
+ gMol uses the mouse to rotate and
+ scale the overall scene containing all objects.  Moving the mouse
+ with the left button pressed rotates the scene and the mouse wheel scales it.
+ <!--
+ The mouse and other
+ <A HREF=gramps/html/function.html>devices</A>
+ can be assigned to control many aspects of every object by using
+ various Gramps commands.
+ -->
+ </p>
+<p>
+The main window contains a top menu and several panels.
+<ul>
+<li>The graphics panel on the right where graphics objects are displayed.
+<li>A tabbed panel on the left where one of several panels can be selected for display.
+<ul>
+<li>This Help panel where gMol or Gramps help content appears.
+<li>The gMol panel where the tree of displayed molecules appears.
+<li>The hidden, experimental gMol.debug panel where gMol and Gramps object and tree information appears.
+<li>The hidden Demos panel where several Gramps demonstration scripts can be run.
+<!--
+<li>The Control panel, where
+ <A HREF=gramps/html/function.html>dials and sliders</A>
+ can be used to control graphics objects.
+-->
+<li>The hidden Log panel where Gramps commands issued by gMol are logged.
+</ul>
+</ul>
+The graphics panel is always shown.
+The tabs at the bottom of the left panel allow you to select
+which of the tabbed panels is shown.
+The View menu in the menu bar can be used to select which of the
+tabs are hidden or shown.  An additional panel and View menu entry
+is added whenever you open an
+html file (File/Open) or request a web document (File/Open URL).
+SDF, MOL or PDB files can also be opened using a URL,
+<a href=gmol/pdb.html>for example</a> by clicking a link on web site.
+See <a href="#learn">below</a> for more information on using html files and
+javascript in gMol.
+</p>
+<p>
+If a file named gmol.html exists in your home directory,
+it will be automatically loaded into a new panel when gmol starts.
+The home directory is $HOME (mac and linux) or %HOME% (windows).
+The panel's tab
+title is taken from the head/title tag in the gmol.html file.
+The file may contain any html and javascript, allowing you, for example,
+to easily document and access molecule files in your computer
+or external web servers.
+See <a href="#learn">below</a> for more information on using html files and
+javascript in gMol.
+</p>
+<p>
+gMol uses the general-purpose graphics display system called Gramps.
+Gramps is an application used to display, manipulate
+and animate 3-dimensional graphics objects composed of
+points, lines, shaded polygons, sphere and cylinders.
+ If you need to create models other than those provided by gMol, you can create
+ Gramps objects using your own programs and incorporate those into the gMol/Gramps display.
+</p>
+<p>
+ Gramps is also a command line graphics language.
+ The full power of Gramps is available through the use of these commands.
+To use Gramps commands, select the Gramps
+tab from the View menu.  Learn more about
+<A HREF="gramps/html/index.html">gramps commands</A>,
+or select Help/Gramps from the
+menu bar.
+<p>
+Select Help/Demos from the menu bar,
+to see a demonstration of some of Gramps capabilities.
+</p>
+<p>
+<a id="learn">
+Learn about
+</a>
+<ul>
+<li><a href=gmol/html.html>Using html pages with gMol</a>
+<li><A HREF="js/howto.html">Using JavaScript with gMol</A>
+<li> <A HREF="js/index.html">Examples of JavaScript with gMol</A>
+<li><a href=gmol/pdb.html>SDF, MOL and PDB file links in gMol web pages</a>
+</ul>
+</p>
+<p>
+To return to this page, select Help/gMol from the menu bar.
+</p>
+</body>
+</html>

@@ -1,0 +1,4 @@
+set newunits
+set stereo L
+per RW s  0.15 s -d8/4
+per LW s -0.15 s  d8/4

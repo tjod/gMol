@@ -1,0 +1,9 @@
+inten $1 adp 2:20
+adv 20
+inten $1 adp 0.4:20
+adv 20
+inten $1 adp 2:20
+adv 20
+inten $1 adp 0.4:20
+adv 20
+reset/inten=adp/group $1

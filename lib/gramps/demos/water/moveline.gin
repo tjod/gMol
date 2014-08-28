@@ -1,0 +1,9 @@
+! move zline,aline,bline to point picked on surface
+! does NOT move Ha Hb O, as it should
+pick/poi/wait #1
+tran zline xyzw #1
+tran zline xy .+1
+tran aline yw #1
+tran aline y .+1
+tran bline xw #1
+tran bline x .+1

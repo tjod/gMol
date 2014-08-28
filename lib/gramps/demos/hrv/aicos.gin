@@ -1,0 +1,4 @@
+ROTATE      aicos Y,  90.003:$1
+SCALE       aicos W, 0.53711:$1
+COLOR       aicos S,0:$1
+COLOR       aicos V, 0.30519:$1

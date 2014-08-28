@@ -1,0 +1,17 @@
+The directories here contain gramps demonstration files.
+To run them, cd to the chosen directory, and run gramps.
+Type the command 'demo' to gramps.  You will see a brief
+description of what the demo is about and how to interact
+with it.  To exit the demo, type 'quit'.  Remember you must
+have the gramps_lib environment variable set correctly.
+
+WARNING: The files here were created using the OLDUNITS
+units in gramps, in which 32767=180degrees of rotation,
+1.0 units of translation, etc.  This is all taken care
+of easily with the 'set oldunits' command at the top
+of demo.gin in each of the sub-directories here.
+The .gin files called by demo all inherit the oldunits
+and work properly.  The warning is, if you wish to use
+certain .gin files in these directories WITHOUT being called
+by demo, you may have to add 'set oldunits' to the top of
+them for them to work properly.

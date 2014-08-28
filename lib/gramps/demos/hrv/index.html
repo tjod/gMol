@@ -1,0 +1,140 @@
+<HTML>
+<HEAD>
+<TITLE>HRV Human Rhinovirus 14</TITLE>
+<SCRIPT>
+ function monomer() {
+   gramps.cmd("blank a20mer, b20mer, a10mer, a5mer, 2FACE, 3FACE, 4FACE, 5FACE");
+ }
+ function pentamer() {
+   gramps.cmd("blank a20mer, b20mer, a10mer, a5mer");
+   gramps.cmd("deblank 2FACE");
+   gramps.cmd("deblank 3FACE");
+   gramps.cmd("deblank 4FACE");
+   gramps.cmd("deblank 5FACE");
+ }
+ function tenmer() {
+   gramps.cmd("blank a20mer, b20mer, a10mer");
+   gramps.cmd("deblank 2FACE");
+   gramps.cmd("deblank 3FACE");
+   gramps.cmd("deblank 4FACE");
+   gramps.cmd("deblank 5FACE");
+   gramps.cmd("deblank a5mer");
+ }
+ function allmer() {
+   gramps.cmd("deblank 2FACE");
+   gramps.cmd("deblank 3FACE");
+   gramps.cmd("deblank 4FACE");
+   gramps.cmd("deblank 5FACE");
+   gramps.cmd("deblank a5mer");
+   gramps.cmd("deblank a10mer");
+   gramps.cmd("deblank a20mer");
+   gramps.cmd("deblank b20mer");
+ }
+ function toggle_all(cbox) {
+   var state = cbox.checked;
+   for (i=0; i<cbox.form.length; ++i) {
+     if("checkbox" == cbox.form[i].type) {
+       cbox.form[i].checked = state;
+     }
+   }
+   toggle(cbox);
+ }
+ function toggle(cbox) {
+   if (cbox.checked) {
+     gramps.cmd("deblank " + cbox.name);
+   } else {
+     gramps.cmd("blank " + cbox.name);
+   }   
+ }
+ function scale() {
+   gramps.cmd("persp LW e 0.01<-Y2<50.0 h .");
+ }
+ function clip() {
+   gramps.cmd("persp LW e . h 0.01<-Y2<2.0");
+ }
+</SCRIPT>
+<HEAD>
+<BODY onLoad="gramps.cmd('resetup')">
+<H2>Human Rhinovirus 14</H2>
+This is a representation of the capsid of Human Rhino Virus 14.
+The capsid has an icosohedral structure and is made of four proteins named vp1, vp2, vp3 and vp4.
+Vp1, vp2  and vp3 are on the outside of the capsid.  Vp4 is on the inner side of the capsid.
+Vp1, vp2 and vp3 are shown schematically as colored tiles on the surface of the capsid.
+Vp4 is not shown in this colored tile model.  Vp1 is light blue, vp2 is blue and vp3 is purple.
+<UL>
+<LI>You may rotate this model using the left mouse button.
+<LI>The mouse wheel can be used to control the:
+<FORM>
+<INPUT TYPE=RADIO name=wheel onClick="scale()" CHECKED>Scale
+<INPUT TYPE=RADIO name=wheel onClick="clip()">Clipping plane
+</FORM>
+<LI>Select the following elements of the model to be shown
+<FORM>
+<INPUT TYPE=CHECKBOX CHECKED NAME="aicos" onClick="toggle(this)">Icosohedron frame
+<br>
+<INPUT TYPE=CHECKBOX UNCHECKED NAME="tri" onClick="toggle(this)">Triangle line motif
+</FORM>
+
+<TABLE BORDER=1>
+<TR><TH></TD><TH>vp1</TH><TH>vp2</TH><TH>vp3</TH><TH>vp4</TH></TR>
+<FORM>
+<TR><TD ALIGN=RIGHT>Colored tile model<INPUT TYPE=CHECKBOX CHECKED NAME="MOTIF" onClick="toggle_all(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX CHECKED NAME="M1" onClick="toggle(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX CHECKED NAME="M2" onClick="toggle(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX CHECKED NAME="M3" onClick="toggle(this)"></TD>
+  <TD></TD>
+</FORM>
+</TR>
+<FORM>
+<TR><TD ALIGN=RIGHT>Surface model<INPUT TYPE=CHECKBOX UNCHECKED NAME="s_vpp" onClick="toggle_all(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="s_vp1" onClick="toggle(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="s_vp2" onClick="toggle(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="s_vp3" onClick="toggle(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="s_vp4" onClick="toggle(this)"></TD>
+</TR>
+</FORM>
+<FORM>
+<TR><TD ALIGN=RIGHT>Alpha-carbon model<INPUT TYPE=CHECKBOX UNCHECKED NAME="a_vpp" onClick="toggle_all(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="a_vp1" onClick="toggle(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="a_vp2" onClick="toggle(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="a_vp3" onClick="toggle(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="a_vp4" onClick="toggle(this)"></TD>
+</TR>
+</FORM>
+<FORM>
+<TR><TD ALIGN=RIGHT>Helices<INPUT TYPE=CHECKBOX UNCHECKED NAME="helices" onClick="toggle_all(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="helix_vp1" onClick="toggle(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="helix_vp2" onClick="toggle(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="helix_vp3" onClick="toggle(this)"></TD>
+  <TD></TD>
+</TR>
+</FORM>
+<FORM>
+<TR><TD ALIGN=RIGHT>Strands<INPUT TYPE=CHECKBOX UNCHECKED NAME="strands" onClick="toggle_all(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="strand_vp1" onClick="toggle(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="strand_vp2" onClick="toggle(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="strand_vp3" onClick="toggle(this)"></TD>
+  <TD></TD>
+</TR>
+</FORM>
+<FORM>
+<TR><TD ALIGN=RIGHT>Coils<INPUT TYPE=CHECKBOX UNCHECKED NAME="coils" onClick="toggle_all(this)"></TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="coil_vp1" onClick="toggle(this)"> </TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="coil_vp2" onClick="toggle(this)"> </TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="coil_vp3" onClick="toggle(this)"> </TD>
+  <TD> <INPUT TYPE=CHECKBOX UNCHECKED NAME="coil_vp4" onClick="toggle(this)"> </TD>
+</TR>
+</TABLE>
+
+<FORM>
+    <INPUT TYPE=RADIO NAME=model onClick="monomer()">Show only one monomer of vp1/2/3/4<sup>*</sup>
+<br><INPUT TYPE=RADIO NAME=model onClick="pentamer()">Show one pentamer
+<br><INPUT TYPE=RADIO NAME=model onClick="tenmer()">Show two pentamers
+<br><INPUT TYPE=RADIO NAME=model Checked onClick="allmer()">Show entire capsid
+</FORM>
+</UL>
+<sup>*</sup>Note: When just the monomer (vp1/2/3/4) is shown,
+the colored tile model vp3 segment does not line up over the protein vp3.
+The respective segments are rotated one fifth of a circle out of phase.
+</BODY>
+</HTML>

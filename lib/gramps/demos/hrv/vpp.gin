@@ -1,0 +1,14 @@
+get vp1$1
+g vp2$1
+g vp3$1
+g vp4$1
+group vp1$1 vp4$1 vpp
+col vp1$1 h 6000 v 22000
+col vp2$1 h 9000
+col vp3$1 h 15000
+col vp4$1 h 25000
+rename vp1$1 a_vp1$1
+ren vp2$1 a_vp2$1
+ren vp3$1 a_vp3$1
+ren vp4$1 a_vp4$1
+ren vpp   a_vpp$1

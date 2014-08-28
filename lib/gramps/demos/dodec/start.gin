@@ -1,0 +1,15 @@
+TRANSLATE   3mer Y, -1.1183:$1
+ROTATE      3PAIR Y, -120.00:$1
+ROTATE      2PAIR Y,  120.00:$1
+ROTATE      PAIR X, -52.500:$1
+TRANSLATE   PAIR R,  2.0000:$1
+TRANSLATE   MOTIF Q, 0.68820:$1
+SCALE       spentagon P,  4.2535:$1
+SCALE       spentagon Q,  4.2535:$1
+ROTATE      BMOTIF X,  63.513:$1
+ROTATE      BMOTIF Z,  180.00:$1
+ROTATE      a3mer X,  180.00:$1
+ROTATE      MOTIF xyzpqr 0:$1
+adv $1
+
+dials

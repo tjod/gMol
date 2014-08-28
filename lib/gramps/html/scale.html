@@ -1,0 +1,27 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>SCALE</H2>
+ The <SPAN CLASS=command>scale</SPAN> command is used to make objects appear larger or smaller.
+ The general syntax of the <SPAN CLASS=command>scale</SPAN> command is as follows:
+<P>
+<P CLASS=indent><SPAN CLASS=command>scale</SPAN> <i>name</i> <i>axis</i> <A HREF=function.html><i>function</i></A>
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i> is the name of any object known to GRAMPS, <i>axis</i> is one or
+ more of the characters X, Y, Z, P, Q, R, S or W. <A HREF=function.html><i>function</i></A> may be
+ <A HREF=function.html><i>device</i></A> specification or a number <A HREF=function.html><i>value</i></A>. The <i>axis</i> specification tells
+ which axis (or axes) are to be used for the scaling. If the P, Q, or
+ R axes are specified, the scale will relate to the arbitrary axis
+ given in any <A HREF=use.html><SPAN CLASS=command>use/axis</SPAN></A> commands referring to this picture. See the
+ description of <A HREF=pick.html><SPAN CLASS=command>pick/point</SPAN></A> and <A HREF=use.html><SPAN CLASS=command>use/axis</SPAN></A>.
+<P>
+ If <i>axis</i> is given as W or S, then the <A HREF=function.html><i>function</i></A> is used to modify
+ the reference point for the "original" scale of the object. The
+ default value for W and S is arbitrarily set at 1.0.
+ If negative <A HREF=function.html><i>value</i></A> is given for <A HREF=function.html><i>function</i></A>, then the
+ object is inverted with respect to the axis or axes used for the
+ scaling. The net scale factor is X/W, Y/W, Z/W and/or P/S, Q/S , R/S.
+<P>
+ If the object contains text, only the position of the text will be
+ scaled, not the size of the characters. The size of the characters is
+ fixed once the object is created. To change character size, use the
+ <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> TEXTSIZE command BEFORE the <A HREF=text.html><SPAN CLASS=command>text</SPAN></A> command. Also, see the help
+ information on Picture files format.

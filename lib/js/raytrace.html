@@ -1,0 +1,47 @@
+<html>
+<head>
+<title>Raytrace</title>
+<script>
+function raytrace(f) {
+  var height = 200;
+  var width = 200;
+  var opts = "";
+  if (f) {
+    height = f.height.value;
+    width  = f.width.value;
+    if (f.antialias.checked) opts = "+A";
+  }
+  var cmd = "raytrace/pov +H" + height + " +W" + width + " " + opts;
+  alert("preparing...<br>"+cmd+"<br>click to continue");
+  gramps.cmd(cmd);
+  alert("click and wait for rendering...");
+}
+</script>
+</head>
+<body>
+<H3>Raytracer v1.0</H3>
+This will help you prepare and render a ray-traced image using
+<A HREF="http://www.povray.org">POVray</A >.
+<form>
+<table>
+<tr>
+<td>width:</td><td><input type=text size=5 name=width value=500>pixels</td>
+</tr>
+<tr>
+<td>height:</td><td><input type=text size=5 name=height value=500>pixels</td>
+</tr>
+<tr>
+<td><input type=checkbox name=antialias checked></td><td>use anti-aliasing</td>
+</tr>
+<tr>
+<td><input type=button onClick="raytrace(this.form)" value="Render"></td>
+<td>using above parameters</td>
+</tr>
+<tr>
+<td><input type=button onClick="raytrace()" value="Preview"></td>
+<td>using default parameters</td>
+</tr>
+<table>
+</form>
+</body>
+</html>

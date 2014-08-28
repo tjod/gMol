@@ -1,0 +1,12 @@
+set sphere 4.2 4.2
+get glypp.cpk
+getf/name=con glypp.con
+get/name=srf glypp.srf
+
+scal LW w 100000
+
+int srf t 0<-y2<32767
+col srf h 5000
+col con h 25000
+fram con n,32767 n,-32767<y3*5<32767
+set backface

@@ -1,0 +1,42 @@
+!
+! aicos is a skeleton of an icosohedron
+!
+icos
+!
+! t3 moves MOTIF to 5-fold axis and forms FACE containing MOTIF
+!
+get M1.pol
+get/name=M2 M1.pol
+get/name=M3 M1.pol
+rotate M3 z 21844
+rotate M1 z -21844
+group M1, M3 MOTIF
+color MOTIF h 9000
+!get vptri.pix
+get tri.pix
+t3 MOTIF
+t3 tri
+group MOTIF,tri FACE
+adv $2
+bicosaxes
+!
+SCALE       LWorld       W, 12000
+ROTATE      LWorld       X, -6799
+ROTATE      LWorld       Y, -8187
+ROTATE      LWorld       Z, -3448
+rot/lab LW x -y1 y x1 z -y3
+!
+! bicos makes 5*2*2*3 copies of FACE to make bicos structure
+!
+! get the surface (s_vpp) and wire frame (a_vpp) representations
+!
+srf $1
+vpp
+!
+! put surf and wire into FACE making up the icos
+!
+insert s_vpp FACE
+insert a_vpp FACE
+blank a_vpp
+blank s_vpp
+freez MOTIF

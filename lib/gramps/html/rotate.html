@@ -1,0 +1,34 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>ROTATE</H2>
+ The <SPAN CLASS=command>rotate</SPAN> command is used to rotate an object. The object must have
+ been previously read in (via the <A HREF=get.html><SPAN CLASS=command>get</SPAN></A> command). The syntax of a
+ <SPAN CLASS=command>rotate</SPAN> command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>rotate</SPAN> <i>name</i> <i>keyword</i> <A HREF=function.html><i>function</i></A>
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i> is the name of the object, <i>keyword</i> is an axis specified by
+ one or more of the characters X, Y, Z, P, Q, and R. <A HREF=function.html><i>function</i></A> may be
+ any valid device name (like D3) or a value (like 120) or a more
+ complicated <A HREF=function.html><i>function</i></A>. <A HREF=function.html><i>function</i></A> specifications are discussed further
+ in the help topic <A HREF=function.html><i>function</i></A>. The <A HREF=function.html><i>value</i></A> specified for a rotation is
+ the angle of rotation.
+<P>
+ The <i>keyword</i> specification indicates the axis about which the object
+ should rotate. X, Y, or Z specify the Cartesian coordinate axes. P,
+ Q, or R relate to an arbitrary axis system defined by using the
+ <A HREF=pick.html><SPAN CLASS=command>pick/point</SPAN></A> and <A HREF=use.html><SPAN CLASS=command>use/axis</SPAN></A> commands. Any combination of these axes is
+ allowed.
+<H4>/lab</H4>
+ Normally, <SPAN CLASS=command>rotate</SPAN> refers its axes to the axes "internal" to the object
+ being rotated. This is often what is desired. To see an example of 
+ this, <A HREF=get.html><SPAN CLASS=command>get</SPAN></A> AXES and <SPAN CLASS=command>rotate</SPAN> AXES X,D6 Y,D7 Z,D8. On the other hand, it
+ can be difficult to orient an object to a desired view using these
+ rotation axes. GRAMPS provides a set of "laboratory" axes which are
+ parallel to the axes in the room with you (quick - did you just see
+ them?). In the default gramps.gin file, the LWorld is using <SPAN CLASS=command>rotate/lab</SPAN>.
+ Any other object may also use <SPAN CLASS=command>rotate/lab</SPAN>, but if the LWorld is also
+ rotated in any way, the objects LAB axes will be rotated by the LWorld
+ rotation. Any other groups that contain an object may also affect its
+ rotations, <SPAN CLASS=switch>/lab</SPAN> or otherwise. Since the LWorld can only be affected by
+ its own rotations, <SPAN CLASS=command>rotate/lab</SPAN> LWorld always applies to your lab frame of
+ reference.

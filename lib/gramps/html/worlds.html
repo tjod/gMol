@@ -1,0 +1,12 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>Worlds</H2>
+ There are two objects known to GRAMPS that have the names LWorld and
+ RWorld. These worlds contain all other objects being displayed.
+ Transformations applying to LWorld or RWorld indirectly affect all
+ objects on display. For example, any object that is displayed may be
+ rotated "with the <A HREF=worlds.html><i>World</i></A>" by rotating LWorld. Of course, any objects
+ may be further rotated on its own. <A HREF=perspective.html><SPAN CLASS=command>perspective</SPAN></A> (along with <A HREF=move.html><SPAN CLASS=command>move</SPAN></A>) is a
+ unique type of transformation in GRAMPS since it may affect only the
+ objects LWorld and RWorld directly. Since LWorld and RWorld contain
+ all other objects, <A HREF=perspective.html><SPAN CLASS=command>perspective</SPAN></A> and <A HREF=move.html><SPAN CLASS=command>move</SPAN></A> affect these objects
+ indirectly. When GRAMPS is initialized, RWorld is inactive and
+ remains inactive until the <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> STEREO command is used.

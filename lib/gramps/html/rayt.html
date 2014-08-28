@@ -1,0 +1,57 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>RAYT</H2>
+ This command writes out a file which can be used as input to the
+ povray program, rayt program by Tom Palmer, or to rayshade by Craig Kolb.
+ You must have installed one of these programs to make much use of the output of this command.
+ You can contact Tom P via email as palmer@ncsc.org.  Rayshade is
+ available fron princeton.edu via anonymous ftp.
+ Any one of these ray-tracers produces high-quality
+ renderings of the scene, as you have manipulated it with Gramps.
+ Its result should look just like the Gramps output screen at the
+ moment you give the <SPAN CLASS=command>rayt</SPAN> command, except for the higher quality
+ rendering.  WARNING: it may take a long time to run either of these
+ programs, depending on the complexity of the scene.  In my experience,
+ RayT is faster, so try it first.
+<P>
+ The syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>rayt</SPAN> [filename] [optional args] </P CLASS=indent>
+where filename is the name of the output file for the RayT input data. If you 
+leave out the file name, Gramps uses <SPAN CLASS=switch>/usr/tmp/plot</SPAN>.ray. 
+The optional arguments are passed on to RayT and are not explained here. 
+<P> There are several switches for <SPAN CLASS=command>rayt</SPAN>. The <SPAN CLASS=switch>/pov</SPAN> 
+  switch causes gramps to output a file in POV format. The <SPAN CLASS=switch>/rayt</SPAN> 
+  switch causes gramps to output a file in RayT format. The <SPAN CLASS=switch>/rayshade</SPAN> 
+  switch causes gramps to output a file in rayshade format. The <SPAN CLASS=switch>/hold</SPAN> 
+  switch causes the output file to be written, but no rendering occurs. If you 
+  do not have rayt, rayshade or pov, you should use this switch routinely. If 
+  you do have rayt, rayshade or pov, it should be in your path along with the 
+  display command. If possible, a rendering will appear in a separate window as 
+  soon as rayshade is done, or will appear while rayt is working. If there is 
+  no automatic display, You can still create rendered output into a file, but 
+  you will have to do it as follows: 
+<P>
+<P CLASS=indent>RAYTRACE/HOLD filename
+<BR 3>
+SYSTEM rayt [options] -o filename.rle filename.ray
+<BR 3>
+or
+<BR 3>
+RAYTRACE/RAYSHADE/HOLD filename
+<BR 3>
+SYSTEM rayshade [options] -o filename.rle filename.ray
+<BR 3>
+or
+<BR 3>
+RAYTRACE/POV/HOLD filename
+<BR 3>
+SYSTEM pov [options] -o filename.rle filename.ray
+<BR 3>
+<BR 1>
+</P CLASS=indent> You can then convert the rle files to other types of files using a utility.
+<BR 2>
+The <SPAN CLASS=switch>/linewidth</SPAN> switch is used to render lines, and possibly 
+dots. Rayt and rayshade do not have a line primitive, so Gramps uses cylinders. 
+Linewidth is a scale factor for the radius of the cylinder-lines. The default 
+linewidth is 1.0, so use a larger or smaller real number as you like. Rayshade 
+does not have a dot primitive, so the linewidth factor is used to scale the rayshade 
+disc primitive. 

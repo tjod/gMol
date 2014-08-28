@@ -1,0 +1,54 @@
+set oldunits
+!set rgb
+!
+!!This is a representation of the capsid of
+!! Human Rhino Virus 14.
+!!
+!!The capsid has an icosohedral structure and is made of
+!! four proteins named vp1, vp2, vp3 and vp4.
+!! Vp1, vp2  and vp3 are on the outside of the capsid.
+!! Vp4 is on the inner side of the capsid.
+!! Vp1, vp2 and vp3 are shown schematically as colored
+!! quadrilaterals on the surface of the capsid.
+!! Vp4 is not shown in this quadrilateral model.
+!! Vp1 is light blue, vp2 is blue and vp3 is purple.
+!! You may rotate this model using the left mouse button.
+!! The model may be scaled using the middle button.
+!!
+!! For more info and hints on other aspects of this model,
+!!   type info into the command window.
+!!
+!!Summary of mouse button useage:
+!!   left:   rotate entire scene
+!!   wheel:  scale entire scene
+!
+deass x1,x2,x3
+deass y1,y2,y3
+!hrvmodel srf $1
+!bicos FACE $1
+hrvmodel srf 0
+bicos FACE 0
+blank tri
+3Lights
+set backhsv 0 0 4000
+set backface
+!
+cyan M1
+cyan a_vp1
+cyan s_vp1
+!
+blue M2
+blue a_vp2
+blue s_vp2
+!
+purple M3
+purple a_vp3
+purple s_vp3
+!
+cartoon
+
+reset/rot/tran/scal/per=e LW
+rot/lab LW x,-y1 y,x1
+set newunits
+persp LW E 5.0
+persp LW E 0.01<-y2<50.0

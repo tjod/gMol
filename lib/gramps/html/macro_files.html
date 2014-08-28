@@ -1,0 +1,75 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>Macro files</H2>
+ There are some files in gramps_lib which might be useful to you.
+ They are .gin files and effectively become new gramps commands.
+ See the 'Adding Commands' section for more on this topic.
+ You might also take a look at *.gin in gramps_lib and try any of them.
+ The sub-topics here are the most generally useful, I think.
+<H4>Colors</H4>
+ There are several .gin files in gramps_lib which help you with
+ colors.  The following names can be used as gramps commands:
+<P>
+<P CLASS=indent>cyan blue green grey orange pink purple red white yellow
+<BR 3>
+brown flesh black
+<BR 3>
+<BR 1>
+</P CLASS=indent> These commands require the name of the object to be colored as the
+ first (and only) argument.  As with all gramps macro commands, you
+ may not abbreviate these names, since gramps is looking for a file.
+<P>
+ Examples:
+<P CLASS=indent>red sphere
+<BR 3>
+blue cube
+<BR 3>
+<H4>Nostereo</H4>
+ This command returns the system to normal, non-stereo viewing.  Use
+ this command after (or between) using the macro gin file commands
+ zstereo, fstereo, lstereo or rstereo.
+<H4>Stereo</H4>
+ This command simply calls the lstereo command.
+<H4>Quit</H4>
+ This simply executes the gramps <A HREF=exit.html><SPAN CLASS=command>exit</SPAN></A> command.
+<H4>3lights</H4>
+ The 3Lights command switches on three of the eight Lights and
+ sets nice rotation, intensity and color values for them.  It is called
+ by the rgb.gin file.
+<H4>Right</H4>
+ This command produces a perspective view meant for the right eye to
+ see in a stereo pair (for making slides or prints).
+<H4>Left</H4>
+ This command produces a perspective view meant for the left eye to
+ see in a stereo pair (for making slides or prints).
+<H4>Wiggle</H4>
+ This command requires three arguments: the name of the object, the
+ device to control its "wiggling" and the initial speed of wiggle.
+ Wiggle is simply a <A HREF=frame.html><SPAN CLASS=command>frame</SPAN></A> command and will have no effect on objects
+ which were not read using the <A HREF=getframe.html><SPAN CLASS=command>getframe</SPAN></A> command.
+ Example:
+<P CLASS=indent><A HREF=getframe.html><SPAN CLASS=command>getframe</SPAN></A> fish
+<BR 3>
+wiggle   fish d8 1000
+<BR 3>
+<H4>Lstereo</H4>
+ This files does a <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> STEREO and sets the <A HREF=perspective.html><SPAN CLASS=command>perspective</SPAN></A> of LWorld and
+ RWorld to effect cross-eyed side by side stereo.  The amount of stereo
+ is controlled using the mouse device X1.
+<H4>Rstereo</H4>
+ This files does a <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> STEREO and sets the <A HREF=perspective.html><SPAN CLASS=command>perspective</SPAN></A> of LWorld and
+ RWorld to effect wall-eyed side by side stereo.  The amount of stereo
+ is controlled using the mouse device X1.
+<H4>Fstereo</H4>
+ This files does a <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> STEREO and sets the <A HREF=perspective.html><SPAN CLASS=command>perspective</SPAN></A> of LWorld and
+ RWorld to effect full screen stereo.  The amount of stereo is controlled
+ on the mouse device X1.  Full screen means that the images are not
+ separated.  You may use the following commands to separate the images
+<P CLASS=indent>PERSP LW p  d8
+<BR 3>
+PERSP RW p -d8
+<BR 3>
+<H4>Lwdials</H4>
+ This file applies default ROTATION, TRANSLATION and <A HREF=perspective.html><SPAN CLASS=command>perspective</SPAN></A>
+ <A HREF=function.html><i>device</i></A> assignments to the LWorld.
+<H4>Cd</H4>
+ This command requires the name of a directory.  It is analogous to
+ the UNIX cd command.  It simply uses the gramps <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> DEFAULT command.

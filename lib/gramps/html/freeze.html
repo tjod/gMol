@@ -1,0 +1,21 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>FREEZE</H2>
+ The <SPAN CLASS=command>freeze</SPAN> command will temporarily freeze an object's
+ transformations. This is useful for temporarily freeing up dials for
+ use by other objects' transformations. The <SPAN CLASS=command>freeze</SPAN> stays in effect
+ until the <A HREF=release.html><SPAN CLASS=command>release</SPAN></A> command is given, or until the object's
+ transformations are altered by one of the transformation commands such
+ as <A HREF=rotate.html><SPAN CLASS=command>rotate</SPAN></A> or <A HREF=intensity.html><SPAN CLASS=command>intensity</SPAN></A>. The syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>freeze</SPAN> <i>name</i>
+<BR 3>
+<H4>/group</H4>
+ <SPAN CLASS=switch>/group</SPAN> - Unlike the <A HREF=intensity.html><SPAN CLASS=command>intensity</SPAN></A>, <A HREF=dash.html><SPAN CLASS=command>dash</SPAN></A>, <A HREF=blink.html><SPAN CLASS=command>blink</SPAN></A>, <A HREF=blank.html><SPAN CLASS=command>blank</SPAN></A>, and <A HREF=frame.html><SPAN CLASS=command>frame</SPAN></A> commands,
+ which function on groups by affecting each individual of the
+ group, the <SPAN CLASS=command>freeze</SPAN> and <A HREF=release.html><SPAN CLASS=command>release</SPAN></A> command may or may not operate
+ on each member of the group. If <i>name</i> is a group name and the
+ <SPAN CLASS=command>freeze</SPAN> or <A HREF=release.html><SPAN CLASS=command>release</SPAN></A> command is given as in the syntax example
+ above, then only the group transformations are frozen or
+ released. These commands allow the <SPAN CLASS=switch>/group</SPAN> switch, signifying
+ that in addition to affecting the group's transformations,
+ each member of the group should have its transformations
+ affected.

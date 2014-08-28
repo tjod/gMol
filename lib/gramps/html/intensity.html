@@ -1,0 +1,30 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>INTENSITY</H2>
+ The <SPAN CLASS=command>intensity</SPAN> command is used to alter the intensity of objects on
+ display. It also affects the transparency of an object. The syntax
+ of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>intensity</SPAN> <i>name</i> <i>keyword</i> <A HREF=function.html><i>function</i></A>
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i> is any name known to the system. <i>keyword</i> is one or
+ more of T, A, P, D, Y and E.
+ See the help listing for <A HREF=function.html><i>function</i></A> to get more details about <A HREF=function.html><i>function</i></A>.
+<P>
+ The <i>keyword</i> T stands for transparency.  A value of 0 means not at all
+ transparent. A value of 1.0 means that the object will be fully
+ transparent (invisible!).
+<P>
+ The <i>keyword</i> A is the ambient intensity.  P is the specular intensity,
+ or the intensity of the hightlight spot.  D is the diffuse intensity.
+ Taken together these affect to overall intensity of the object.
+ Used in different ratios, these values simulate various materials
+ that the object may seem to be made of - reflective plastic, metal,
+ dull plastic, etc.
+ Y affects the spread of the hightlight, or shinyness of the object.
+ A high value for Y give a focused highlight and a low
+ value gives a more spread-out hightlight.
+ The <i>keyword</i> E is the emissive intensity.  This may have little or no
+ effect.
+<P>
+ If <i>name</i> is a <A HREF=group.html><SPAN CLASS=command>group</SPAN></A>, then each member of the <A HREF=group.html><SPAN CLASS=command>group</SPAN></A> is affected as if
+ the <SPAN CLASS=command>intensity</SPAN> command had been given for each member of the <A HREF=group.html><SPAN CLASS=command>group</SPAN></A>.

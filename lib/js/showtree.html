@@ -1,0 +1,48 @@
+<html>
+<head>
+<title>Show tree</title>
+<script>
+function xtree(tree) {
+  // demo method to traverse the tree
+  var atree = [];
+  for (var i in tree) {
+    var node = tree[i];
+    if (node.children) {
+      atree.push(node.name);
+      atree.push(xtree(node.children));
+    } else {
+      atree.push(node.name);
+    }
+  }
+  return atree;
+}
+function showtree() {
+  var gtree = gramps.cmd("json/tree");
+  var tree;
+  try {
+    tree = eval('('+gtree+')');
+  } catch (e) { 
+    alert("can't eval json");
+    return;
+  }
+  //console.dir(tree);
+  alert(JSON.stringify(tree));
+  var atree = xtree(tree.LWorld);
+  alert(JSON.stringify(atree));
+}
+</script>
+</head>
+<body>
+Show Tree
+<BR>
+Group1<UL>
+Group2<UL>
+<LI>c
+<LI>d
+</UL>
+</UL>
+<form>
+<input type=button onClick="showtree()" value="Show tree">
+</form>
+</body>
+</html>

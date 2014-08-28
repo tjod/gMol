@@ -1,0 +1,18 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>GETFRAME</H2>
+ The <SPAN CLASS=command>getframe</SPAN> command is used to get framed pictures. Framed pictures
+ are stored in pix files just like ordinary pictures, but the INFO line
+ having N < 0 is used to separate frames (see the description of
+ Picture File FORMATS). When a framed picture is displayed on the
+ screen, only one of the frames is shown at a time. The <A HREF=frame.html><SPAN CLASS=command>frame</SPAN></A> command
+ is used to specify which frame should be displayed.
+<P>
+ The <SPAN CLASS=command>getframe</SPAN> command may also be used to get ordinary pictures from
+ pix files which do not have an INFO line with N < 0. In this case,
+ the picture consists of only one frame which is always displayed. If
+ a non-framed picture is gotten with the <SPAN CLASS=command>getframe</SPAN> command instead of
+ <A HREF=get.html><SPAN CLASS=command>get</SPAN></A>, there are subtle implications which arise when using the <A HREF=copy.html><SPAN CLASS=command>copy</SPAN></A>
+ command.
+<H4>/name</H4>
+ <SPAN CLASS=switch>/name</SPAN>=any_name - Used to create a picture with any_name as its name.
+ If you don't use <SPAN CLASS=switch>/name</SPAN>, then the name of the picture
+ will be the same as the input file name.

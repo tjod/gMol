@@ -1,0 +1,2 @@
+set newunits
+INT $1 A 0<$2$<1

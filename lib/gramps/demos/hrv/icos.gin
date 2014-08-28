@@ -1,0 +1,6 @@
+get/name=cicos aicos.cyl
+get/name=sicos aicos.sph
+group cicos,sicos aicos
+color aicos s 0 v 10000
+scale aicos w 4400
+rotate aicos y 16384

@@ -1,0 +1,381 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD>
+
+
+<h2>Pix files</h2>
+ 
+<p> Pix files contain the definition of GRAMPS objects, expressed as grapical 
+  &quot;primitives&quot;, such as lines, cylinders, spheres, shaded polygons, 
+  etc. Pix files are read into GRAMPS by using the <a href="get.html">get</a> 
+  command or the <a href="getframe.html">getframe</a> command. Pix files are ordinary 
+  text files with every line containing three (or more) real values. Pix files 
+  can be created usinig any editor or program that writes files. Lines in the 
+  file are either <em>info</em> lines or <em>data</em> lines. The <em>info</em> 
+  lines tell which types of graphical primitive is being defined and <em>data</em> 
+  line contain locations and sizes of the primitives.</p>
+<h4><em>Info</em> lines</h4>
+<p>A pix file begins with an <em>info</em> line containing 3 integer values, N, 
+  L1 and L2.</p>
+<p>If N&lt;0 then this is the end of a frame in the pix file. This line is not 
+  necessary unless the pix file is being used with the <a href="getframe.html">getframe</a> 
+  command. The values of L1 and L2 are ignored, but some value is required on 
+  the info line.</p>
+<p>If N &gt; 0 then N <em>data</em> lines follow. L1 tells which type of data 
+  to expect (a line, cylinder, polygon, etc.) and L2 tells other attributes of 
+  the data (clockwise, counter-clockwise, inverted normals, etc.). The following 
+  table shows which <em>info</em> and <em>data</em> lines a pix file may contain. 
+  In this table, X, Y and Z represent a real number cartesian coordinate value, 
+  R is a radius, Nx, Ny and Nz are normals, H, S and V are the hue, saturation 
+  and value for colored polygons. i, j and k are integers representing indexes 
+  into a previously specified set of mesh vertices.</p>
+<table width="450" border="1" cellpadding="4">
+  <tr> 
+    <td width="22%"><p>Info line<br>
+        (N, L1, L2)</p></td>
+    <td width="30%">Data type</td>
+    <td width="48%">N lines containing</td>
+  </tr>
+  <tr>
+    <td>N,0,3</td>
+    <td><a href="#sline">segmented line</a></td>
+    <td>X, Y, Z</td>
+  </tr>
+  <tr> 
+    <td>N,1,3</td>
+    <td><a href="#scyl">segmented cylinders</a></td>
+    <td>X, Y, Z</td>
+  </tr>
+  <tr> 
+    <td>N,2,3</td>
+    <td><a href="#cline">continuous line</a></td>
+    <td>X, Y, Z</td>
+  </tr>
+  <tr> 
+    <td>N,3,3</td>
+    <td><a href="#ccyl">continuous cylinders</a></td>
+    <td>X, Y, Z</td>
+  </tr>
+  <tr> 
+    <td>N,4,3</td>
+    <td><a href="#point">points</a></td>
+    <td>X, Y, Z</td>
+  </tr>
+  <tr> 
+    <td>N,5,0</td>
+    <td><a href="#sphere">spheres</a></td>
+    <td>X, Y, Z, R</td>
+  </tr>
+  <tr> 
+    <td>N,6,1</td>
+    <td><a href="#ccpoly">cc polygon</a></td>
+    <td>X, Y, Z, Nx, Ny, Nz</td>
+  </tr>
+  <tr> 
+    <td>N,6,2</td>
+    <td><a href="#ccpoly">cc polygon</a></td>
+    <td>X, Y, Z, -Nx, -Ny, -Nz</td>
+  </tr>
+  <tr> 
+    <td>N,6,3</td>
+    <td><a href="#ccpoly">cc polygon</a></td>
+    <td>X, Y, Z</td>
+  </tr>
+  <tr> 
+    <td>N,6,-3</td>
+    <td><a href="#cwpoly">cw polygon</a></td>
+    <td>X, Y, Z</td>
+  </tr>
+  <tr> 
+    <td>N,6,-2</td>
+    <td><a href="#cwpoly">cw polygon</a></td>
+    <td>X, Y, Z, -Nx, -Ny, -Nz</td>
+  </tr>
+  <tr> 
+    <td>N,6,-1</td>
+    <td><a href="#cwpoly">cw polygon</a></td>
+    <td>X, Y, Z, Nx, Ny, Nz</td>
+  </tr>
+  <tr> 
+    <td>N,7,1</td>
+    <td><a href="#meshv">mesh vertices</a></td>
+    <td>X, Y, Z, Nx, Ny, Nz</td>
+  </tr>
+  <tr> 
+    <td>N,7,2</td>
+    <td><a href="#meshv">mesh vertices</a></td>
+    <td>X, Y, Z, -Nx, -Ny, -Nz</td>
+  </tr>
+  <tr> 
+    <td>N,7,3</td>
+    <td><a href="#meshv">mesh vertices</a></td>
+    <td>X, Y, Z</td>
+  </tr>
+  <tr> 
+    <td>N,8,1</td>
+    <td><a href="#meshc">mesh connectivity</a></td>
+    <td>i, j, k (cc triangle)</td>
+  </tr>
+  <tr> 
+    <td>N,8,2</td>
+    <td><a href="#meshc">mesh connectivity</a></td>
+    <td>i, j, k (cw triangle)</td>
+  </tr>
+  <tr> 
+    <td>N,8,3</td>
+    <td><a href="#meshc">mesh connectivity</a></td>
+    <td>i, j, k</td>
+  </tr>
+  <tr> 
+    <td>N,9,1</td>
+    <td><a href="#ccpoly">cc polygon</a></td>
+    <td>X, Y, Z, Nx, Ny, Nz, H, S, V</td>
+  </tr>
+  <tr> 
+    <td>N,9,2</td>
+    <td><a href="#ccpoly">cc polygon</a></td>
+    <td>X, Y, Z, -Nx, -Ny, -Nz, H, S, V</td>
+  </tr>
+  <tr> 
+    <td>N,9,3</td>
+    <td><a href="#ccpoly">cc polygon</a></td>
+    <td>X, Y, Z, H, S, V</td>
+  </tr>
+  <tr> 
+    <td>N,9,-3</td>
+    <td><a href="#cwpoly">cw polygon</a></td>
+    <td>X, Y, Z, H, S, V</td>
+  </tr>
+  <tr> 
+    <td>N,9,-2</td>
+    <td><a href="#cwpoly">cw polygon</a></td>
+    <td>X, Y, Z, -Nx, -Ny, -Nz, H, S, V</td>
+  </tr>
+  <tr> 
+    <td>N,9,-1</td>
+    <td><a href="#cwpoly">cw polygon</a></td>
+    <td>X, Y, Z, Nx, Ny, Nz, H, S, V</td>
+  </tr>
+  <tr> 
+    <td>N,10,1</td>
+    <td><a href="#meshv">mesh vertices</a></td>
+    <td>X, Y, Z, Nx, Ny, Nz, H, S, V</td>
+  </tr>
+  <tr> 
+    <td>N,10,2</td>
+    <td><a href="#meshv">mesh vertices</a></td>
+    <td>X, Y, Z, -Nx, -Ny, -Nz, H, S, V</td>
+  </tr>
+  <tr> 
+    <td>N,10,3</td>
+    <td><a href="#meshv">mesh vertices</a></td>
+    <td>X, Y, Z, H, S, V</td>
+  </tr>
+</table>
+<p>If N=0, the following table shows what the values of L1 and L2 mean. Parameter 
+  type isspecified by values of L1 and parameter value by L2.</p>
+<table width="522" border="1" cellpadding="4">
+  <tr> 
+    <th width="114">Info line<br>
+      (N, L1, L2)</th>
+    <th width="338">Meaning</th>
+  </tr>
+  <tr> 
+    <td>0,0,W</td>
+    <td>scale (divisor) of subsequent coordinates. No data lines follow. Default 
+      scale is 1.0</td>
+  </tr>
+  <tr> 
+    <td>0,1,R</td>
+    <td>radius of subsequent cylinders. No data lines follow.</td>
+  </tr>
+  <tr> 
+    <td>0,2,0</td>
+    <td>unused</td>
+  </tr>
+  <tr>
+    <td>0,3,S</td>
+    <td>size of subsequent text (integers from 0 to 8). Exactly two data lines 
+      follow: X, Y, Z and a line with a text string</td>
+  </tr>
+  <tr> 
+    <td>0,4,0</td>
+    <td>color. one data line follows with three values: color as H, S, V.</td>
+  </tr>
+</table>
+
+<p><a name="cline"></a>Continuous line: A continuous line consists of N coordinates. 
+  A line is drawn from the first to the last coordinate. For example:
+  <input type="button"  value="get curve.pix" onClick="top.gramps.cmd('scale LW w 1');top.gramps.cmd('get curve.pix')">
+  <input type="button"  value="forget curve" onClick="top.gramps.cmd('forget curve')">
+</p>
+<p> 13, 2, 3<br>
+  0.37078 ,0.40011 ,0<br>
+  0.29401 ,0.32009 ,0<br>
+  0.25400 ,0.26002 ,0<br>
+  0.21399 ,0.18997 ,0<br>
+  0.19740 ,0.14671 ,0<br>
+  0.19740 ,0.13001 ,0<br>
+  0.25736 ,0.08002 ,0<br>
+  0.32069 ,0.09997 ,0<br>
+  0.38412 ,0.15668 ,0<br>
+  0.41079 ,0.19333 ,0<br>
+  0.44408 ,0.26338 ,0<br>
+  0.45742 ,0.32009 ,0<br>
+  0.39746 ,0.38005 ,0<br>
+</p>
+<p><a name="ccyl"></a>Continuous cylinders: A continuous cylinder is a series 
+  of cylinders forming a sort of thick continuous line. Use the 0,1,R info line 
+  to specify a radius. For example:  <input type="button"  value="get curve_cyl.pix" onClick="top.gramps.cmd('scale LW w 1');top.gramps.cmd('get cyl_curve.pix')">
+    <input type="button"  value="forget cyl_curve" onClick="top.gramps.cmd('forget cyl_curve')">
+	</p>
+<p> 13, 3, 3<br>
+  0.37078 ,0.40011 ,0<br>
+  0.29401 ,0.32009 ,0<br>
+  0.25400 ,0.26002 ,0<br>
+  0.21399 ,0.18997 ,0<br>
+  0.19740 ,0.14671 ,0<br>
+  0.19740 ,0.13001 ,0<br>
+  0.25736 ,0.08002 ,0<br>
+  0.32069 ,0.09997 ,0<br>
+  0.38412 ,0.15668 ,0<br>
+  0.41079 ,0.19333 ,0<br>
+  0.44408 ,0.26338 ,0<br>
+  0.45742 ,0.32009 ,0<br>
+  0.39746 ,0.38005 ,0</p>
+<p><a name="sline"></a>Segmented lines: A segmented line consists of line segments 
+  formed from pairs of N coordinates. A line is drawn from coordinate 1 to 2, 
+  3 to 4 ... N-1 to N. For example:
+  <input name="button" type="button" onClick="top.gramps.cmd('scale LW w 4');top.gramps.cmd('get mol.pix')"  value="get mol.pix">
+    <input type="button"  value="forget mol" onClick="top.gramps.cmd('forget mol')">
+</p>
+<p> <br>
+  10., 0, 3.<br>
+  3.68360, 0.86870, -0.02140<br>
+  3.61350, 2.10340, 0.20660<br>
+  3.68360, 0.86870, -0.02140<br>
+  4.82330, 0.35800, -0.17350<br>
+  3.68360, 0.86870, -0.02140<br>
+  2.44680, 0.00910, -0.11340<br>
+  2.44680, 0.00910, -0.11340<br>
+  1.20640, 0.79680, 0.09420<br>
+  2.44680, 0.00910, -0.11340<br>
+  2.49930, -0.78940, 0.66430</p>
+<p><a name="scyl"></a>Segmented cylinders: A segmented cylinder is a sort of thick 
+  segmented line. Use the 0,1,R info line to specify a radius. For example:
+  <input name="button2" type="button" onClick="top.gramps.cmd('scale LW w 4');top.gramps.cmd('get cyl_mol.pix')"  value="get cyl_mol.pix">
+    <input type="button"  value="forget cyl_mol" onClick="top.gramps.cmd('forget cyl_mol')">
+</p>
+<p> 10., 1, 3.<br>
+  3.68360, 0.86870, -0.02140<br>
+  3.61350, 2.10340, 0.20660<br>
+  3.68360, 0.86870, -0.02140<br>
+  4.82330, 0.35800, -0.17350<br>
+  3.68360, 0.86870, -0.02140<br>
+  2.44680, 0.00910, -0.11340<br>
+  2.44680, 0.00910, -0.11340<br>
+  1.20640, 0.79680, 0.09420<br>
+  2.44680, 0.00910, -0.11340<br>
+  2.49930, -0.78940, 0.66430</p>
+<p><a name="point"></a>Points: points are single pixel points drawn at each of 
+  the N coordinates. For example:
+  <input name="button3" type="button" onClick="top.gramps.cmd('scale LW w 4');top.gramps.cmd('get poi_mol.pix')"  value="get poi_mol.pix">
+    <input type="button"  value="forget poi_mol" onClick="top.gramps.cmd('forget poi_mol')">
+</p>
+<p>10., 4, 3.<br>
+  3.68360, 0.86870, -0.02140<br>
+  3.61350, 2.10340, 0.20660<br>
+  3.68360, 0.86870, -0.02140<br>
+  4.82330, 0.35800, -0.17350<br>
+  3.68360, 0.86870, -0.02140<br>
+  2.44680, 0.00910, -0.11340<br>
+  2.44680, 0.00910, -0.11340<br>
+  1.20640, 0.79680, 0.09420<br>
+  2.44680, 0.00910, -0.11340<br>
+  2.49930, -0.78940, 0.66430</p>
+<p><a name="sphere"></a>Spheres: Spheres are shaded polygon spheres drawn at the 
+  N coordinates with given radius. See also the <a href="set.html">set</a> sphere 
+  command. For example: 
+  <input name="button32" type="button" onClick="top.gramps.cmd('scale LW w 4');top.gramps.cmd('get sph_mol.pix')"  value="get sph_mol.pix">
+    <input type="button"  value="forget sph_mol" onClick="top.gramps.cmd('forget sph_mol')">
+</p>
+<p>10.,5, 0.<br>
+  3.68360, 0.86870, -0.02140<br>
+  3.61350, 2.10340, 0.20660<br>
+  3.68360, 0.86870, -0.02140<br>
+  4.82330, 0.35800, -0.17350<br>
+  3.68360, 0.86870, -0.02140<br>
+  2.44680, 0.00910, -0.11340<br>
+  2.44680, 0.00910, -0.11340<br>
+  1.20640, 0.79680, 0.09420<br>
+  2.44680, 0.00910, -0.11340<br>
+  2.49930, -0.78940, 0.66430</p>
+<p><a name="cwpoly"></a>Clockwise polygons: A shaded polygon is drawn defined 
+  by N points. These should be co-planar points. Clockwise-ness defines which 
+  side is the front and which is the back side. See also the <a href="set.html">set 
+  backface</a> command. If you want your polygons' fronts to be the other side, 
+  use counter-clockwise polygons. 
+  <input name="button33" type="button" onClick="top.gramps.cmd('scale LW w 1');top.gramps.cmd('get cwpoly.pix')"  value="get cwpoly.pix">
+    <input type="button"  value="forget cwpoly" onClick="top.gramps.cmd('forget cwpoly')">
+</p>
+<p>5,6,-3<br>
+  0,0.20,0.5<br>
+  0.20,0,0.5<br>
+  0,-0.20,0.5<br>
+  -0.20,0,0.5<br>
+  0,0.20,0.5</p>
+<p><a name="ccpoly"></a>Counter-clockwise polygons: A shaded polygon is drawn 
+  defined by N points. These should be co-planar points. Clockwise-ness defines 
+  which side is the front and which is the back side. See also the <a href="set.html">set 
+  backface</a> command. If you want your polygons' fronts to be the other side, 
+  use clockwise polygons. 
+  <input name="button34" type="button" onClick="top.gramps.cmd('scale LW w 1');top.gramps.cmd('get ccpoly.pix')"  value="get ccpoly.pix">
+    <input type="button"  value="forget ccpoly" onClick="top.gramps.cmd('forget ccpoly')">
+</p>
+<p>5,6,3<br>
+  0,0.20,0<br>
+  0.20,0,0<br>
+  0,-0.20,0<br>
+  -0.20,0,0<br>
+  0,0.20,0</p>
+<p><a name="meshv"></a>Mesh vertices: Mesh vertices define a set of N points. 
+  Nothing is drawn until the mesh connectivity is specified directly following 
+  the mesh vertices info line and its associated N data lines. For example:</p>
+<p>4,7,3<br>
+  1, 1, 1<br>
+  -1, 1,-1<br>
+  1,-1,-1<br>
+  -1,-1, 1</p>
+<p><a name="meshc"></a>Mesh connectivity: Mesh connectivity draws shaded triangles 
+  using the mesh vertices given in the info and data lines immediately preceeding 
+  the mesh connectivity info and data lines. The N integer triples cause shaded 
+  triangles to be drawn by connecting the points in the set of mesh vertices. 
+  In the following example, 4 shaded triangles are drawn. 
+  <input name="button35" type="button" onClick="top.gramps.cmd('scale LW w 2');top.gramps.cmd('get tetrahedron.pix')"  value="get tetrahedron.pix">
+    <input type="button"  value="forget tetrahedron" onClick="top.gramps.cmd('forget tetrahedron')">
+</p>
+<p>4,8,-1<br>
+  1,2,3<br>
+  1,3,4<br>
+  1,4,2<br>
+  2,4,3</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
+  <!--
+<H4>Qix files</H4>
+ qix files contain the same information as pix files, but qix files are
+ unFORMATted and consist of variable length records. qix files should
+ be created with a FORTRAN program writing without a FORMAT. The first
+ line must be an INFO line and must contain three REAL values. Every 
+ INFO line should contain three REAL values. DATA lines are of variable 
+ length in qix files: DATA records must contain NDIM*N values where N
+ is the number of data values specified in the previous INFO line and
+ NDIM is the current dimensionality of data, as specified in a previous
+ INFO line having L1=6. If you have not used such an INFO line, the
+ default dimensionality of three is in effect.
+<P>
+ qix files may contain text INFO or DATA lines. If they do, then
+ the text string in record 3 must be an 80 character record. Also, the
+ XYZ position in record 2 must be a 40 character record. The character
+ string for XYZ is necessary to support the "*" feature for the X
+ coordinate. See also <A HREF=help.html><SPAN CLASS=command>help</SPAN></A> <A HREF=text.html><SPAN CLASS=command>text</SPAN></A>.
+-->

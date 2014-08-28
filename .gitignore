@@ -1,4 +1,6 @@
-lib/
+lib/jtest/
+lib/extjs/extjs-4/
+lib/extjs/extjs/
 bin/
 *.o
 gmol-*/

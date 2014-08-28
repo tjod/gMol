@@ -1,0 +1,5 @@
+set newunits
+!
+rotate/lab $1 x -y1 y x1 z x3
+!translate  $1 x x2 y y2
+perspect   $1 e 0.01<-y2<50.0 h 0<y3<50.0000

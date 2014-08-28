@@ -1,0 +1,26 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>PLOT</H2>
+ The <SPAN CLASS=command>plot</SPAN> command is used to make a hardcopy of what you see on the
+ screen. The syntax of the <SPAN CLASS=command>plot</SPAN> command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>plot</SPAN> [<SPAN CLASS=switch>/switch</SPAN>] [FILE]
+<BR 3>
+</P CLASS=indent> where file specifies the Post-script format file which is to be
+ written.  If you omit FILE, the output will be written to
+ <SPAN CLASS=switch>/usr/tmp/plot</SPAN>.ps. 
+<H4>/hold</H4>
+ means do not try to automatically print the file.  You
+ should use this option until the automatic printing capability
+ is extended.
+<H4>/noreverse</H4>
+ The gramps colors white and black are handled specially.
+ Because the background in gramps is (typically) black, but the
+ page is white, the <SPAN CLASS=command>plot</SPAN> command makes lines which are drawn white
+ in gramps be drawn as black lines.  <SPAN CLASS=switch>/noreversebw</SPAN> causes gramps
+ black color to be printed black and white to be printed as white.
+<H4>/nocolor</H4>
+ produces a file suitable for a black&white postscript device. 
+ It causes colors to come out black.  The gramps colors white and
+ black are handled specially.  Because the background in gramps is
+ (typically) black, but the page is white, the <SPAN CLASS=command>plot</SPAN> command makes
+ lines which are drawn white in gramps be drawn as black lines.
+ See also the <SPAN CLASS=switch>/noreverse</SPAN> switch.

@@ -1,0 +1,46 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>Symbols</H2>
+ There is a set of $<i>symbols</i> available for use in GRAMPS. These are
+ variables which store character strings such as names. There are
+ currently 10 of them, named $1 to $10. These variables may be used
+ anywhere a command argument is required, and the value of the $<i>symbol</i>
+ will replace the $<i>symbol</i> in the command line. For example, if the
+ $<i>symbol</i> named $3 had a value of SPHERE, then the following command:
+<P>
+<P CLASS=indent><A HREF=rotate.html><SPAN CLASS=command>rotate</SPAN></A> $3 x 
+  d4 <BR 3>
+<BR 1>
+</P CLASS=indent> would be equivalent to the command:
+<P>
+<P CLASS=indent><A HREF=rotate.html><SPAN CLASS=command>rotate</SPAN></A> ssphere 
+  x d4 <BR 3>
+<BR 1>
+</P CLASS=indent> The value of a $<i>symbol</i> may be changed by using the <A HREF=pick.html><SPAN CLASS=command>pick/symbol</SPAN></A>
+ command. See the help information on <A HREF=pick.html><SPAN CLASS=command>pick/symbol</SPAN></A>.
+<H4>Concatenation</H4>
+ If you wish to have a $<i>symbol</i> concatenated to the letter A, for
+ example, with the resulting string used for the <i>name</i> of the picture,
+ then the correct way to specify the sample command line is:
+<P>
+<P CLASS=indent><A HREF=scale.html><SPAN CLASS=command>scale</SPAN></A> $1$A,x,d3 
+  <BR 3>
+<BR 1>
+</P CLASS=indent> 
+where the extra $ after $1 serves to delimit the end of the $<i>symbol</i> name. 
+It is not necessary to use this final $ if another <em>delimiter</em> (a comma, 
+a blank, or the end of the line) clearly and unambiguously marks the end of the 
+$<i>symbol</i> name. 
+<P>
+ It is also possible to concatenate two $<i>symbols</i> to produce a single
+ string upon substitution. For example:
+<P>
+<P CLASS=indent><A HREF=rotate.html><SPAN CLASS=command>rotate</SPAN></A> $1,$2$$3,d3 
+  <BR 3>
+<BR 1>
+</P CLASS=indent> When $<i>symbol</i> substitution takes place, the axis specification for this
+ <A HREF=rotate.html><SPAN CLASS=command>rotate</SPAN></A> command will be the concatenation of $2 and $3. Either $2 or
+ $3 may be the null string.
+<P> Although two or more $<i>symbols</i> may be concatenated to form one ARGUMENT, 
+  it is never true that a $<i>symbol</i> or the concatenation of several $<i>symbols</i> 
+  will be interpreted as two command ARGUMENTs. In other words, if a $<i>symbol</i> 
+  contains a <em>delimiter</em>, that <em>delimiter</em> will not be interpreted 
+  by GRAMPS as a <em>delimiter</em>. 

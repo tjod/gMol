@@ -1,0 +1,4 @@
+set newunits
+set stereo Z
+per LW p 0 s -.1200 s -d8/4
+per RW p 0 s  .1200 s  d8/4

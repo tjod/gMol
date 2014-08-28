@@ -1,0 +1,24 @@
+set oldunits
+set rgb
+set nobackface
+adam .pol
+COLORADAM
+ROTATE      LWorld X, -29424. 
+ROTATE      LWorld Y, -7241.9
+ROTATE      LWorld Z, -30652.
+PERSPECTIVE LWorld H,  20000.
+PERSPECTIVE LWorld E,  24000.
+deass x3,y3,x7,y7
+TRAN LW y 3000
+rotate/lab LWorld x -y1 y x1
+legarm
+!! This is a demo of A Dial Activated Man (ADAM)
+!! Instead of dials, we use a mouse now, but AMAM
+!! doesn't cut it.
+!! You can manipulate ADAM by holding the using the
+!!  mouse buttons
+!!    left:      rotate the entire scene
+!!    wheel:     left right leg, bending hip and knee
+!!    right:     lift up his left arm
+!!               (try circular mouse motion)
+!! After you're done playing puppeteer try typing JUMP 20

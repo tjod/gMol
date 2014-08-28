@@ -1,0 +1,17 @@
+get scube
+translate scube x,$1 y,$2 z,$3
+scale scube x,$4 y,$5 z,$6
+white scube
+inten scube t 0.5
+inten scube adp 0:20
+adv 20
+inten scube adp 0.4:20
+adv 20
+inten scube adp 0:20
+adv 20
+inten scube adp 0.4:20
+adv 20
+adv 100
+inten scube adp 0:20
+adv 20
+forget scube

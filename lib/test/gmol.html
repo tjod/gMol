@@ -1,0 +1,95 @@
+<html>
+<head>
+<title>Tests</title>
+<script>
+function loaded() {
+// Check for the various File API support.
+  if (window.File && window.FileReader && window.FileList && window.Blob) {
+    alert('Great success! All the File APIs are supported.');
+  } else {
+    alert('The File APIs are not fully supported in this browser.');
+  }
+  gmol.molAdded.connect(addMol); // signal gmol.molAdded goes to slot this.addMol
+}
+function unloaded() {
+  alert("unload");
+  //gmol.MolAdded.disconnect(addMol);
+}
+function showtree() {
+  var adiv = document.getElementById("tree");
+  atree = gmol.getTree();
+  adiv.innerHTML = JSON.stringify(atree,null,"\t");
+}
+function getpdb() {
+  var adiv = document.getElementById("pdb");
+  imol = gmol.readMolFromUrl("http://www.rcsb.org/pdb/files/1hox.pdb");
+  adiv.innerHTML = "molecule #" + imol;
+}
+function showtest() {
+  var adiv = document.getElementById("atest");
+  var a = gmol.atest();
+  adiv.innerHTML = JSON.stringify(a,null,"\t");
+}
+function getfile(f) {
+  // can't get full file name with path to pass to gmol.readMolFromFileNmae()
+  //alert(JSON.stringify(f.files[0]));
+  //alert(f.files[0]);
+  //alert(f.path);
+  //alert(f.value);
+  adiv = document.getElementById("afile");
+  adiv.innerHTML = "gmol.readMolFromFileElement not working yet."
+  //var a = gmol.readMolFromFileElement(f);
+}
+function addMol(imol) {
+  alert(imol);
+  adiv = document.getElementById("newmol");
+  adiv.innerHTML = "New molecule id #" + imol;
+  showtree();
+}
+</script>
+</head>
+
+<body onLoad="loaded()">
+<form>
+<h2>Tests</h2>
+<div>
+<h3>atest</h3>
+<input type=button onClick="showtest()" value="Show a test" />
+<pre>
+<span id="atest">
+test results
+</span>
+</div>
+
+<!--<div>
+<h3>Molecule</h3>
+Read local file
+<br>
+<span id="afile"></span>
+<br>
+<input type=file name=afile value="nothing">
+<input type=button value="Read file" onClick="getfile(afile)">
+</div>-->
+
+<div>
+<h3>PDB</h3>
+<input type=button onClick="getpdb()" value="Get 1hox.pdb"/>
+<span id=pdb>
+new molecule id
+</span>
+</div>
+
+<div>
+<h3>Tree</h3>
+<input type=button onClick="showtree()" value="Show tree" />
+<span id=newmol>
+</span>
+<pre>
+<span id=tree>
+molecule tree
+</span>
+</div>
+</form>
+
+</body>
+</html>

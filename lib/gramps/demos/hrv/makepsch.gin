@@ -1,0 +1,12 @@
+pschol
+demo
+set surf 0.25 0.25
+blank MOTIF
+yellow aicos
+blank bicos
+deblank 20mer, a20mer
+blank a_vpp,MOTIF
+ROTATE      LWorld X,   14075 X,-Y1
+ROTATE      LWorld Y,    3286 Y,X1 
+ROTATE      LWorld Z,  -10604 Z,-Y3
+PERSP LW E 20714 E 100<-Y5<50000

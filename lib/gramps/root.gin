@@ -1,0 +1,3 @@
+set newunits
+snap "/usr/tmp/tmp"
+sys rgbtoroot /usr/tmp/tmp

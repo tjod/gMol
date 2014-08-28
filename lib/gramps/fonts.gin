@@ -1,0 +1,22 @@
+Set Bitmaptext 0
+Text "0 is HELVETICA_18" text0
+Set Bitmaptext 1
+Text "1 is HELVETICA_12" text1
+Set Bitmaptext 2
+Text "2 is HELVETICA_10" text2
+Set Bitmaptext 3
+Text "3 is TIMES_ROMAN_24" text3
+Set Bitmaptext 4
+Text "4 is TIMES_ROMAN_10" text4
+Set Bitmaptext 5
+Text "5 is 9_BY_15" text5
+Set Bitmaptext 6
+Text "6 is 8_BY_13" text6
+
+Tran text0 x -1 y 1
+Tran text1 x -1 y 0.9
+Tran text2 x -1 y 0.8
+Tran text3 x -1 y 0.6
+Tran text4 x -1 y 0.5
+Tran text5 x -1 y 0.4
+Tran text6 x -1 y 0.3

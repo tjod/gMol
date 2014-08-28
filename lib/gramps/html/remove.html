@@ -1,0 +1,25 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>REMOVE</H2>
+ Objects can be removed from groups by using the <SPAN CLASS=command>remove</SPAN> command. The
+ effect of this command is to remove the object from all grouping and
+ place it at the end of the display list. The syntax of the <SPAN CLASS=command>remove</SPAN>
+ command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>remove</SPAN> ANYNAME
+<BR 3>
+<BR 1>
+</P CLASS=indent> where ANYNAME is any object or group name. Of course, the display on
+ the screen reflects the changes made to the tree by the <SPAN CLASS=command>remove</SPAN>
+ command.
+<H4>/menu</H4>
+ <SPAN CLASS=switch>/menu</SPAN> - Causes specified objects to be removed from the menu. The
+ syntax of this command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>remove/menu</SPAN> <i>name</i> [,<i>name</i>,<i>name</i>...]
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i> is any GRAMPS object <i>name</i>. Multiple <i>names</i> may be
+ given on one line. The effect of this command is to remove
+ the <i>named</i> object from the menu and reinsert it into the <A HREF=worlds.html><i>World</i></A>.
+ If the item had been a member of a <A HREF=group.html><SPAN CLASS=command>group</SPAN></A> at the time it had
+ been <A HREF=insert.html><SPAN CLASS=command>inserted</SPAN></A> into the MENU, it will not be returned to that
+ <A HREF=group.html><SPAN CLASS=command>group</SPAN></A>. It will be put at the end of the TREE.

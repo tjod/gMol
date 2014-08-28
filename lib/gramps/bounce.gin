@@ -1,0 +1,3 @@
+translate $1 cx $2 cx [-1<d1<1]
+translate $1 cy $3 cy [-1<d1<1]
+translate $1 cz $4 cz [-1<d1<1]

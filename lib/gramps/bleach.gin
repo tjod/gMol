@@ -1,0 +1,5 @@
+set newunits
+! "Bleaches" an object, so that it may inherit colors from the object
+! immediately preceeding it in the tree, either a group or another object!
+! hsv = 0 is the Gramps idiom for bleaching
+color $1 hsv 0

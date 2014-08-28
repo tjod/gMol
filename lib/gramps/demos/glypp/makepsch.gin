@@ -1,0 +1,19 @@
+pschol
+demo glypp
+set surf 0.25 0.25
+TRANSLATE   LWorld X,   -3097 X,X6 
+TRANSLATE   LWorld Y,   -9591 Y,Y6 
+TRANSLATE   LWorld Z,   -10000
+ROTATE      LWorld X,   -4218 X,-Y1
+ROTATE      LWorld Y,  -12657 Y,X1 
+ROTATE      LWorld Z,   -1282 Z,-Y3
+SCALE       LWorld W,   50000:$1
+COLOR       LWorld H,    3000:$1
+PERSPECTIVE LWorld S,    -750:$1
+PERSPECTIVE LWorld A,   11007:$1
+PERSPECTIVE LWorld H,   20000 H,Y7 
+PERSPECTIVE LWorld E,   25736 E,-Y5
+COLOR       con H,   25000:$1
+FRAME       con N,  -27163 N,Y4 
+INTENSITY   srf T,   23299 T,-Y2
+COLOR       srf H,    5000:$1

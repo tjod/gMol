@@ -1,0 +1,4 @@
+set oldunits
+! single adv let's gui interaction happen from this point on
+adv
+BJUMP $1 -8000 30000

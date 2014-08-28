@@ -1,0 +1,16 @@
+set oldunits
+TRANSLATE   RFOOT        X,   216
+TRANSLATE   RFOOT        Y, -9736
+TRANSLATE   RFOOT        Z,  -304
+ROTATE      RFOOT        X, 16328
+TRANSLATE   RHEEL        X,  -536
+TRANSLATE   RHEEL        Y,  2112
+SCALE       RHEEL        X,  5360
+SCALE       RHEEL        Y,  5064
+SCALE       RHEEL        Z,  1296
+TRANSLATE   RTOES        X,  -400
+TRANSLATE   RTOES        Y, -3480
+TRANSLATE   RTOES        Z,   -24
+SCALE       RTOES        X,  2888
+SCALE       RTOES        Y,  7648
+SCALE       RTOES        Z,  -600

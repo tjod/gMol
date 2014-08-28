@@ -1,0 +1,22 @@
+!! This is an dodecahedron constructed from 12 copies
+!! of an equilateral pentagon.
+!! You can manipulate this model by holding the following
+!!  mouse buttons:
+!!    left:     rotate the entire scene
+!!    right:    rotate each pentagon around its center
+!!    wheel:    flap the lower half of each dimer
+!!
+!! To get back to a closed dodecahedron,
+!!   type start 40.
+!!
+!! For more information on this model and some tricks
+!!   type info.
+set backface ! let's see the backfaces of the pentagons
+
+reset LW
+scale LW w 2.2
+dodecapent 100 
+
+scale LW w 1.5:100
+adv 100
+rot/lab LW x -y1 y x1

@@ -1,0 +1,59 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>SAVE</H2>
+ <SPAN CLASS=command>save</SPAN> is a useful command for saving the <A HREF=function.html><i>values</i></A> that are currently
+ applied to an object. The syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>save</SPAN> <i>name</i>
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i> is any known object name. The effect of the command is to
+ list the GRAMPS commands necessary to transform <i>name</i> to its present
+ state. If a <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> COLLECT is in effect, the commands are written to the
+ file. Thus the state of an object can be saved at any point.
+<P>
+ There are several SWITCHES that modify the function of <SPAN CLASS=command>save</SPAN>. The <SPAN CLASS=switch>/all</SPAN>
+ <i>switch</i> supercedes any of the SWITCHES described below.
+<P>
+ It is possible to save only certain active transformations by using
+ the switches that name the transformation. For example, note that
+ <SPAN CLASS=switch>/scale</SPAN> does not specify that all scale values for the object are to be
+ saved, but rather that only scale values are to be considered for
+ SAVing, dependant on the <SPAN CLASS=switch>/all</SPAN>,<SPAN CLASS=switch>/active</SPAN>, etc. So, if an object had a
+ default value for its X scale, that value would not be <SPAN CLASS=command>saved</SPAN> even if
+ the <SPAN CLASS=switch>/scale</SPAN> <i>switch</i> was given. It would be saved if the X scale
+ transformation was active. Many of the switches have optional values
+ (designated by the [] braces.)
+<H4>/all</H4>
+ <SPAN CLASS=switch>/all</SPAN> - By default, only transformations which have changed from their
+ initial values are saved. In addition, transformations which
+ are active, i.e., transformations associated with a <A HREF=function.html><i>device</i></A>, are
+ also saved. However, the <SPAN CLASS=switch>/all</SPAN> <i>switch</i> indicates that every
+ transformation value is to be saved.
+<H4>/active</H4>
+ <SPAN CLASS=switch>/active</SPAN> - The <SPAN CLASS=switch>/active</SPAN> <i>switch</i> indicates that only active
+ transformations currently linked to a <A HREF=function.html><i>device</i></A> are saved.
+<H4>/dials</H4>
+ <SPAN CLASS=switch>/dials</SPAN> - The <SPAN CLASS=switch>/dials</SPAN> switch indicates that the name of the <A HREF=function.html><i>device</i></A>
+ associated with each transformation is to be saved as well as
+ the <A HREF=function.html><i>value</i></A> associated with the transformation.
+<H4>/group</H4>
+ <SPAN CLASS=switch>/group</SPAN> - The <SPAN CLASS=switch>/group</SPAN> <i>switch</i> indicates that every member of the <A HREF=group.html><SPAN CLASS=command>group</SPAN></A>,
+ if <i>name</i> is a <A HREF=group.html><SPAN CLASS=command>group</SPAN></A>, is to be <SPAN CLASS=command>saved</SPAN>.
+<H4>/color</H4>
+ <SPAN CLASS=switch>/color</SPAN>[=HSV] - Fixes the hue, saturation and/or value for the object.
+<H4>/intensity</H4>
+ <SPAN CLASS=switch>/intensity</SPAN>[=FST] - Fixes the front, size and/or transparent intensity
+ of the object.
+<H4>/move</H4>
+ <SPAN CLASS=switch>/move</SPAN>[=XYZ] - Saves the move transformations affecting the <A HREF=worlds.html><i>Worlds</i></A> for
+ the specified axes.
+<H4>/perspective</H4>
+ <SPAN CLASS=switch>/perspective</SPAN>[=LRBTHYEW] - Saves the perspective windows affecting the
+ <A HREF=worlds.html><i>Worlds</i></A>. The optional values are <A HREF=perspective.html><SPAN CLASS=command>perspective</SPAN></A> keywords.
+<H4>/rotate</H4>
+ <SPAN CLASS=switch>/rotate</SPAN>[=XYZPQR] - Saves the <A HREF=rotate.html><SPAN CLASS=command>rotate</SPAN></A> transformation. The optional
+ value resets the rotation for the axis or axes specified.
+<H4>/scale</H4>
+ <SPAN CLASS=switch>/scale</SPAN>[=XYZWPQRS] - Saves the scale transformation of the specifed axes.
+<H4>/translate</H4>
+ <SPAN CLASS=switch>/translate</SPAN>[=XYZWPQRS] - Saves the translation transformations of the
+ specified axes.

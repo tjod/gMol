@@ -1,0 +1,3 @@
+ROTATE      BMOTIF  X,Y2/10.
+ROTATE      MOTIF  R,Y3/5.
+ROT/LAB LW X, -y1 y,x1

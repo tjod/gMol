@@ -1,0 +1,10 @@
+set oldunits
+tran zl x 13107:$1 y 28835:$1
+tran O y -13107:$1
+tran HH y 0:$1
+tran Ha x 14418:$1
+tran Hb x -14418:$1
+frame water n 32767:$1
+rot  HH z 0:$1
+tran aline y 28835:$1
+tran bline x 13107:$1

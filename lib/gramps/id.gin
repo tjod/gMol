@@ -1,0 +1,7 @@
+set newunits
+pick/point #10
+pick/param/wait $10
+forget _pick
+text "@" _pick #10
+red _pick
+sho/param $10

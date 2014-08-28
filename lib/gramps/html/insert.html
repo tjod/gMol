@@ -1,0 +1,38 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>INSERT</H2>
+ The <SPAN CLASS=command>insert</SPAN> command inserts objects into groups. The syntax of the
+ <SPAN CLASS=command>insert</SPAN> command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>insert</SPAN> <i>name</i>1 <i>name</i>2
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i>1 and <i>name</i>2 are any <i>names</i>. The effect of the <SPAN CLASS=command>insert</SPAN> command
+ is to place <i>name</i>1, along with any objects or groups <i>name</i>1 may contain
+ (if it is a group itself) into the tree after <i>name</i>2.
+<P>
+ It is possible to insert groups into groups as well as objects into
+ groups. If an object is <SPAN CLASS=command>inserted</SPAN> into itself, no change occurs in the
+ tree. If a group is <SPAN CLASS=command>inserted</SPAN> into an object or group which is
+ contained by the original group, an error is issued and no change in
+ the tree occurs.
+<H4>/menu</H4>
+ <SPAN CLASS=switch>/menu</SPAN> - All objects in GRAMPS are part of the <A HREF=worlds.html><i>Worlds</i></A>. As such, they
+ rotate, scale, etc., within the world. It is possible to
+ cause specified objects to be inserted into a menu which is
+ not part of the <A HREF=worlds.html><i>Worlds</i></A> and which will remain stationary when
+ <A HREF=worlds.html><i>World</i></A> transformations occur. This command has the following
+ syntax:
+<P>
+<P CLASS=indent><SPAN CLASS=command>insert/menu</SPAN> <i>name</i> [,<i>name</i>,<i>name</i>...]
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i> is an object name known to GRAMPS. Multiple <i>names</i>
+ may be given on one line. The effect of this command is to
+ remove the <i>named</i> object from the <A HREF=worlds.html><i>World</i></A> and insert it into the
+ MENU. The object will change on the screen, since it is no
+ longer undergoing the perspective (and all other)
+ tranformations of the <A HREF=worlds.html><i>World</i></A>. The object may still be
+ manipulated by GRAMPS transformation and other commands.
+ However, items in the menu may not be <A HREF=group.html><SPAN CLASS=command>grouped</SPAN></A>, nor can <A HREF=group.html><SPAN CLASS=command>groups</SPAN></A>
+ be inserted into the MENU. <A HREF=frame.html><SPAN CLASS=command>frames</SPAN></A> also may not be inserted
+ into the MENU. SYNONYMS and ORDINARY objects may be inserted
+ into the MENU.

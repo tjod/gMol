@@ -1,0 +1,17 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>PAUSE</H2>
+ The <SPAN CLASS=command>pause</SPAN> command stops automatic continuous transformations from
+ occurring until the <A HREF=continue.html><SPAN CLASS=command>continue</SPAN></A> command is entered. <SPAN CLASS=command>pause</SPAN> will also
+ stop automatic delayed updates (see <A HREF=function.html><i>function</i></A>) from happening. This is
+ useful if two objects need to be synchronized in their continuous
+ transformations. The <SPAN CLASS=command>pause</SPAN> command can be issued first, the
+ transformations can be set up, and then the <A HREF=continue.html><SPAN CLASS=command>continue</SPAN></A> command is given.
+ In the time between the transformation set-ups no changes will occur
+ in continuous transformations for any object.
+<P>
+ Even while <SPAN CLASS=command>pause</SPAN> is in effect, continuous or delayed update functions
+ will happen if you use the <A HREF=advance.html><SPAN CLASS=command>advance</SPAN></A> command. Regardless of the state
+ of the <SPAN CLASS=command>pause</SPAN> or <A HREF=continue.html><SPAN CLASS=command>continue</SPAN></A> command, non-continuous transformations are
+ updated simply by turning the dial associated with the transformation.
+ If it is desired to synchronize two non-continuous transformations,
+ simply refrain from turning the dial until both transformations are
+ set up.

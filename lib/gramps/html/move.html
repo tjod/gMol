@@ -1,0 +1,20 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>MOVE</H2>
+ The <SPAN CLASS=command>move</SPAN> command, like the <A HREF=perspective.html><SPAN CLASS=command>perspective</SPAN></A> command, applies only to LWorld
+ or RWorld. The syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>move</SPAN> <i>name</i> <i>axis</i>,<A HREF=function.html><i>function</i></A>
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i> is either LWorld or RWorld, <i>axis</i> is one or more of X, Y,
+ and Z, and <A HREF=function.html><i>function</i></A> is described in its own help topic.
+<P>
+ The effect of the <SPAN CLASS=command>move</SPAN> command is very similar to that of the
+ <A HREF=translate.html><SPAN CLASS=command>translate</SPAN></A> command, except that the motion takes place after the
+ perspective transformation is applied. So, if the LWorld were
+ <A HREF=translate.html><SPAN CLASS=command>translated</SPAN></A>, the perspective view of objects with this world would
+ change. However, if the LWorld were <SPAN CLASS=command>moved</SPAN>, the perspective would
+ remain the same, but the objects within the LWorld would be shifted on
+ the screen. This command is useful for stereo viewing so that the
+ LWorld and RWorld can be separated on the screen. The <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> STEREO
+ command sets this <SPAN CLASS=command>move</SPAN> up and the user need not concern himself with
+ this.

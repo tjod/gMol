@@ -1,0 +1,10 @@
+TRANS $1 x -20000
+FIX $1
+!
+TRANSLATE   $1        X,  5000
+TRANSLATE   $1        Z,  8090
+TRANSLATE   $1        W,  6070
+ROTATE      $1        Y,  -989
+SCALE       $1        X,  7391
+SCALE       $1        Y,  7391
+SCALE       $1        Z,  7391

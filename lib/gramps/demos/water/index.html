@@ -1,0 +1,73 @@
+<HTML>
+<HEAD>
+<TITLE>Water</TITLE>
+<SCRIPT>
+ function show(name) {
+   nsteps = 50;
+   gramps.cmd(name + " s" + nsteps);
+   gramps.cmd("advance " + nsteps);
+   gramps.cmd("surf"); // put surface rotation and stick/atom motion back
+   if (buttons["dials"][0].checked) {
+     warp();
+   } else {
+     zplane();
+   }
+ }
+ function zplane() {
+   gramps.cmd("translate square z -1<y2/8<1");
+   gramps.cmd("freeze water");
+   gramps.cmd("freeze/rot HH");
+ }
+ function warp() {
+   gramps.cmd("freeze square");
+   gramps.cmd("warp");
+ }
+</SCRIPT>
+</HEAD>
+<BODY onLoad="gramps.cmd('resetup')">
+<H2>Water potential energy surface</H2>
+This is a representation of the potential energy surface of H + H + O.
+That is a 4-dimensional surface: the potential energy and the
+three (3n-6) internal degrees of freedom of the three atom system.
+<p>
+Here, we see only a 3-dimensional surface at any one time.
+The axis labelled V is the potential energy.
+The axis labelled H-H is the (symmetric) distance of H from the H-H center.
+The axis labelled O is the distance of O from the H-H center.
+This leaves one degree of freedom that can be expressed as the rotation
+of H-H around its center.
+Initially, the 3-D surface is shown with the rotation angle set at 90 degrees -
+the surface on which the global minimum for water is located.
+<p>
+To better see the surface, you may rotate the view by moving the mouse using the
+left mouse button.
+<p>
+You may move the yellow stick around on the surface using
+the right mouse button.  The red O and 2 white H atoms
+correspond to the location of the stick on the surface.
+The guidelines help you to see the location along the
+H-H and O axes.
+<p>
+<FORM NAME=buttons>
+The remaining degree of freedom is a parameter in this animation.
+It correpsonds the rotation of H-H around the H-H center.
+When this parameter is changed, the surface "warps"
+to reflect the correct shape for this rotation angle.
+Use the mouse scroll wheel to control:
+<br>
+<INPUT TYPE=RADIO NAME=dials onClick="warp()" checked>H-H rotation and surface warp 
+<br>
+<INPUT TYPE=RADIO NAME=dials onClick="zplane()">"flood" plane
+<p>
+You can select a few interesing points on the surface.
+<br>
+<INPUT TYPE=BUTTON VALUE=view onClick="show('h2o')" checked>H<sub>2</sub>O minimum
+<br>
+<INPUT TYPE=BUTTON VALUE=view onClick="show('h2')">H<sub>2</sub> + O
+<br>
+<INPUT TYPE=BUTTON VALUE=view onClick="show('unbound')">Unbound H + H + O
+<br>
+<INPUT TYPE=BUTTON VALUE=view onClick="show('oh')">OH + H
+</FORM>
+</BODY>
+</HEAD>

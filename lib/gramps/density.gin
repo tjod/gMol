@@ -1,0 +1,5 @@
+!Makes the intensity (transparency, etc.) of a surface highly
+!reflective so that it "looks good" for electron density fitting.
+set newunits
+!            ambient diffuse specular highlight transp
+intensity $1  a,0.2   d,0.2    p,2      y,0.4    t,0.65  t,d4

@@ -1,0 +1,13 @@
+get tetrahedron
+pick/poi #1 1 1 1
+pick/poi #2 -1 -1 -1
+use/axis #1 #2 tetrahedron
+ROTATE      tetrahedron Y, -55.000:$1
+ROTATE      tetrahedron Z, -45.000:$1
+TRANSLATE   tetrahedron R,-0.20000:$1
+ROTATE      tetrahedron R, -30.000:$1
+SCALE       tetrahedron X, 0.30000:$1
+SCALE       tetrahedron Y, 0.30000:$1
+SCALE       tetrahedron Z, 0.30000:$1
+COLOR       tetrahedron H,  120.00:$1
+insert tetra MOTIF

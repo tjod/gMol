@@ -1,0 +1,83 @@
+<HTML>
+<HEAD>
+<TITLE>Icos icosohedron</TITLE>
+<script>
+ var done = false;
+ function animate() {
+   if (!done) gramps.cmd('begin 100');
+   done = true;
+ }
+ function closeup() {
+   gramps.cmd('start 40');
+ }
+ function addtetra() {
+   gramps.cmd('addtetra');
+ }
+ function addsphere() {
+   gramps.cmd('get ssphere');
+   gramps.cmd('red ssphere');
+   gramps.cmd('scale ssphere xyz 0.2');
+   gramps.cmd('insert ssphere MOTIF');
+ }
+ function showtree() {
+   //alert(gramps.cmd('show/tree').join('\n'));
+   alert(gramps.cmd('show/tree'));
+ }
+</script>
+</HEAD>
+<BODY>
+<H2>Construction of an icosohedron</H2>
+ This creates an icosohedon from an equiliateral triangle
+ whose center is at the origin (x,y,z) = (0,0,0) and whose
+ sides have length=1.  Based on this location and
+ dimension, certain rotations and translations are applied
+ to 20 instances of this triangle creating an
+ icosohedron, with each of the 20 faces being one of the
+ copies.
+<p>
+<FORM>
+<INPUT TYPE=BUTTON VALUE="Begin" onClick="animate()"> the animation.
+</FORM>
+<p>
+Please wait for the animation to finish before using the buttons below.
+  There are two degrees of freedom which are
+ allowed to to vary, using Y2(mouse wheel) and
+ Y3(right mouse).  Try it and see what happens.
+<FORM>
+<INPUT TYPE=BUTTON VALUE=Reset onClick="gramps.cmd('start 40')">
+to get back to a closed icosohedron.
+<br>
+<input type=button value="Show tree" onClick="showtree()">
+to see how this icosohedral structure
+ is constructed and how the object tri is situated.
+</form>
+ You can "icosify" any other object for example a sphere,
+ by inserting it into the tree into the group named MOTIF.
+<form>
+<br>
+to "icosify" a red sphere.
+<br>
+<input type=button value="Add sphere" onClick="addsphere()">
+<input type=button value="Remove sphere" onClick="gramps.cmd('forget ss')">
+<br>
+to "icosify" a blue tetrahedron.
+<br>
+<input type=button value="Add tetrahedeon" onClick="addtetra()">
+<input type=button value="Remove tetrahedeon" onClick="gramps.cmd('forget tetra')">
+<br>
+<input type=button value="Hide triangle" onClick="gramps.cmd('blank tri')">
+<input type=button value="Show triangle" onClick="gramps.cmd('deblank tri')">
+</form>
+<p>
+ You can manipulate
+ this model by using the following mouse buttons.
+<blockquote>
+    left:     rotate the entire scene
+<br>
+    right:    rotate each triangle around its center
+<br>
+    wheel:    flap the lower half of each dimer
+</blockquote>
+
+</BODY>
+</HEAD>

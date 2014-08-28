@@ -1,0 +1,11 @@
+<H2>Test</H2>
+<PRE>
+<script>
+ a = gramps.cmd("get cube");
+ a = gramps.cmd("show/system");
+ document.writeln(a);
+ a = gramps.cmd("json/tree");
+ document.writeln(a);
+ a = JSON.parse(gramps.cmd("json/tree"));
+ document.writeln(JSON.stringify(a,null,"\t"));
+</script>

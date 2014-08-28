@@ -1,0 +1,53 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>Command Syntax</H2>
+ GRAMPS makes use of the following "parts of speech:"
+<P>
+<P CLASS=indent> <BR 2>
+  <i>command</i> - a word or a word modified by a <i>switch</i>. </P CLASS=indent>
+<P CLASS=indent> <i>switch</i> - a slash (<SPAN CLASS=switch>/</SPAN>) followed 
+  by a word that modifies the effect of the <i>command</i>. <BR 3>
+  <BR 1>
+  <i>name</i> - a picture name known to the system. <BR 3>
+  <BR 1>
+  <i>keyword</i> - additional letters or words whose interpretation depends on 
+  the particular <i>command</i> being carried out.<br>
+  <br>
+  <i>delimiter </i>- a blank or a comman, used to separate various parts of the 
+  command line.<BR 3>
+  <BR 1>
+  <A HREF=function.html><i>device</i></A> - a symbol for a input device such as 
+  a dial or joystick. <BR 3>
+  <BR 1>
+  <A HREF=function.html><i>value</i></A> - a number value, e.g. 0.5, 120, -1.55 
+  <BR 3>
+  <BR 1>
+  <A HREF=function.html><i>function</i></A> - a combination of <A HREF=function.html><i>devices</i></A>, 
+  <A HREF=function.html><i>values</i></A>, and special functional characters. 
+  <BR>
+</P CLASS=indent>
+Every GRAMPS command line must begin with a <i>command</i>. Some GRAMPS commands 
+consist only of a <i>command</i>, e.g., <A HREF=exit.html><SPAN CLASS=command>exit</SPAN></A> 
+or <A HREF=show.html><SPAN CLASS=command>show/sys</SPAN></A>. Many <i>commands</i> 
+include one or more <i>switches</i> that alter the effect of the <i>command</i>. 
+If a <i>switch</i> is used, it must directly follow the <i>command</i>. No blanks 
+or other <em>delimiter</em>s may appear before or after the slash that is a part 
+of the <i>switch</i>. In some commands, the <i>switch</i> may also have a value, 
+e.g., <A HREF=reset.html><SPAN CLASS=command>reset/rotate</SPAN></A>=xy cube. 
+<P> If there is more information necessary for a command, <i>command</i> must 
+  be followed by a <em>delimiter</em>. A <em>delimiter</em> is one or more blanks, 
+  or a comma surrounded by any number of blanks. All parts of speech following 
+  <i>command</i> are collectively referred to as ARGUMENTS. A command line is 
+  limited to 80 characters. 
+<H4>Special characters</H4>
+ The exclamation point (!) is used to begin comments in a GRAMPS
+ command line. Anything following ! on a GRAMPS command line will be
+ ignored, unless that ! is enclosed in double quotation marks.
+ A line beginning with a double !! is a comment which is echoed to
+ the user.
+<P> The percent symbol (%) is used as a special character if it begins a GRAMPS 
+  command line. A line beginning with a single percent symbol (%) will be interpreted, 
+  but not collected (see <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> collect.) 
+  A line beginning with double percent symbols (%%) will be collected, but not 
+  interpreted. 
+<P> An asterisk (*) as the first character of a GRAMPS line will cause the line 
+  not to be echoed, regardless of the state of the echo flags (see <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> 
+  echo.) 

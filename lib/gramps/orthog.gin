@@ -1,0 +1,3 @@
+set newunits
+reset/persp LW
+persp LW v 0 

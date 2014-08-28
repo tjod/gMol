@@ -1,0 +1,21 @@
+!! This is an icosohedron constructed from 20 copies
+!! of an equilateral triangle.  You can manipulate
+!! this model by using the following mouse buttons.
+!!    left:     rotate the entire scene
+!!    right:    rotate each triangle around its center
+!!    wheel:    flap the lower half of each dimer
+!!
+!! For more information on this model and some tricks,
+!!   type info.
+!!
+!! To get back to a closed icosohedron,
+!!   type start 40.
+
+set backface ! let's see the backfaces of the triangles
+
+set sphere 4.2 4.2
+get tri
+!pick/param/wait $1
+scale LW w 1.5
+!icostri 100 
+!endup

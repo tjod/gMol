@@ -1,0 +1,79 @@
+set oldunits
+TRANSLATE   LOWBOD       X,  -682:$1
+TRANSLATE   LOWBOD       Y,-10458:$1
+TRANSLATE   LOWBOD       Z,  4964:$1
+ROTATE      LOWBOD       X, -7312:$1
+ROTATE      LOWBOD       Y,     0:$1
+ROTATE      LOWBOD       Z,     0:$1
+ROTATE      LLEG         X, 19792:$1
+ROTATE      LLEG         Y,     0:$1
+ROTATE      LLEG         Z,    40:$1
+ROTATE      LLLEG        X,-20864:$1
+ROTATE      LLLEG        Y,     0:$1
+ROTATE      LLLEG        Z,     0:$1
+ROTATE      LFOOT        X, 22448:$1
+ROTATE      LFOOT        Y,     0:$1
+ROTATE      LFOOT        Z,     0:$1
+ROTATE      LTOES        X,  2928:$1
+ROTATE      LTOES        Y,     0:$1
+ROTATE      LTOES        Z,     0:$1
+ROTATE      HIP          X,     0:$1
+ROTATE      HIP          Y,     0:$1
+ROTATE      HIP          Z,     0:$1
+ROTATE      RLEG         X, 19432:$1
+ROTATE      RLEG         Y,     0:$1
+ROTATE      RLEG         Z,    40:$1
+ROTATE      RLLEG        X,-20016:$1
+ROTATE      RLLEG        Y,     0:$1
+ROTATE      RLLEG        Z,     0:$1
+ROTATE      RFOOT        X, 22448:$1
+ROTATE      RFOOT        Y,     0:$1
+ROTATE      RFOOT        Z,     0:$1
+ROTATE      RTOES        X,  2928:$1
+ROTATE      RTOES        Y,     0:$1
+ROTATE      RTOES        Z,     0:$1
+TRANSLATE   TORSO        X,  -682:$1
+TRANSLATE   TORSO        Y,-10306:$1
+TRANSLATE   TORSO        Z,  4964:$1
+ROTATE      TORSO        X,-10368:$1
+ROTATE      TORSO        Y,  -840:$1
+ROTATE      TORSO        Z,     0:$1
+ROTATE      TOR1         X,  -952:$1
+ROTATE      TOR1         Y,     0:$1
+ROTATE      TOR1         Z,     0:$1
+ROTATE      TOR2         X,  -952:$1
+ROTATE      TOR2         Y,     0:$1
+ROTATE      TOR2         Z,     0:$1
+ROTATE      TOR3         X,  -952:$1
+ROTATE      TOR3         Y,     0:$1
+ROTATE      TOR3         Z,     0:$1
+ROTATE      LARM         X, -6352:$1
+ROTATE      LARM         Y,     0:$1
+ROTATE      LARM         Z,  -896:$1
+ROTATE      LFORARM      X,  2352:$1
+ROTATE      LFORARM      Y,     0:$1
+ROTATE      LFORARM      Z,     0:$1
+ROTATE      LHAND        X,   168:$1
+ROTATE      LHAND        Y, 15680:$1
+ROTATE      LHAND        Z,  1608:$1
+ROTATE      LFINGS       X, 26824:$1
+ROTATE      LFINGS       Y,     0:$1
+ROTATE      LFINGS       Z,     0:$1
+ROTATE      HEAD         X, -3392:$1
+ROTATE      HEAD         Y,     0:$1
+ROTATE      HEAD         Z,     0:$1
+ROTATE      RARM         X,-11520:$1
+ROTATE      RARM         Y,     0:$1
+ROTATE      RARM         Z,  -272:$1
+ROTATE      RFORARM      X,  2352:$1
+ROTATE      RFORARM      Y,     0:$1
+ROTATE      RFORARM      Z,     0:$1
+ROTATE      RHAND        X,  -168:$1
+ROTATE      RHAND        Y,-15680:$1
+ROTATE      RHAND        Z, -1608:$1
+ROTATE      RFINGS       X, 26824:$1
+ROTATE      RFINGS       Y,     0:$1
+ROTATE      RFINGS       Z,     0:$1
+ROTATE      SHOULDER     X,  -952:$1
+ROTATE      SHOULDER     Y,     0:$1
+ROTATE      SHOULDER     Z,     0:$1

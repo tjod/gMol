@@ -1,0 +1,9 @@
+ROTATE      vsurf        X,-11700:$1
+ROTATE      vsurf        Z, 32580:$1
+TRANSLATE   vsurf        P,-12540:$1
+TRANSLATE   vsurf        Q,-12540:$1
+SCALE       vsurf        X,  4712:$1
+SCALE       vsurf        Y,  4712:$1
+SCALE       vsurf        Z,  4712:$1
+INTENSITY   vsurf        S,     0:$1
+COLOR       vsurf        H, 15000:$1

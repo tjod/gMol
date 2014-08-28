@@ -1,0 +1,30 @@
+get spentagon
+group spenta,spenta  MOTIF
+syno  MOTIF, BMOTIF
+group MOTIF, BMOTIF PAIR
+
+SCALE       spentagon P,  4.2535:$1
+SCALE       spentagon Q,  4.2535:$1
+
+TRANSLATE   MOTIF  Q,   0.68820:$1
+adv $1
+ROTATE      BMOTIF Z,  180.00:$1
+adv $1
+ROTATE      BMOTIF X,  63.513:$1 ! why this angle?
+adv $1
+rot LW x 40:$1
+ROTATE      PAIR X, -52.50:$1 ! why this angle?
+adv $1
+TRANSLATE   PAIR R,  2.0:$1
+adv $1
+
+3mer PAIR $1 ! creates 2PAIR, 3PAIR, 3mer
+syno  3mer a3mer
+group 3mer,a3mer dodecahedron
+
+ROTATE      a3mer X, 180.00:$1
+adv $1
+TRANSLATE   3mer  Y,  -1.1183:$1
+adv $1
+
+dials

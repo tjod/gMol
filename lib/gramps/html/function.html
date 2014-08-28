@@ -1,0 +1,132 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>Function</H2>
+ This section describes the <A HREF=function.html><i>device</i></A>, <A HREF=function.html><i>value</i></A>, and <A HREF=function.html><i>function</i></A> specifications
+ in detail.
+<H4>Device</H4>
+ <A HREF=function.html><i>device</i></A> is any one of the devices available in the GRAMPS system.
+ There are 8 dials, 8 sliders, 8 value boxes and a mouse.
+ The <A HREF=function.html><i>devices</i></A> are availale in the Control tab at the bottom of the
+ main gui window.  This tab may be hidden, but can be revealed using
+ the View menu at the top of the main gui window.
+ The names of the <A HREF=function.html><i>devices</i></A> are:
+<P>
+<P CLASS=indent>DIALS:   D1, D2, D3, D4, D5, D6, D7, or D8
+<BR 3>
+SLIDERS: S1, S2, S3, S4, S5, S6, S7, or S8
+<BR 3>
+VALBOX:  V1, V2, V3, V4, V5, V6, V7, or V8
+<BR 3>
+MOUSE:   X1, X2, X3, Y1, Y2, Y3
+<BR 3>
+<BR 1>
+</P CLASS=indent> X1 is activated when the left mouse button is held and the mouse
+ is moved horizontally.  Y1 is similar but for vertical motion.
+ Y2 is the mouse wheel.  There is no X2.
+ X3 and Y3 are activated when the right mouse button is held while the mosue is moved.
+ The mouse motions always produce relative value increments, while the others
+ produce absolute value in the range of -1 to 1 for most transformations.
+ For <A HREF=rotate.html><SPAN CLASS=command>rotate</SPAN></A> and <A HREF=color.html><SPAN CLASS=command>color</SPAN></A> transformations, the range is -360 to 360.
+<P>
+<H4>Value</H4>
+ A <A HREF=function.html><i>value</i></A> is a floating point number. The interpretation
+ of <A HREF=function.html><i>value</i></A> depends largely on the particular command for which it is
+ used. In general, +1 corresponds to one extreme, for example
+ translation to the furthest right edge of the
+ screen, or displaying the last frame of a framed picture. A <A HREF=function.html><i>value</i></A> of
+ -1 corresponds to the opposite extreme.
+ <A HREF=function.html><i>values</i></A> may be outside the range of -1 to +1, for example if
+ you want to <A HREF=scale.html><SPAN CLASS=command>scale</SPAN></A> an object to be 3.76 times it's original size.
+ For <A HREF=rotate.html><SPAN CLASS=command>rotate</SPAN></A> and <A HREF=color.html><SPAN CLASS=command>color</SPAN></A> hue, <A HREF=function.html><i>value</i></A> is interpreted as an angle,
+ in the range of -360 to 360.  <A HREF=function.html><i>values</i></A> outside this range are allowed.
+<P>
+ <A HREF=function.html><i>value</i></A> can also be specified as an offset from the current value
+ associated with a transformation. The syntax is then .+<A HREF=function.html><i>value</i></A> or .-<A HREF=function.html><i>value</i></A>.
+ <A HREF=function.html><i>value</i></A> can also be given simply as a dot.
+<P>
+ One effect of specifying a <A HREF=function.html><i>value</i></A> in a transformation command is that
+ the association of that transformation with a <A HREF=function.html><i>device</i></A>, if there was one
+ previously, is then forgotten.  This is useful for freeing a dial for
+ another use.
+<H4>Function</H4>
+ <A HREF=function.html><i>function</i></A> can be most simply a <A HREF=function.html><i>device</i></A> or a <A HREF=function.html><i>value</i></A>. In addition, there
+ are several useful functions for controlling the transformations of
+ objects. Within the specification of a <A HREF=function.html><i>function</i></A>, no imbedded blanks
+ or other DELIMITERS are allowed.
+<P>
+ The first <A HREF=function.html><i>function</i></A> is the negative of a <A HREF=function.html><i>device</i></A>. This function is
+ specified by including a minus sign in front of any one of the devices
+ listed above, e.g., -D4. If a negative <A HREF=function.html><i>device</i></A> is specified in any
+ command, the picture will transform in the opposite way than if <A HREF=function.html><i>device</i></A>
+ had been used without the negative sign.
+<P>
+ A <A HREF=function.html><i>device</i></A> may also be divided or multipled by a number. For example,
+ D2<SPAN CLASS=switch>/</SPAN>7 means use the value of dial 2 after dividing it by 7. Since dials
+ are not absolute devices (no unique position corresponds to a unique
+ dial value,) dividing dials increases the sensitivity of the dial.
+ Dividing or multiplying dials are also useful for ensuring that, for
+ example, one picture's translation is always half, for example, that
+ of another picture's translation.
+3 Boundaries
+ Boundaries can also be given in a <A HREF=function.html><i>function</i></A> specification. The
+ following syntax is recognized.
+<P>
+<P CLASS=indent><A HREF=function.html><i>value</i></A><<A HREF=function.html><i>device</i></A><<A HREF=function.html><i>value</i></A> or <A HREF=function.html><i>device</i></A><<A HREF=function.html><i>value</i></A> or <A HREF=function.html><i>value</i></A><<A HREF=function.html><i>device</i></A>
+<BR 3>
+<A HREF=function.html><i>value</i></A>><A HREF=function.html><i>device</i></A>><A HREF=function.html><i>value</i></A> or <A HREF=function.html><i>device</i></A>><A HREF=function.html><i>value</i></A> or <A HREF=function.html><i>value</i></A>><A HREF=function.html><i>device</i></A>
+<BR 3>
+<BR 1>
+</P CLASS=indent> The <A HREF=function.html><i>values</i></A> above represent upper or lower bounds, depending on the
+ sense of the inequality (read < as less than and > as greater than.)
+ If the <A HREF=function.html><i>device</i></A> takes on a value outside the bounds given, the value
+ used for the transformation is set to the value of the exceeded bound.
+ Although both and upper and lower bound is not required by the syntax
+ shown above, an assumption is made by GRAMPS whenever only one bound
+ is given. The missing bound is assumed to be +1 for an upper bound
+ and -1 for a lower bound. Thus, no transformation may be bounded
+ on one side and unbounded on the other, although both bounds don't
+ have to be specifically given. The <A HREF=function.html><i>device</i></A> given in a bounded <A HREF=function.html><i>function</i></A>
+ may be the negative of a <A HREF=function.html><i>device</i></A>, and/or may be a <A HREF=function.html><i>device</i></A> divided or
+ multiplied by a number.
+<P>
+ There are also bumpered boundaries which are specified by enclosing
+ the bounded <A HREF=function.html><i>function</i></A> specification in square brackets. For example,
+<P>
+<P CLASS=indent>[<A HREF=function.html><i>value</i></A>><A HREF=function.html><i>device</i></A>><A HREF=function.html><i>value</i></A>]
+<BR 3>
+<BR 1>
+</P CLASS=indent> For bumpered <A HREF=function.html><i>functions</i></A>, when the <A HREF=function.html><i>device</i></A> takes on a value outside the
+ range of the bounds, the object "bounces back" and begins transforming
+ as if a negative <A HREF=function.html><i>device</i></A> had been specified in the <A HREF=function.html><i>function</i></A>.
+<P>
+ There is also a wrap-around function.  This is specified using the
+ back-slash character.  For example:
+<P>
+<P CLASS=indent>\<A HREF=function.html><i>value</i></A><<A HREF=function.html><i>device</i></A><<A HREF=function.html><i>value</i></A>\
+<BR 3>
+<BR 2>
+</P CLASS=indent> When the <A HREF=function.html><i>device</i></A> takes on a value outside the range of the bounds,
+ the value is set to the opposite bound.  This is a "natural" function
+ for rotations bounded by -180 and 180 degrees or
+ for color bounded by 0 and 360.  Thus, it does not have to be used for
+ rotate or color.  It is quite useful for <A HREF=frame.html><SPAN CLASS=command>frame</SPAN></A>, but
+ it may be used with any transformation command.
+<P>
+3 Delay Functions
+ Finally, there are delayed update <A HREF=function.html><i>functions</i></A> useful for animation. In
+ these types of <A HREF=function.html><i>functions</i></A> a <A HREF=function.html><i>value</i></A> is given, but the transformation does
+ not immediately take on this <A HREF=function.html><i>value</i></A>. Rather, the transformation takes
+ on the <A HREF=function.html><i>value</i></A> in a series of interpolated steps which results in a
+ smooth transition from the current value to the specified <A HREF=function.html><i>value</i></A>. The
+ number of steps to be taken is given following the <A HREF=function.html><i>value</i></A> and separated
+ from the <A HREF=function.html><i>value</i></A> by a colon (:) or by a colon and an S (:S). For
+ example:
+<P>
+<P CLASS=indent><A HREF=function.html><i>value</i></A>:N
+<BR 3>
+<A HREF=function.html><i>value</i></A>:SN
+<BR 3>
+<BR 1>
+</P CLASS=indent> The method of interpolating up to <A HREF=function.html><i>value</i></A> is normally linear, where each
+ step is of equal size. If the :S form of the <A HREF=function.html><i>function</i></A> is used, the
+ step size varies sinusoidally so that it is initially small, then gets
+ larger and finally becomes small again. The result is a somewhat
+ smoother interpolation.

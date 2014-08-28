@@ -1,0 +1,38 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>COPY</H2>
+ The <SPAN CLASS=command>copy</SPAN> command is used to make independant copies of objects already
+ known to the system. The syntax of the <SPAN CLASS=command>copy</SPAN> command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>copy</SPAN> <i>name</i> NEWNAME
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i> is any name known to the system, and NEWNAME is any name
+ not already known to the system.
+<P>
+ When a picture is copied, all of the transformations in effect, as
+ well as the coordinates describing the picture, are copied into the
+ new picture. Thus a copy will appear identical to the original until
+ either the copy or the original is transformed. Note that not only
+ are the transformation matrices copied, but any <A HREF=function.html><i>device</i></A> and <A HREF=function.html><i>function</i></A>
+ assignments are also copied.
+<P>
+<P CLASS=indent>****Frame copy not yet working****
+<BR 3>
+</P CLASS=indent> When <SPAN CLASS=command>copying</SPAN> a framed picture the coordinate data is not duplicated,
+ but rather, a pointer to this data is copied into the new picture.
+ So, if space is tight, a copy of a large picture can be made with
+ minimal additional space allocation if the original object is a framed
+ picture.
+<P>
+ Copies may be transformed without affecting the original picture. The
+ original picture also has no effect on the copy, except for the
+ inheritance by the copy of all transformations of the original at the
+ time the copy is made. GROUPS may also be copied. See the section on
+ <A HREF=group.html><SPAN CLASS=command>group</SPAN></A> OPERATIONS in the GRAMPS document for more details about <SPAN CLASS=command>copying</SPAN>
+ <A HREF=group.html><SPAN CLASS=command>groups</SPAN></A>.
+<H4>/prefix</H4>
+ <SPAN CLASS=switch>/prefix</SPAN>=name - The <SPAN CLASS=command>copy</SPAN> command will accept a <SPAN CLASS=switch>/prefix</SPAN> <i>switch</i> which
+ allows the user to define the prefix to be used when
+ constructing new names during the <SPAN CLASS=command>copying</SPAN> of a <A HREF=group.html><SPAN CLASS=command>group</SPAN></A>.
+ For example, <SPAN CLASS=command>copy/prefix</SPAN>=NEW will create NEWCUBE,
+ NEWSPHERE and NEWSQUARE when a <A HREF=group.html><SPAN CLASS=command>group</SPAN></A> containing CUBE,
+ SPHERE and SQUARE is <SPAN CLASS=command>copyed</SPAN>.

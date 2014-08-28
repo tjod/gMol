@@ -1,0 +1,4 @@
+set oldunits
+deass y2
+frame water n -32767<y2<32767
+rot  HH  z -16384<y2/8<0

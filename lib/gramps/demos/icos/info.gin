@@ -1,0 +1,25 @@
+!! This creates an icosohedon from an equiliateral triangle
+!! whose center is at the origin (x,y,z) = (0,0,0) and whose
+!! sides have length=1.  Based on this location and
+!! dimension, certain rotations and translations are applied
+!! to 20 instances of this triangle creating an
+!! icosohedron, with each of the 20 faces being one of the
+!! copies.  There are two degrees of freedom which are
+!! allowed to to vary, using Y2(mouse wheel) and
+!! Y3(right mouse).  Try it and see what happens.
+!! Try "show/tree" and see how this icosohedral structure
+!! is constructed and how the object tri is situated.
+!! You can "icosify" any other object for example a sphere,
+!! using the following commands.  You may need to open up
+!! the icosohedron using the mouse wheel in order to see
+!! the sphere.
+!!         get ssphere
+!!         red ssphere
+!!         insert ssphere MOTIF
+!!         scale ssphere xyz 0.2
+!!         blank tri
+!!         deblank tri
+!! You can substitue your_object for ssphere in the example
+!! above.  If your_obj is more or less centered on the
+!! origin, it will be more or less centered on each
+!! icosohedral face.

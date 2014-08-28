@@ -1,0 +1,12 @@
+get aline
+get/name=bline aline
+ins aline surf
+ins bl surf
+TRANSLATE   aline        P, 32767
+ROTATE      bline        Z, 16384
+TRANSLATE   bline        P, 32767
+tran aline y 28835 y 0<x2<63000
+tran bline x 13107 x 0<-y2<63000
+col aline s 0 v 16000
+col bline s 0 v 16000
+vmin

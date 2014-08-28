@@ -1,0 +1,48 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>FRAME</H2>
+ The <SPAN CLASS=command>frame</SPAN> command is used to specify which frame of a framed picture
+ is to be displayed. The syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>frame</SPAN> <i>name</i> <i>keyword</i> <A HREF=function.html><i>function</i></A>
+<BR 3>
+<SPAN CLASS=command>frame/retain</SPAN> <i>name</i> <i>keyword</i> <A HREF=function.html><i>function</i></A>
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i> is any picture name known to the system, <i>keyword</i> is the
+ letter N or I. N or I stands for the frame number and may be accompanied, as
+ usual, by the letter C to mean continual updating of the frame number.
+<P>
+ The <A HREF=function.html><i>function</i></A> specifies which frame will be displayed.
+ If the <i>keyword</i> N is used, a <A HREF=function.html><i>value</i></A> of -1 will result in the first
+ frame being shown, while a value of
+ +1 will result in the last frame being shown.
+ If the <i>keyword</i> I is used, a <A HREF=function.html><i>value</i></A> of 1 will result in the first
+ frame being shown, 2 the second frame, etc.  With the I <i>keyword</i>
+ VALUES less than 1 are interpreted as 1 and values larger than
+ the number of frames cause the last frame to be shown.
+ When using the N <i>keyword</i>, intermediate frames are shown with
+ values between -1 and +1. The exact frame number which
+ corresponds to the intermediate value depends on the total number of
+ frames that the picture contains and is determined when the picture is
+ input via the <A HREF=getframe.html><SPAN CLASS=command>getframe</SPAN></A> command.
+<H4>/retain</H4>
+ There is an optional <SPAN CLASS=switch>/retain</SPAN> switch
+ which will cause all frames up to a certain frame to be displayed. If
+ this switch is not given, only one particular frame will be displayed
+ at any given time.
+<H4>Frame numbers</H4>
+ In order to calculate which frame number corresponds to an N <A HREF=function.html><i>value</i></A>, GRAMPS
+ uses a mapping of all possible frame numbers (1 to the total number of
+ frames the object contains) to all possible integer values (-1 to
+ +1.) If it is necessary to display a particular frame number, the
+ following calculation may be used to find the lowest <A HREF=function.html><i>value</i></A> which
+ corresponds to that frame.
+<P>
+<P CLASS=indent><A HREF=function.html><i>value</i></A> = -1 + 2 * (frame - 1) <SPAN CLASS=switch>/</SPAN> maxframes
+<BR 3>
+<BR 1>
+</P CLASS=indent> Thus, if frame = 1, <A HREF=function.html><i>value</i></A> = -1 as stated above. Maxframes is the
+ maximum frame number for this framed picture. If frame=maxframe, then
+ <A HREF=function.html><i>value</i></A> equals something less than 1. Any value greater than or
+ equal to this number would cause the display of the last frame. If
+ you use dials to control the framing of an object, you don't have to
+ do the calculation above.

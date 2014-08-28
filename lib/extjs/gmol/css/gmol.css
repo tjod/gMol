@@ -1,0 +1,19 @@
+.ux-command {
+ 	font-family:monospace;
+}
+
+img.group {
+    background: url('../icons/bricks.png') no-repeat !important;
+    height: 16px;
+    width: 16px;
+}
+
+img.object {
+    background: url('../icons/bullet_blue.png') no-repeat;
+    height: 16px;
+    width: 16px;
+}
+
+.gmol {
+   color: mediumgreen !important;
+}

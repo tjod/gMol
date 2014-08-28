@@ -1,0 +1,21 @@
+.ux-command {
+ 	font-family:monospace;
+}
+
+.group, .x-tree-node-expanded group {
+    background: url('../icons/bricks.png') no-repeat !important;
+    height: 16px;
+    width: 16px;
+}
+/*
+.x-tree-node-expanded img.group {
+    background: url('../icons/bricks.png') no-repeat;
+    height: 16px;
+    width: 16px;
+}
+*/
+.object {
+    background: url('../icons/bullet_blue.png') no-repeat;
+    height: 16px;
+    width: 16px;
+}

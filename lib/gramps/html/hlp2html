@@ -1,0 +1,181 @@
+#! /usr/bin/perl -w
+
+%Keyword = (
+"DEVICE",1,
+"COMMAND",1,
+"VERB",1,
+"SWITCH",1,
+"KEYWORD",1,
+"VALUE",1,
+"FUNCTION",1,
+"AXIS",1,
+"PARAMETER",1,
+"POINT",1,
+"SYMBOL",1,
+"WORLD",1,
+"NAME",1);
+
+%Command = (
+"ADVANCE",1,
+"BLANK",1,
+"BLINK",1,
+"CHANGE",1,
+"CLIP",1,
+"COLOR",1,
+"CONDENSE",1,
+"CONTINUE",1,
+"COPY",1,
+"DASH",1,
+"DEASSIGN",1,
+"DEBLANK",1,
+"DO",1,
+"DRAW",1,
+"EXIT",1,
+"FIX",1,
+"FORGET",1,
+"FRAME",1,
+"FREEZE",1,
+"GETFRAME",1,
+"GET",1,
+"GROUP",1,
+"HELP",1,
+"INSERT",1,
+"INTENSITY",1,
+"LOOP",1,
+"MOVE",1,
+"PAUSE",1,
+"PERSPECTIVE",1,
+"PICK",1,
+"PLOT",1,
+"PUT",1,
+"RAYT",1,
+"RELEASE",1,
+"REMOVE",1,
+"RENAME",1,
+"RESET",1,
+"RESTART",1,
+"ROTATE",1,
+"SAVE",1,
+"SCALE",1,
+"SET",1,
+"SHOW",1,
+"SYNONYM",1,
+"TEXT",1,
+"TRACK",1,
+"TRANSLATE",1,
+"USE",1);
+
+while (<>) {
+ chomp;
+# comment
+ next if (/^#/);
+
+# blank line
+ if ($_ eq "") {
+  if ($indent == 1) {
+    print OUT "<BR 1>\n";
+  } else {
+    print OUT "<P>\n";
+  }
+  next;
+ }
+# first char is 1,2,3... for section, sub-section, sub-sub... ; or blank
+ $type = substr($_,0,1);
+ $rest = substr($_,1);
+
+# start a new section/command?
+ if ($type eq "1") {
+  $rest =~ s/^\s+//;
+  $filename = lc($rest);
+  $filename =~ s/\s+/_/g;
+  $name = $rest;
+  $section = uc($name);
+  close(OUT);
+  open (OUT, ">$filename.html") || die "can't open $filename.html";
+  print STDERR "$filename.html\n";
+  print OUT "<HEAD>" .
+   "<LINK REL=STYLESHEET TYPE=\"text/css\" HREF=\"styles.css\">" .
+   "</HEAD>";
+  print OUT "<H2>" . $name . "</H2>\n";
+#  print OUT "$rest<BR>\n" if ($rest);
+  $indent = 0;
+
+# start a new sub-section
+ } elsif ($type eq "2") {
+  $rest =~ s/^\s+//;
+  print OUT "<H4>" . ucfirst(lc($rest)) . "</H4>\n";
+  $indent = 0;
+
+# some special cases
+# blank line
+ } else {
+  if (/^\s*$/) {
+   print OUT "<BR 2>\n";
+   next;
+# indented line
+  } elsif (s/^\s\s+//) {
+   print OUT "<P CLASS=indent>" unless ($indent == 1 );
+   $indent = 1;
+# end-of-indent
+  } else {
+   print OUT "</P CLASS=indent>" if ($indent == 1);
+   $indent = 0;
+  }
+
+# process each word
+# foreach $word (split /([\W])/) {
+  foreach $word (split /([^A-Za-z\/])/) {
+
+    if ($word =~ m/([A-Z][A-Z]+)[a-z]+$/) {
+     $Word = $1;
+    } elsif ($word =~ m/([A-Z][A-Z]+)(\/[A-Z]+)$/) {
+     $Word = $1;
+     #$switch = $2;
+    } else {
+     $Word = $word;
+    }
+# keywords are italicized and some hyperlinked
+    if (exists $Keyword{$Word}) {
+     if ($Word eq "FUNCTION" || $Word eq "VALUE" || $Word eq "DEVICE") {
+      print OUT "<A HREF=function.html><i>" . lc($word) . "</i></A>";
+     } elsif ($Word eq "WORLD") {
+      print OUT "<A HREF=worlds.html><i>" . ucfirst(lc($word)) . "</i></A>";
+     } else {
+      print OUT "<i>" . lc($word) . "</i>";
+     }
+
+# commands are hyperlinked
+    } elsif (exists $Command{$Word}) {
+      if ($Word ne $section) {
+       print OUT "<A HREF=" . lc($Word) . ".html>" .
+        "<SPAN CLASS=command>" .lc($word) . "</SPAN></A>";
+      } else {
+       print OUT "<SPAN CLASS=command>" . lc($word) . "</SPAN>";
+      }
+
+# a switch
+    } elsif (substr($word,0,1) eq "/") {
+     print OUT "<SPAN CLASS=switch>" . lc($word) . "</SPAN>";
+
+# some special ALL CAPS word
+#   } elsif ($word =~ m/^[A-Z]+$/) {
+#    print OUT "<SPAN CLASS=special>" . ucfirst(lc($word)) . "</SPAN>";
+
+# other words/punctuation are not special
+    } else {
+     print OUT "$word";
+    }
+  }
+
+# end of words in this line
+  print OUT "\n";
+# new lines while indented
+   if ($indent == 1) {
+     print OUT "<BR 3>\n";
+     $br3 = 1;
+   }
+ }
+
+}
+# end of this section
+close(OUT);

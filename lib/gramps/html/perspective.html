@@ -1,0 +1,34 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>PERSPECTIVE</H2>
+ All objects being displayed by GRAMPS are viewed with a perspective
+ transformation. This perspective applies to all objects, but not
+ individual objects. It is possible to modify the perspective
+ transformation of all objects with the <SPAN CLASS=command>perspective</SPAN> command. The
+ syntax of this command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>perspective</SPAN> <i>name</i> <i>keyword</i>,<A HREF=function.html><i>function</i></A>
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i> may be either LWorld or RWorld, <i>keyword</i> is one or more of
+ S, V, P, A, H, Y, F, D, E, and W.   <A HREF=function.html><i>function</i></A> is described in its own help
+ topic. For information on the <A HREF=worlds.html><i>Worlds</i></A>, see the help topic Worlds.
+<P>
+ The <i>keyword</i> to the <SPAN CLASS=command>perspective</SPAN> command specifies how the perspective
+ window is to be modified.
+ H and Y refer to the hither and yon clipping planes. E is the eye position.
+ F is the fog location where the depth-cueing begins and D is the
+ depth of the fog.  W is the scaling factor for the values specified for
+ the H, Y, E, F and D <i>keyword</i>.  Unlike <A HREF=scale.html><SPAN CLASS=command>scale</SPAN></A> in which W serves to divide the overal
+ scale factor, the <SPAN CLASS=command>perspective</SPAN> W serves to multiply to values.
+ One way to think of W is the size of the window which can be fully
+ seen.  When W=1 (default), objects that are expressed in coordinates that
+ range from -1 to 1 will be readily seen.  To accomodate larger objects,
+ say proteins expressed in Angstrom units and about 100 A big,
+ use W=100, leaving the other KEYWORDS set to default values.
+ S refers to the "shear" (or separation of the eye view point in stereo).
+ V is the field of view angle in degrees.
+ P is the parallax and A is the aspect ratio.
+<BR 2>
+ Perspective may be modified in order to acheive a stereoscopic
+ effect.  See the <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> STEREO command and the STEREO commands under
+ '<A HREF=help.html><SPAN CLASS=command>help</SPAN></A> Macro files'.
+<P>

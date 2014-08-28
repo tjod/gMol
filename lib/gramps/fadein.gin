@@ -1,0 +1,4 @@
+set newunits
+INTEN $1 A 0
+DEBLANK $1
+INTEN $1 A 0.4:$2

@@ -1,0 +1,14 @@
+get walls
+TRANSLATE   walls      X, 38000:$1
+TRANSLATE   walls      Y, 38000:$1
+TRANSLATE   walls      Z,  5000:$1
+ROTATE      walls      Z,-16384:$1
+SCALE       walls      X,  1000:$1
+SCALE       walls      Y,  1000:$1
+SCALE       walls      Z,  1000:$1
+COLOR       walls      H,  5000:$1
+COLOR       walls      S, 15000:$1
+COLOR       walls      V, 15000:$1
+intens wall t 25000
+insert walls surf
+remove surf    !put at end of tree for transparency reasons

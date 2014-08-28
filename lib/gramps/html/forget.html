@@ -1,0 +1,27 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>FORGET</H2>
+ The <SPAN CLASS=command>forget</SPAN> command is used to cause objects to be forgotten by GRAMPS.
+ The name of the object and all information about the object as well as
+ the display of the object are forgotten. The memory previously used
+ by the object is reclaimed. The syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>forget</SPAN> <i>name</i>
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i> is any object name known to GRAMPS. No disk files are ever
+ affected by this command.
+<P>
+ If <i>name</i> is a <A HREF=synonym.html><SPAN CLASS=command>synonym</SPAN></A> and it is the original (master) synonym, then all
+ synonyms referring to <i>name</i> are also forgotten. If <i>name</i> is not the
+ master synonym, only that reference is forgotten. If <i>name</i> is a group,
+ all members of the group are forgotten, except those members that are
+ master synonyms. Members of a group that are synonyms, but not master
+ synonyms, will be forgotten. If <i>name</i> is a group and also a master
+ synonym, then all synonym groups referring to the <i>named</i> group are also
+ forgotten, except those members of the <i>named</i> group or group referring
+ to <i>name</i> which are master synonyms. In general, master synonyms are
+ never forgotten, be they groups or not, unless they are specifically
+ <i>named</i> in the <SPAN CLASS=command>forget</SPAN> command. Master synonyms are never implicitly
+ forgotten because they belong to a group being forgotten. All other
+ objects (even non-master synonyms) may be implicitly forgotten because
+ they belong to the <i>named</i> group to be forgotten, or because they refer
+ to the <i>named</i> master synonym being forgotten.

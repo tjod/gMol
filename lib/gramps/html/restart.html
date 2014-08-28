@@ -1,0 +1,16 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>RESTART</H2>
+ The <SPAN CLASS=command>restart</SPAN> command will restart the GRAMPS program. This deletes all
+ pictures from the screen and reinitializes the graphics system. It is
+ possible to modify the restarting procedure of GRAMPS using special
+ features of the <SPAN CLASS=command>restart</SPAN> command. When GRAMPS is first initialized,
+ or when the <SPAN CLASS=command>restart</SPAN> command is given, various system parameters are
+ reSET. This is accomplished by the interpretation of the gramps.gin
+ file residing in the gramps_lib: directory. The file contains the
+ commands necessary to set up the default rotation and scaling of the
+ WORLDS, as well as several <A HREF=set.html><SPAN CLASS=command>set</SPAN></A> commands. The <SPAN CLASS=command>restart</SPAN> command will
+ also cause the interpretation of a file in the current default
+ directory with a name of gramps.gin. In this way the user has some
+ control over the <SPAN CLASS=command>restart</SPAN> procedure.
+<P>
+ Note: The output window will not be closed. A set out command used
+ after <SPAN CLASS=command>restart</SPAN> will open a new window.

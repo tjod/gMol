@@ -1,0 +1,59 @@
+set sphere 4.2 4.2
+getf water.srf
+get axes
+get zline
+get/name=Ha ssphere
+get/name=Hb ssphere
+get/name=O  ssphere
+group Ha,Hb HH
+group HH,O  H2O
+group water,zl surf
+get square.pol
+ins square zline
+
+deass x1,x2,x3
+deass y1,y2,y3
+ROT LW xyz 0
+SCAL LW xyz 8000 w 6000
+
+set oldunits
+ROTATE      surf        X,-11700 X,-Y1 
+ROTATE      surf        Z, 32580 Z,X1 
+TRANSLATE   surf        PQ, -12540 P, -60000<-Y7<20000 Q -60000<X7<20000
+SCALE       surf        XYZ,  4712
+COLOR       water        H, 13000
+color       ax h 8000
+col         zl h 29000
+
+!SCALE       surf       XYZ 200<Y5<16000
+TRANSLATE   zline        Z,-43000
+SCALE       zline        Z, 20000
+SCALE       axes         W,  4000 Z,5000
+
+TRANSLATE   water            X, 32767
+TRANSLATE   water            Y, 32767
+TRANSLATE   H2O          X, 20000
+TRANSLATE   H2O          Y, 25000
+ROTATE      surf        X,-Y1 Z,X1
+
+SCALE       H2O          XYZ,  1500
+SCALE       O            XYZ, 16652 w,24000
+SCALE       Ha           XYZ, 11000 w,24000
+SCALE       Hb           XYZ, 11000 w,24000
+
+COLOR       O            H, 20000
+COLOR       Ha           S,     0
+COLOR       Hb           S,     0
+
+TRANSLATE   square       X, 40000
+TRANSLATE   square       Y, 40000
+ROTATE      square       Z,  8192
+!SCALE       square       W,  3000
+INTENSITY   square       T, 15000
+COLOR       square       H, 21780
+COLOR       square       S, 0
+COLOR       square       V, 32767
+SCALE       square       XYZ, 8650
+
+lines
+vmin

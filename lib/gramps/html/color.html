@@ -1,0 +1,67 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>COLOR</H2>
+ The <SPAN CLASS=command>color</SPAN> command is used to change the color of an object. The
+ syntax of the command is:
+<P>
+<P CLASS=indent><SPAN CLASS=command>color</SPAN> <i>name</i> <i>keyword</i> <A HREF=function.html><i>function</i></A>
+<BR 3>
+<BR 1>
+</P CLASS=indent> where <i>name</i> is any known object <i>name</i>. <i>keyword</i> is H, S and/or V.
+ <A HREF=function.html><i>function</i></A> is a device or value <A HREF=function.html><i>function</i></A> as described in the section
+ on FUNCTIONS. The <i>keyword</i> H stands for hue, S stands for saturation
+ and V stands for value (brightness or intensity). The overall color
+ of the object could also be affected by the <A HREF=intensity.html><SPAN CLASS=command>intensity</SPAN></A> command.
+<P>
+ The range of numbers is 0 to 360 for hue (the typical color wheel)
+ where 0 is green.  Saturation and Value range from 0.0 to 1.0.
+<H4>Hints</H4>
+ There are several .gin files in gramps_lib which help you with
+ colors.  The following names can be used as gramps commands:
+<P>
+<P CLASS=indent>cyan blue green grey lavender orange pink purple red white yellow
+<BR 3>
+<BR 1>
+</P CLASS=indent> These commands require the name of the object to be colored as the
+ first (and only) argument.  As with all gramps macro commands, you
+ may not abbreviate these names, since gramps is looking for a file.
+<P>
+<P CLASS=indent>Examples:
+<BR 3>
+red sphere
+<BR 3>
+blue cube
+<BR 3>
+<BR 1>
+<H4>Numbers</H4>
+ The following table will help you decide which colors correspond to
+ which GRAMPS values. You may, of course, just use a dial to select
+ the color you'd like and not worry about the absolute vaule. See
+ also the GRAMPS macro-commands, red, green, blue, etc. in color hints.
+<P>
+<P CLASS=indent>HUE     SATURATION  <A HREF=function.html><i>value</i></A>   <SPAN CLASS=command>color</SPAN>
+<BR 3>
+---     ----------  -----   -----
+<BR 3>
+0         1.0       1.0     GREEN
+<BR 3>
+60        1.0       1.0     CYAN
+<BR 3>
+120       1.0       1.0     BLUE
+<BR 3>
+180       1.0       1.0     PURPLE
+<BR 3>
+210       0.6       1.0     PINK
+<BR 3>
+240       1.0       1.0     RED
+<BR 3>
+270       1.0       1.0     ORANGE
+<BR 3>
+300       1.0       1.0     YELLOW
+<BR 3>
+360       1.0       1.0     GREEN
+<BR 3>
+anything    0       1.0     WHITE
+<BR 3>
+anything    0         0     BLACK
+<BR 3>
+anything    0       0.5     GREY
+<BR 3>

@@ -1,0 +1,46 @@
+<HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>FIX</H2>
+ The <SPAN CLASS=command>fix</SPAN> command constructs a single transformation matrix which is the
+ concatenation of the transformations matrices currently being applied
+ to an object. This matrix is then inserted into the display list of
+ the object, and the transformations of the object are reset to their
+ original values. There is no apparent effect on the display, but from
+ the point at which the <SPAN CLASS=command>fix</SPAN> occurs, the <SPAN CLASS=command>fixed</SPAN> object can be further
+ transformed. Of course, each of the <SPAN CLASS=command>fixed</SPAN> transformations is no
+ longer individually manipulable. This command is useful for
+ concatenating predetermined transformations to an original data base
+ (such as in generating symmetry positions in a crystal.) The effect
+ of the <A HREF=reset.html><SPAN CLASS=command>reset/unfix</SPAN></A> command is to replace the <SPAN CLASS=command>fix</SPAN> matrix with the unit
+ matrix.
+<P>
+ The <SPAN CLASS=command>fix</SPAN> command also allows <i>switches</i> such as <SPAN CLASS=switch>/rotate</SPAN> or <SPAN CLASS=switch>/scale</SPAN>=XZ as
+ described below. Many of the switches have optional values
+ (designated by the [ ] braces.)
+<H4>/color</H4>
+ <SPAN CLASS=switch>/color</SPAN>[=HSV] - Fixes the hue, saturation and/or value for the object.
+<H4>/frame</H4>
+ <SPAN CLASS=switch>/frame</SPAN> - Fixes the frame of a framed picture.
+<H4>/group</H4>
+ <SPAN CLASS=switch>/group</SPAN> - The <SPAN CLASS=command>fix</SPAN> command may apply to a group and will affect only the
+ group's transformations, unless the <SPAN CLASS=switch>/group</SPAN> switch is used.
+ If the <SPAN CLASS=switch>/group</SPAN> switch is used, then each member of the group
+ is <SPAN CLASS=command>fixed</SPAN> as well as the group itself.
+<H4>/intensity</H4>
+ <SPAN CLASS=switch>/intensity</SPAN>[=FST] - Fixes the front, size and/or transparent intensity
+ of the object.
+<H4>/leave</H4>
+ <SPAN CLASS=switch>/leave</SPAN> - <SPAN CLASS=command>fix</SPAN> cancels any dial transformation assignments, unless the
+ <SPAN CLASS=switch>/leave</SPAN> switch is specified.
+<H4>/move</H4>
+ <SPAN CLASS=switch>/move</SPAN>[=XYZ] - Fixes the <A HREF=move.html><SPAN CLASS=command>move</SPAN></A> transformations affecting the <A HREF=worlds.html><i>Worlds</i></A> for
+ the specified axes.
+<H4>/perspective</H4>
+ <SPAN CLASS=switch>/perspective</SPAN>[=LRBTHYEW] - Fixes the perspective windows affecting the
+ <A HREF=worlds.html><i>Worlds</i></A>. The optional values are <A HREF=perspective.html><SPAN CLASS=command>perspective</SPAN></A> keywords.
+<H4>/rotate</H4>
+ <SPAN CLASS=switch>/rotate</SPAN>[=XYZPQR] - Fixes the <A HREF=rotate.html><SPAN CLASS=command>rotate</SPAN></A> transformation. The optional
+ value resets the rotation for the axis or axes specified.
+<H4>/scale</H4>
+ <SPAN CLASS=switch>/scale</SPAN>[=XYZWPQRS] - Fixes the scale transformation of the specifed axes.
+<H4>/translate</H4>
+ <SPAN CLASS=switch>/translate</SPAN>[=XYZWPQRS] - Fixes the translation transformations of the
+ specified axes.

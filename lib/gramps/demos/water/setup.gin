@@ -1,0 +1,37 @@
+set rgb
+!
+!!This is a representation of the potential energy surface
+!! of H+H+O.
+!!
+!!The axis labelled V is the potential energy.
+!!The axis labelled H-H is the (symmetric) distance
+!!of H from the HH center.  The axis labelled O is
+!!the distance of O from the HH center.
+!!The V=0 plane is the plane containing the HH and O axes.
+!!You may move the yellow stick around on the surface using
+!!the right mouse button.  The red O and 2 white H's
+!!correspond to the location of the stick on the surface.
+!!The guidelines help you to see the location along the
+!!HH and O axes.
+!!
+!!You may rotate the surface by moving the mouse using the
+!!left mouse button.
+!!
+!!The remaining degree of freedom, the rotation of HH around
+!!the HH center is controlled using the mouse scroll wheel.
+!!
+!!Summary of mouse button useage:
+!! left           rotation of surface
+!! right          translation of stick and of H2O atoms
+!! wheel          rotation of HH and "warping" of surface
+!
+deass x1,x2,x3
+deass y1,y2,y3
+3Lights
+set backface
+water
+set newunits
+set backhsv 0.2 0.2 0.5
+h2o
+warp
+surf

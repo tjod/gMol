@@ -1,0 +1,2583 @@
+# you should make an index for this file: grep -n '^[0-3]' gramps.hlp >gramps.hlb
+1 ADVANCE
+ Delayed updates, as well as continuous updates, are controlled by the
+ ADVANCE command. The syntax of the ADVANCE command is:
+
+    ADVANCE VALUE
+
+ where VALUE specifies the number of film frames to advance.
+
+ The /NOUPDATE SWITCH causes GRAMPS to advance the given number of
+ frames, but without changing the display. This is useful to record a
+ number of frames of a still shot. It is especially useful when a
+ continuous update is in effect and you want to record still shots.
+
+ In addition to ADVANCing the specified number of film frames, the
+ ADVANCE command command will ring the bell on the terminal, but only
+ if the SET FILMPAUSE command is used.
+#2 /PRODUCTION
+# The PRODUCTION switch causes a higher quality raster image to be
+# produced. This is only implemented in versions of GRAMPS using Dore,
+# which is currently only on the Titan workstaion. This process can
+# be quite slow, so be careful. Once you've started, the only was to
+# stop it is to ^C out. It runs faster in a smaller window, say 100x100.
+# If you wish to experiment with it, use simple images, like ssphere.pix
+# and use small windows.
+1 BLANK
+ The BLANK command causes an object to no longer be displayed. The
+ syntax of the command is:
+
+    BLANK NAME
+
+ where NAME is any name known to the system. All transformations
+ applied to the object will still be in effect while the object is
+ BLANKed. In order to have an object reappear, the DEBLANK command is
+ used. The syntax is just like that given above for BLANK. BLANKing
+ an object does not delete it from the set of known objects; it only
+ causes the object to be skipped in the display loop of GRAMPS.
+
+#1 BLINK **** Not working yet ****
+# The BLINK command is used to make objects blink on and off. The
+# syntax of the command is:
+#
+#    BLINK NAME
+#    or
+#    BLINK/OFF NAME
+#
+# where NAME is any name known to the system. The use of the BLINK
+# command will cause the named object to blink at the rate of about once
+# per second. The /OFF switch is used to stop the object from blinking.
+# If NAME is a GROUP, then each member of the GROUP will be made to
+# BLINK.
+1 CHANGE
+ The CHANGE command has the following syntax:
+
+    CHANGE NAME DEVICE DEVICE
+
+ The command reassigns every transformation of NAME in use on the first
+ DEVICE to the second DEVICE. If the object is not in use on the first
+ DEVICE, the command has no effect.
+
+ The /GROUP switch will cause every object contained in the GROUP named
+ NAME to be CHANGEd, as well as the NAME itself.
+#1 CLIP   ******* TITAN systems only ******  IRIS:see zclip in gramps/utils 
+# The CLIP command has the following syntax:
+#
+#  CLIP      NAME KEYWORD
+#  CLIP/SHOW NAME KEYWORD
+#
+# where NAME is any known object NAME.  The KEYWORD is one of the
+# following: 
+#
+#  ALL, AND, ARV, NOP, AIN, REP, XOR, OR , NOR, EQV,
+#  IVV, ORR, INV, ORI, NAN, NON
+#
+#  ***NOTE***  only the AND keyword is currently implemented in Dore.
+#  If you use other keywords, the effect will be the
+#  same as if you used AND.
+#
+# The /SHOW switch will draw an image of the plane to help you understand
+# where the clipping is occuring.
+# 
+# The effect of the CLIP command is to cause the NAMEd object to be
+# clipped against a plane, initially placed coincident with the z=0 plane.
+# The plane may be manipulated as a GRAMPS object.  It may be translated
+# or rotated and the NAMEd object will be clipped accordingly.
+# Clipping occurs "behind" the plane, initially toward negative z values,
+# but this is modified by rotating and translating the plane.
+# 
+# You may use the CLIP command repeatedly on the same NAME to cause
+# multiple clipping planes, each of which also clips the others.  The
+# name of the plane is NAME.1 for the first use of the CLIP command for
+# that NAMEd object, NAME.2 for the next, etc.  Even if you use an
+# abbreviation in the CLIP command, the full NAME will be used by GRAMPS
+# to construct the clipping plane name.  Some GRAMPS commands have no
+# effect on the clipping plane, such as BLANK, DEBLANK, FORGET, GROUP, COPY,
+# SYNONYM, REMOVE, and INSERT.  It may be useful to use these GRAMPS
+# commands on the clipping plane: SCALE, COLOR, INTENSITY (especially with
+# the transparency option) FREEZE, RELEASE, SAVE, and SHOW.  COLOR, SCALE
+# and INTENSITY only have an effect with the CLIP/SHOW option.
+#
+#2 Examples
+# The following example will help to understand the CLIP command.
+#
+#  get ssphere
+#  clip/show ss AND
+#  clip/show ss AND
+#  translate ssphere.1 z 1.2  z d5
+#  translate ssphere.2 z -0.4 z -d5
+#  rotate    ssphere.1 y -120
+#  color     ssphere.1 h 80
+#  color     ssphere.2 h 150
+#
+# The translations in opposite directions along with the flipping in the
+# first plane (rotate ssphere.1 y -32767) cause only a slice to be
+# displayed.  The width of the slice is controlled using d5.  Try
+# the following commands to see some other neat effects.
+#
+#  rotate ssphere.1 x d6
+#  rotate ssphere.2 x d6
+#  scale  ssphere.1 xyz 1000
+#  translate ssphere z d7
+1 COLOR
+ The COLOR command is used to change the color of an object. The
+ syntax of the command is:
+
+   COLOR NAME KEYWORD FUNCTION
+
+ where NAME is any known object NAME. KEYWORD is H, S and/or V.
+ FUNCTION is a device or value FUNCTION as described in the section
+ on FUNCTIONS. The KEYWORD H stands for hue, S stands for saturation
+ and V stands for value (brightness or intensity). The overall color
+ of the object could also be affected by the INTENSITY command.
+
+ The range of numbers is 0 to 360 for hue (the typical color wheel)
+ where 0 is green.  Saturation and Value range from 0.0 to 1.0.
+2 hints
+ There are several .gin files in gramps_lib which help you with
+ colors.  The following names can be used as gramps commands:
+
+   cyan blue green grey lavender orange pink purple red white yellow
+
+ These commands require the name of the object to be colored as the
+ first (and only) argument.  As with all gramps macro commands, you
+ may not abbreviate these names, since gramps is looking for a file.
+
+  Examples:
+    red sphere
+    blue cube
+
+2 Numbers
+ The following table will help you decide which colors correspond to
+ which GRAMPS values. You may, of course, just use a dial to select
+ the color you'd like and not worry about the absolute vaule. See
+ also the GRAMPS macro-commands, red, green, blue, etc. in color hints.
+
+    HUE     SATURATION  VALUE   COLOR
+    ---     ----------  -----   -----
+    0         1.0       1.0     GREEN
+    60        1.0       1.0     CYAN
+    120       1.0       1.0     BLUE
+    180       1.0       1.0     PURPLE
+    210       0.6       1.0     PINK
+    240       1.0       1.0     RED
+    270       1.0       1.0     ORANGE
+    300       1.0       1.0     YELLOW
+    360       1.0       1.0     GREEN
+    anything    0       1.0     WHITE
+    anything    0         0     BLACK
+    anything    0       0.5     GREY
+1 Command Syntax
+ GRAMPS makes use of the following "parts of speech:"
+
+    VERB - a word specifying an action to be taken.
+ 
+    SWITCH - a slash (/) followed by a word that modifies the effect of the VERB.
+
+    COMMAND - a VERB or a VERB modified by a SWITCH.
+
+    NAME - a picture name known to the system.
+
+    KEYWORD - additional letters or words whose interpretation depends on the particular COMMAND being carried out.
+
+    DEVICE - a symbol for a input device such as a dial or joystick.
+
+    VALUE - a number value, e.g. 0.5, 120, -1.55
+
+    FUNCTION - a combination of DEVICEs, VALUEs, and special functional characters.
+
+ Every GRAMPS command line must begin with a COMMAND. Some GRAMPS
+ commands consist only of a COMMAND, e.g., EXIT or SHOW/SYS.
+ Many COMMANDs include one or more SWITCHes that alter the effect of
+ the VERB. If a SWITCH is used, it must directly follow the VERB. No
+ blanks or other DELIMITERs may appear before or after the slash that
+ is a part of the SWITCH. In some commands, the SWITCH may also have a
+ value, e.g., RESET/ROTATE=XY CUBE.
+
+ If there is more information necessary for a command, COMMAND must be
+ followed by a DELIMITER. A DELIMITER is one or more blanks, or a
+ comma surrounded by any number of blanks. All parts of speech
+ following COMMAND are collectively referred to as ARGUEMENTS. A
+ command line is limited to 80 characters.
+2 Special characters
+ The exclamation point (!) is used to begin comments in a GRAMPS
+ command line. Anything following ! on a GRAMPS command line will be
+ ignored, unless that ! is enclosed in double quotation marks.
+ A line beginning with a double !! is a comment which is echoed to
+ the user.
+
+ The percent symbol (%) is used as a special character if it begins a
+ GRAMPS command line. A line beginning with a single percent symbol
+ (%) will be interpreted, but not COLLECTed (see SET COLLECT.) A line
+ beginning with double percent symbols (%%) will be COLLECTed, but not
+ interpreted.
+
+ An asterisk (*) as the first character of a GRAMPS line will cause the
+ line not to be echoed, regardless of the state of the ECHO flags (see
+ SET ECHO.)
+#1 CONDENSE ****Not working yet****
+# The CONDENSE command is used to create new objects that have their
+# coordinates multipled by the transformation matrices associated with
+# other objects. The syntax of the command is:
+#
+#    CONDENSE NAME NEW_NAME [HITHER,YON,W]
+#
+# where NAME is an object already known to GRAMPS, NEW_NAME is the name
+# of the object about to be created, and HITHER, YON, and W are optional
+# arguments specifying the clipping that is to take place while
+# condensing NAME. If HITHER, YON, and W are not specified, the current
+# values applying to LWorld are used. If HITHER, YON, and W are
+# specified, all three must be given. In either case, you have no
+# control over the left, right, top, or bottom clipping planes. These
+# are always set equal to W to give a square clipping window in X and Y.
+#
+# There are several switches for the CONDENSE command.
+#2 NAME
+# If NAME is an ordinary object, the matrices applying to that object
+# are multiplied by the object's coordinates yielding the new object.
+# If NAME is a synonym, the matrices applying to the original are
+# multiplied by the orginal's coordinates to yield the new object. If
+# NAME is a framed object, the matrices applying to the object are
+# multiplied by the currently displayed frame (or frames if you are
+# using FRAME/RETAIN) yielding the new object. If NAME is a group, then
+# the newly created object contains coordinates from each group member
+# multipled by the matrices applied to that object. Recall that in a
+# group, an object will be affected by matrices of the group(s) which
+# contain the object. In all cases, the newly created object will be an
+# ordinary object.
+#2 /MODE_1
+# CONDENSE/MODE=1 is the default switch and performs as described above.
+# Because clipping occurs in /MODE=1, objects are scaled by one half in
+# Z and translated forward. This prevents clipping, but results in a
+# squished and translated new object. A corrective matrix is calculated
+# by CONDENSE and inserted into the FIX matrix, so that the new object
+# looks right on the screen. However, the coordinates remain squished.
+# You'll notice this if you PUT/NOFIX an object that was created
+# with CONDENSE/MODE=1.
+#
+# The amount of squishing and translating depends on the placement of
+# the HITHER and YON planes. If you wish to recorrect the distortion
+# after you PUT the object and then GET it, calculate the following:
+#
+#    Z_TRANSLATION = (HITHER/W)
+#    Z_SCALE = -(HITHER-YON)/W * 0.25
+#
+# You may then use these values in the SCALE and TRANSLATE command and
+# then FIX the object. Of course, you can just use PUT/FIX and the
+# coordinates will be multipled by the FIX matrix before being written.
+#2 /MODE_2
+# CONDENSE/MODE=2 causes no clipping to occur, and results in a new
+# object that contains only the new coordinates without the information
+# about how the old coordinates were connected in the original
+# object(s). The connection information is lost using /MODE=2, that
+# information may be supplied with the /LDM1 switch.
+#
+# When using /MODE=2, the default HITHER plane is placed at 0. This
+# makes the calculated FIX matrix be the identity matrix and no fix-up
+# needs to be done. The placement of HITHER at 0 is possible using
+# /MODE=2 since no clipping occurs. Of course, it is possible to use
+# /MODE=1 and HITHER=0 to cause the FIX matrix to be the identity
+# matrix. However, it will also cause clipping at Z=0, which in general
+# is not desired.
+#2 /MODE_3
+# CONDENSE/MODE=3 is the same as /MODE=2. The E&S description of FPMAP
+# makes a distinction between /MODE=2 (Transform/Normalize) and /MODE=3
+# (Transform only,) but I see no difference in practice. The connection
+# information is lost using /MODE=3; that information may be supplied
+# with the /LDM1 switch.
+#2 /LDM1
+# Since the connection information is lost using /MODE=2 or /MODE=3,
+# that information may be supplied with the /LDM1 switch. The new
+# coordinates are drawn using D4DATA E&S subroutine, q.v., and the LDM1
+# to use when calling that routine may be given using the /LDM1 switch.
+# The default value is 0. Valid values are 0 through 4.
+1 CONTINUE
+ The CONTINUE command allows all continuous transformations to occur.
+ It is used with the PAUSE command. See the help topic on PAUSE for
+ more information.
+1 COPY
+ The COPY command is used to make independant copies of objects already
+ known to the system. The syntax of the COPY command is:
+
+    COPY NAME NEWNAME
+
+ where NAME is any name known to the system, and NEWNAME is any name
+ not already known to the system.
+
+ When a picture is copied, all of the transformations in effect, as
+ well as the coordinates describing the picture, are copied into the
+ new picture. Thus a copy will appear identical to the original until
+ either the copy or the original is transformed. Note that not only
+ are the transformation matrices copied, but any DEVICE and FUNCTION
+ assignments are also copied.
+
+    ****Frame copy not yet working****
+ When COPYing a framed picture the coordinate data is not duplicated,
+ but rather, a pointer to this data is copied into the new picture.
+ So, if space is tight, a copy of a large picture can be made with
+ minimal additional space allocation if the original object is a framed
+ picture.
+
+ Copies may be transformed without affecting the original picture. The
+ original picture also has no effect on the copy, except for the
+ inheritance by the copy of all transformations of the original at the
+ time the copy is made. GROUPS may also be copied. See the section on
+ GROUP OPERATIONS in the GRAMPS document for more details about COPYing
+ GROUPs.
+2 /PREFIX
+ /PREFIX=name - The COPY command will accept a /PREFIX SWITCH which
+ allows the user to define the prefix to be used when
+ constructing new names during the COPYing of a GROUP.
+ For example, COPY/PREFIX=NEW will create NEWCUBE,
+ NEWSPHERE and NEWSQUARE when a GROUP containing CUBE,
+ SPHERE and SQUARE is COPYed.
+#1 DASH **** Not working yet ****
+# The DASH command is used to alter the line texture of objects on
+# display. The syntax of the command is:
+#
+#    DASH NAME VALUE
+#
+# where NAME is an object name known to the system and VALUE is an
+# optional arguement. If VALUE is not given or is given as 2, then the
+# object will be displayed with short dashed lines. If VALUE is given
+# as 0, the object will be displayed with solid lines. Other values
+# will give various combinations of long and short dashed lines. The
+# effect varies from machine to machine.
+#
+# If NAME is a GROUP, then each member of the GROUP will be DASHed as if
+# the DASH command had been given for each member.
+1 DEASSIGN
+ The DEASSIGN command is used to deassign DEVICEs. The effect of the
+ command is to permanently remove all assignments of the specified
+ device to any picture transformations, thus freeing the DEVICE for
+ other uses. The syntax of the command is:
+
+    DEASSIGN DEVICE
+
+ where DEVICE is a device name such as D3 or PY. Several DEVICES may
+ be specified on a single command line, e.g., DEASSIGN D1,D2,D3. If an
+ object is FREEZEd, then any DEASSIGNments will not affect the
+ transformations of that object.
+
+ The command DEASSIGN/ALL will deassign all dial assignments except
+ those applying to LWorld and RWorld.
+1 DEBLANK
+ The DEBLANK command causes an object that was BLANKed to be displayed.
+ The syntax of the command is:
+
+    DEBLANK NAME
+
+ where NAME is any name known to the system. See BLANK for more
+ information.
+1 DO
+ GRAMPS commands are normally interpreted as they are typed in. I
+ is possible, however, to have GRAMPS read commands from a command
+ procedure file (a gin file.) This is accomplished by using the DO
+ command.
+
+ The DO command is useful for executing a list of commands stored in a
+ disk file. The syntax of the command is:
+
+    DO FILENAME
+
+ where FILENAME is the name of a file known to the operating system.
+ A default extension of gin is assumed by GRAMPS but may be overridden
+ by explicitly typing the extension as part of the FILENAME. If the
+ FILENAME is not found in your directory, GRAMPS will search the
+ library directory $gramps_lib for the FILENAME.  $gramps_lib must be
+ defined as a UNIX enviroment variable.
+
+ The file specified by FILENAME is read and its contents are
+ interpreted as GRAMPS commands. A gin file may contain the DO command
+ itself, but such nesting may occur only up to 10 levels deep.
+
+ If the SET VERIFY command has been given, then commands from gin files
+ which are being DOne will be echoed to the terminal as they are
+ interpreted.
+
+ If the SET WATCH command is given before DOing a file, then the effect
+ of each command (if there is a visible effect) on the screen will be
+ displayed during the interpretation of the gin file.
+2 Parameters
+ Parameters may also be passed to command procedures. Like $SYMBOLs,
+ $PARAMETERs have names consisting of a $ followed by a number. These
+ $PARAMETERs are local to the gin file in which they are used and have
+ no effect on $SYMBOLs available at GRAMPS command level or on
+ $PARAMETERs named in any other gin file. The current limit for this
+ number is 10.
+
+ $PARAMETERS may be assigned values using the PICK/PARAMETER command,
+ but again, the $PARAMETER assigned the value will not be the $SYMBOL
+ with the same name, but will be the local $PARAMETER. More
+ conveniently, however, $PARAMETERs may be assigned values at the time
+ the gin file is DOne. So, when writing a gin file which contains
+ $PARAMETERS, you are implying a syntax in the order in which the
+ $PARAMETERS are specified when DOing the file. $1 always refers to
+ the first string specified after the file name, $2 to the second, $6
+ to the sixth, and so forth. The SET VERIFY command will echo each
+ command as it is read from the gin file before the $PARAMETER
+ replacement has occurred. It is possible to use the SHOW/PARAMETER
+ command to show the value of any $PARAMETER within the gin file. The
+ syntax of the command is:
+
+    SHOW/PARAMETER $PARAMETER
+
+ where $PARAMETER is the name of any $PARAMETER. If this argument is
+ omitted, the value of each $PARAMETER is shown. Since $PARAMETERs are
+ local to a gin file, using the command SHOW/PARAMETER at GRAMPS
+ command level will not refer to the $PARAMETERs of any gin file. The
+ SHOW/SYMBOL command may be used at GRAMPS command level. $SYMBOLs may
+ be thought of as $PARAMETERs local to GRAMPS command level. $SYMBOLs
+ are local to GRAMPS command level, since reference to $1 within a gin
+ file will produce the value of the $PARAMETER $1 and not the $SYMBOL
+ $1.
+
+ Parameters may be concatenated with character strings and other
+ parameters. See the help topic SYMBOLS CONCATENATION.
+2 Adding Commands
+ GRAMPS syntax allows a command procedures to be used in such a way
+ that they appear to be new commands. When a command line is
+ interpreted by GRAMPS, a table of GRAMPS commands is searched. If no
+ match for the command name is found, GRAMPS will then search the
+ current default directory for a gin file with a name identical to the
+ command name not in the command table. If such a gin file is found,
+ it is DOne with replacement of $PARAMETERS as usual. For example, you
+ might give the following command:
+
+    SPIN ADNA D3
+
+ GRAMPS would find no command named SPIN, but would find a file called
+ SPIN.gin created as in the previous examples. The file would be DOne,
+ after replacement of $PARAMETERS with the strings "ADNA" and "D3".
+ Thus it appears as if SPIN were a GRAMPS command. Users can define
+ any number of gin files in this way. Remember, however, that gin
+ files can be nested only to a current maximum of 10 levels.
+
+ When constructing gin command files for use as GRAMPS commands,
+ remember that GRAMPS allows abbreviations for its own command names,
+ but not for your gin file command names. Also, remember that GRAMPS
+ will interpret any COMMAND typed in as a GRAMPS COMMAND, if possible,
+ before it searches for a gin file.  There are several .gin files in
+ the gramps_lib directory, which gramps always searches for gin files
+ AFTER it searches your current directory.  See the 'HELP macro'
+ entry for some info on these useful files.
+#1 DRAW **** Not working yet ****
+# The DRAW command allows picture input from the E&S interfaced tablet.
+# The syntax of the command is:
+#
+#    DRAW NAME [DEVICE]
+#
+# where DEVICE is optional. The optional DEVICE is used for 3D drawing.
+# Whenever the pen tipswitch is pressed, a point is drawn on the screen
+# and entered into the picture NAME. NAME must be a new picture not
+# already known to the system. While DRAWing, only the WORLDs and the 
+# object NAME may be manipulated using the dials. 
+#
+# Once a picture is input, use the PUT command to create a pix file.
+# While you are drawing, it is not possible to use any commands which
+# will create new pictures (GET, GETFRAME, COPY, etc.) All other
+# commands can be used.
+#2 3D Drawing
+# If the optional DEVICE is given, this DEVICE is used for a
+# Z-coordinate, thus allowing 3-dimensional drawing. As a drawing aid,
+# a cube is drawn which defines the volume allowed for drawing. A plane
+# is also drawn which translates using the value of DEVICE so that you
+# know which plane you are drawing on within the cube.
+#2 Special Functions
+# Several special functions are used to make drawing easier. A set of
+# boxes at the top of the screen is used to control these 
+# special functions of DRAW. The cursor used to select one of these
+# boxes is called the SCREEN CURSOR. This is different from the DRAWING
+# CURSOR. The DRAWING CURSOR cannot be used to select the boxed
+# functions. 
+#
+# If the SCREEN CURSOR is touched inside one of the boxes, the function
+# controlled by that box is performed, e.g., end the DRAW, start a 
+# new line, or enter/exit rubber band mode. Use SET CURSOR to activate
+# the SCREEN CURSOR and the function boxes. When drawing, pay attention
+# to the appropriate cursor when either drawing or selecting a 
+# function. I know this is inconvenient, but DRAW is still in
+# development. To make it easier, the SET CURSOR can be toggled
+# on and off by touching the pen with the pen off of the white drawing
+# surface. 
+1 EXIT
+ This stops GRAMPS and closes any graphics output windows.
+1 FIX
+ The FIX command constructs a single transformation matrix which is the
+ concatenation of the transformations matrices currently being applied
+ to an object. This matrix is then inserted into the display list of
+ the object, and the transformations of the object are reset to their
+ original values. There is no apparent effect on the display, but from
+ the point at which the FIX occurs, the FIXed object can be further
+ transformed. Of course, each of the FIXed transformations is no
+ longer individually manipulable. This command is useful for
+ concatenating predetermined transformations to an original data base
+ (such as in generating symmetry positions in a crystal.) The effect
+ of the RESET/UNFIX command is to replace the FIX matrix with the unit
+ matrix.
+
+ The FIX command also allows SWITCHes such as /ROTATE or /SCALE=XZ as
+ described below. Many of the switches have optional values
+ (designated by the [ ] braces.)
+2 /COLOR
+ /COLOR[=HSV] - Fixes the hue, saturation and/or value for the object.
+2 /FRAME
+ /FRAME - Fixes the frame of a framed picture.
+2 /GROUP
+ /GROUP - The FIX command may apply to a group and will affect only the
+ group's transformations, unless the /GROUP switch is used.
+ If the /GROUP switch is used, then each member of the group
+ is FIXed as well as the group itself.
+2 /INTENSITY
+ /INTENSITY[=FST] - Fixes the front, size and/or transparent intensity
+ of the object.
+2 /LEAVE
+ /LEAVE - FIX cancels any dial transformation assignments, unless the
+ /LEAVE switch is specified.
+2 /MOVE
+ /MOVE[=XYZ] - Fixes the MOVE transformations affecting the WORLDs for
+ the specified axes.
+2 /PERSPECTIVE
+ /PERSPECTIVE[=LRBTHYEW] - Fixes the perspective windows affecting the
+ WORLDs. The optional values are PERSPECTIVE keywords.
+2 /ROTATE
+ /ROTATE[=XYZPQR] - Fixes the ROTATE transformation. The optional
+ value resets the rotation for the axis or axes specified.
+2 /SCALE
+ /SCALE[=XYZWPQRS] - Fixes the scale transformation of the specifed axes.
+2 /TRANSLATE
+ /TRANSLATE[=XYZWPQRS] - Fixes the translation transformations of the
+ specified axes.
+1 FORGET
+ The FORGET command is used to cause objects to be forgotten by GRAMPS.
+ The name of the object and all information about the object as well as
+ the display of the object are forgotten. The memory previously used
+ by the object is reclaimed. The syntax of the command is:
+
+    FORGET NAME
+
+ where NAME is any object name known to GRAMPS. No disk files are ever
+ affected by this command.
+
+ If NAME is a SYNONYM and it is the original (master) synonym, then all
+ synonyms referring to NAME are also forgotten. If NAME is not the
+ master synonym, only that reference is forgotten. If NAME is a group,
+ all members of the group are forgotten, except those members that are
+ master synonyms. Members of a group that are synonyms, but not master
+ synonyms, will be forgotten. If NAME is a group and also a master
+ synonym, then all synonym groups referring to the NAMEd group are also
+ forgotten, except those members of the NAMEd group or group referring
+ to NAME which are master synonyms. In general, master synonyms are
+ never forgotten, be they groups or not, unless they are specifically
+ NAMEd in the FORGET command. Master synonyms are never implicitly
+ forgotten because they belong to a group being forgotten. All other
+ objects (even non-master synonyms) may be implicitly forgotten because
+ they belong to the NAMEd group to be forgotten, or because they refer
+ to the NAMEd master synonym being forgotten.
+1 FRAME
+ The FRAME command is used to specify which frame of a framed picture
+ is to be displayed. The syntax of the command is:
+
+    FRAME NAME KEYWORD FUNCTION
+    FRAME/RETAIN NAME KEYWORD FUNCTION
+
+ where NAME is any picture name known to the system, KEYWORD is the
+ letter N or I. N or I stands for the frame number and may be accompanied, as
+ usual, by the letter C to mean continual updating of the frame number.
+
+ The FUNCTION specifies which frame will be displayed.
+ If the KEYWORD N is used, a VALUE of -1 will result in the first
+ frame being shown, while a value of
+ +1 will result in the last frame being shown.
+ If the KEYWORD I is used, a VALUE of 1 will result in the first
+ frame being shown, 2 the second frame, etc.  With the I KEYWORD
+ VALUES less than 1 are interpreted as 1 and values larger than
+ the number of frames cause the last frame to be shown.
+ When using the N KEYWORD, intermediate frames are shown with
+ values between -1 and +1. The exact frame number which
+ corresponds to the intermediate value depends on the total number of
+ frames that the picture contains and is determined when the picture is
+ input via the GETFRAME command.
+2 /RETAIN
+ There is an optional /RETAIN switch
+ which will cause all frames up to a certain frame to be displayed. If
+ this switch is not given, only one particular frame will be displayed
+ at any given time.
+2 Frame Numbers
+ In order to calculate which frame number corresponds to an N VALUE, GRAMPS
+ uses a mapping of all possible frame numbers (1 to the total number of
+ frames the object contains) to all possible integer values (-1 to
+ +1.) If it is necessary to display a particular frame number, the
+ following calculation may be used to find the lowest VALUE which
+ corresponds to that frame.
+
+    VALUE = -1 + 2 * (frame - 1) / maxframes
+
+ Thus, if frame = 1, VALUE = -1 as stated above. Maxframes is the
+ maximum frame number for this framed picture. If frame=maxframe, then
+ VALUE equals something less than 1. Any value greater than or
+ equal to this number would cause the display of the last frame. If
+ you use dials to control the framing of an object, you don't have to
+ do the calculation above.
+1 FREEZE
+ The FREEZE command will temporarily freeze an object's
+ transformations. This is useful for temporarily freeing up dials for
+ use by other objects' transformations. The FREEZE stays in effect
+ until the RELEASE command is given, or until the object's
+ transformations are altered by one of the transformation commands such
+ as ROTATE or INTENSITY. The syntax of the command is:
+
+    FREEZE NAME
+2 /GROUP
+ /GROUP - Unlike the INTENSITY, DASH, BLINK, BLANK, and FRAME commands,
+ which function on groups by affecting each individual of the
+ group, the FREEZE and RELEASE command may or may not operate
+ on each member of the group. If NAME is a group name and the
+ FREEZE or RELEASE command is given as in the syntax example
+ above, then only the group transformations are frozen or
+ released. These commands allow the /GROUP switch, signifying
+ that in addition to affecting the group's transformations,
+ each member of the group should have its transformations
+ affected.
+1 Function
+ This section describes the DEVICE, VALUE, and FUNCTION specifications
+ in detail.
+2 DEVICE
+ DEVICE is any one of the devices available in the GRAMPS system.
+ There are 8 dials, 8 sliders, 8 value boxes and a mouse.
+ The DEVICEs are availale in the Control tab at the bottom of the
+ main gui window.  This tab may be hidden, but can be revealed using
+ the View menu at the top of the main gui window.
+ The names of the DEVICEs are:
+
+    DIALS:   D1, D2, D3, D4, D5, D6, D7, or D8
+    SLIDERS: S1, S2, S3, S4, S5, S6, S7, or S8
+    VALBOX:  V1, V2, V3, V4, V5, V6, V7, or V8
+    MOUSE:   X1, X2, X3, Y1, Y2, Y3
+
+ X1 is activated when the left mouse button is held and the mouse
+ is moved horizontally.  Y1 is similar but for vertical motion.
+ Y2 is the mouse wheel.  There is no X2.
+ X3 and Y3 are activated when the right mouse button is held while the mosue is moved.
+ The mouse motions always produce relative value increments, while the others
+ produce absolute value in the range of -1 to 1 for most transformations.
+ For ROTATE and COLOR transformations, the range is -360 to 360.
+
+2 VALUE
+ A VALUE is a floating point number. The interpretation
+ of VALUE depends largely on the particular command for which it is
+ used. In general, +1 corresponds to one extreme, for example
+ translation to the furthest right edge of the
+ screen, or displaying the last frame of a framed picture. A VALUE of
+ -1 corresponds to the opposite extreme.
+ VALUEs may be outside the range of -1 to +1, for example if
+ you want to SCALE an object to be 3.76 times it's original size.
+ For ROTATE and COLOR hue, VALUE is interpreted as an angle,
+ in the range of -360 to 360.  VALUEs outside this range are allowed.
+
+ VALUE can also be specified as an offset from the current value
+ associated with a transformation. The syntax is then .+VALUE or .-VALUE.
+ VALUE can also be given simply as a dot.
+
+ One effect of specifying a VALUE in a transformation command is that
+ the association of that transformation with a DEVICE, if there was one
+ previously, is then forgotten.  This is useful for freeing a dial for
+ another use.
+2 FUNCTION
+ FUNCTION can be most simply a DEVICE or a VALUE. In addition, there
+ are several useful functions for controlling the transformations of
+ objects. Within the specification of a FUNCTION, no imbedded blanks
+ or other DELIMITERS are allowed.
+
+ The first FUNCTION is the negative of a DEVICE. This function is
+ specified by including a minus sign in front of any one of the devices
+ listed above, e.g., -D4. If a negative DEVICE is specified in any
+ command, the picture will transform in the opposite way than if DEVICE
+ had been used without the negative sign.
+
+ A DEVICE may also be divided or multipled by a number. For example,
+ D2/7 means use the value of dial 2 after dividing it by 7. Since dials
+ are not absolute devices (no unique position corresponds to a unique
+ dial value,) dividing dials increases the sensitivity of the dial.
+ Dividing or multiplying dials are also useful for ensuring that, for
+ example, one picture's translation is always half, for example, that
+ of another picture's translation.
+3 Boundaries
+ Boundaries can also be given in a FUNCTION specification. The
+ following syntax is recognized.
+
+    VALUE<DEVICE<VALUE or DEVICE<VALUE or VALUE<DEVICE
+    VALUE>DEVICE>VALUE or DEVICE>VALUE or VALUE>DEVICE
+
+ The VALUEs above represent upper or lower bounds, depending on the
+ sense of the inequality (read < as less than and > as greater than.)
+ If the DEVICE takes on a value outside the bounds given, the value
+ used for the transformation is set to the value of the exceeded bound.
+ Although both and upper and lower bound is not required by the syntax
+ shown above, an assumption is made by GRAMPS whenever only one bound
+ is given. The missing bound is assumed to be +1 for an upper bound
+ and -1 for a lower bound. Thus, no transformation may be bounded
+ on one side and unbounded on the other, although both bounds don't
+ have to be specifically given. The DEVICE given in a bounded FUNCTION
+ may be the negative of a DEVICE, and/or may be a DEVICE divided or
+ multiplied by a number.
+
+ There are also bumpered boundaries which are specified by enclosing
+ the bounded FUNCTION specification in square brackets. For example,
+
+    [VALUE>DEVICE>VALUE]
+
+ For bumpered FUNCTIONs, when the DEVICE takes on a value outside the
+ range of the bounds, the object "bounces back" and begins transforming
+ as if a negative DEVICE had been specified in the FUNCTION.
+
+ There is also a wrap-around function.  This is specified using the
+ back-slash character.  For example:
+
+    \VALUE<DEVICE<VALUE\
+ 
+ When the DEVICE takes on a value outside the range of the bounds,
+ the value is set to the opposite bound.  This is a "natural" function
+ for rotations bounded by -180 and 180 degrees or
+ for color bounded by 0 and 360.  Thus, it does not have to be used for
+ rotate or color.  It is quite useful for FRAME, but
+ it may be used with any transformation command.
+
+3 Delay Functions
+ Finally, there are delayed update FUNCTIONs useful for animation. In
+ these types of FUNCTIONs a VALUE is given, but the transformation does
+ not immediately take on this VALUE. Rather, the transformation takes
+ on the VALUE in a series of interpolated steps which results in a
+ smooth transition from the current value to the specified VALUE. The
+ number of steps to be taken is given following the VALUE and separated
+ from the VALUE by a colon (:) or by a colon and an S (:S). For
+ example:
+
+    VALUE:N
+    VALUE:SN
+
+ The method of interpolating up to VALUE is normally linear, where each
+ step is of equal size. If the :S form of the FUNCTION is used, the
+ step size varies sinusoidally so that it is initially small, then gets
+ larger and finally becomes small again. The result is a somewhat
+ smoother interpolation.
+1 GET
+ The GET command retrieves a picture from the disk and displays it on
+ the screen. At this point the picture becomes "known" to GRAMPS. The
+ file extension is assumed to be pix, but this assumption may be
+ overridden by explicitly typing in the extension. Currently, the two
+ recognized extensions are pix and qix. If any other extension is
+ supplied, that extension is used to locate the file on the disk, but
+ the format is assumed to be identical to the format of a pix file.
+ For information on pix and qix files, see the HELP topic
+ Picture Files. If a file is not found in your directory, GRAMPS will
+ search the library directory gramps_lib: for the file. $gramps_lib is
+ a UNIX environment variable.
+2 /NAME
+ /NAME=any_name - Used to create a picture with any_name as its name.
+ If you don't use /NAME, then the name of the picture
+ will be the same as the input file name.
+1 GETFRAME
+ The GETFRAME command is used to get framed pictures. Framed pictures
+ are stored in pix files just like ordinary pictures, but the INFO line
+ having N < 0 is used to separate frames (see the description of
+ Picture File FORMATS). When a framed picture is displayed on the
+ screen, only one of the frames is shown at a time. The FRAME command
+ is used to specify which frame should be displayed.
+
+ The GETFRAME command may also be used to get ordinary pictures from
+ pix files which do not have an INFO line with N < 0. In this case,
+ the picture consists of only one frame which is always displayed. If
+ a non-framed picture is gotten with the GETFRAME command instead of
+ GET, there are subtle implications which arise when using the COPY
+ command.
+2 /NAME
+ /NAME=any_name - Used to create a picture with any_name as its name.
+ If you don't use /NAME, then the name of the picture
+ will be the same as the input file name.
+1 GROUP
+ Groups are names given to groups of objects. A group can be rotated,
+ scaled, etc., and each member of the group will reflect that
+ transformation. Groups are created with the GROUP command.
+
+ The GROUP command has the following syntax:
+
+    GROUP NAME,NAME,GROUPNAME
+
+ where NAME is any picture or group name, NAME is any picture or
+ group name, and GROUPNAME is any new name not already known to the
+ system.
+
+ The effect of the GROUP command is to group every picture starting
+ with NAME up to and including NAME, yielding the group named
+ GROUPNAME. In order to determine which pictures are between NAME and
+ NAME, the SHOW/TREE command is used.
+
+ Objects can be removed from groups by using the REMOVE command or
+ inserted by using the INSERT command. See the help topics on these
+ commands for more information.
+1 HELP
+ The HELP command provides interactive help on the various GRAMPS
+ commands. The HELP command alone will list all topics for which help
+ is available. To get help on a specific topic or subtopic, use the
+ command HELP 'topic' or HELP 'topic' 'subtopic'. The names of all
+ pictures known to the system are also printed.
+
+ Sometimes subtopic may be a switch.  For examples ROTATE/LAB.  While
+ you may NOT use a space before the slash when executing the ROTATE/LAB
+ command, you MUST use a space for HELP ROTATE /LAB.
+
+ You may see square brackets used in syntax specifications in the
+ help listing.  This denotes optinal arguements.  For example in the
+ help for SHOW /TRANSLATE you will see SHOW/TRANSLATE[=XYZWPQRS].  This
+ means that you may, for example, use the commands SHOW/TRANSLATE or
+ SHOW/TRANSLATE=Z or SHOW/TRANSLATE=YR to show all translations,
+ Z translations or both Y and R translations, respectively.
+
+ For a full listing, the help file is contained in $gramps_lib/gramps.hlp
+1 INSERT
+ The INSERT command inserts objects into groups. The syntax of the
+ INSERT command is:
+
+    INSERT NAME1 NAME2
+
+ where NAME1 and NAME2 are any NAMEs. The effect of the INSERT command
+ is to place NAME1, along with any objects or groups NAME1 may contain
+ (if it is a group itself) into the tree after NAME2.
+
+ It is possible to insert groups into groups as well as objects into
+ groups. If an object is INSERTed into itself, no change occurs in the
+ tree. If a group is INSERTed into an object or group which is
+ contained by the original group, an error is issued and no change in
+ the tree occurs.
+2 /MENU
+ /MENU - All objects in GRAMPS are part of the WORLDs. As such, they
+ rotate, scale, etc., within the world. It is possible to
+ cause specified objects to be inserted into a menu which is
+ not part of the WORLDs and which will remain stationary when
+ WORLD transformations occur. This command has the following
+ syntax:
+
+        INSERT/MENU NAME [,NAME,NAME...]
+
+ where NAME is an object name known to GRAMPS. Multiple NAMEs
+ may be given on one line. The effect of this command is to
+ remove the NAMEd object from the WORLD and insert it into the
+ MENU. The object will change on the screen, since it is no
+ longer undergoing the perspective (and all other)
+ tranformations of the WORLD. The object may still be
+ manipulated by GRAMPS transformation and other commands.
+ However, items in the menu may not be GROUPed, nor can GROUPs
+ be inserted into the MENU. FRAMEs also may not be inserted
+ into the MENU. SYNONYMS and ORDINARY objects may be inserted
+ into the MENU.
+1 INTENSITY
+ The INTENSITY command is used to alter the intensity of objects on
+ display. It also affects the transparency of an object. The syntax
+ of the command is:
+
+    INTENSITY NAME KEYWORD FUNCTION
+
+ where NAME is any name known to the system. KEYWORD is one or
+ more of T, A, P, D, Y and E.
+ See the help listing for FUNCTION to get more details about FUNCTION.
+
+ The KEYWORD T stands for transparency.  A value of 0 means not at all
+ transparent. A value of 1.0 means that the object will be fully
+ transparent (invisible!).
+
+ The KEYWORD A is the ambient intensity.  P is the specular intensity,
+ or the intensity of the hightlight spot.  D is the diffuse intensity.
+ Taken together these affect to overall intensity of the object.
+ Used in different ratios, these values simulate various materials
+ that the object may seem to be made of - reflective plastic, metal,
+ dull plastic, etc.
+ Y affects the spread of the hightlight, or shinyness of the object.
+ A high value for Y give a focused highlight and a low
+ value gives a more spread-out hightlight.
+ The KEYWORD E is the emissive intensity.  This may have little or no
+ effect.
+
+ If NAME is a GROUP, then each member of the GROUP is affected as if
+ the INTENSITY command had been given for each member of the GROUP.
+1 Introduction
+ GRAMPS is a program to display, manipulate and animate graphical
+ objects.  It can be run on any recent Windows, Mac or Linux desktop
+ or laptop computer.  The graphical objects may contain points, lines,
+ shaded polygons, spheres and cylinders.  Using there graphics primitives
+ more elaborate objects may be created.
+
+ GRAMPS has a gui interface with a traditional pull-down menu system.
+ Howwver, only a subset of the full capabilites are available there.
+ GRAMPS is also a command line graphics language.
+ The full power of GRAMPS is available through the use of these commands.
+
+ Try these commands:
+    SET OUTPUT WINDOW 500x500
+    GET SSPHERE
+    GET CUBE
+    ROTATE CUBE X 40
+    COLOR SSPHERE H 120
+    TRANSLATE CUBE X 0.4
+    ROTATE LWorld CY 1.5
+    SHOW/ROTATE LWorld
+    EXIT
+
+ GRAMPS commands may be abbreviated to one or more letters. When an
+ abbreviation is ambiguous, the first match in the command name table
+ is used.
+
+1 LIGHTS
+ There is a special object in GRAMPS called LIGHTS.
+ There are eight Lights, named Light1 through Light8.
+ This provides some
+ ability to modify the way lighting is used to render surfaces.  The
+ LIGHTS have an ambient component which affects objects evenly accross
+ their surface, and a diffuse component which causes surface to be
+ lit depending on the angle of the surface and the LIGHTS.  You
+ may ROTATE the LIGHTS, but TRANSLATE and SCALE have no effect.  Try
+ ROTATE/LAB LIGHTS X,D6 Y,D7.
+
+ You may also use the INTENSITY command to control the ambient,
+ diffuse or other intensity of a LIGHT.
+ The ambient intensity of a LIGHT illuminates only the ambient-ness of
+ an object set by using the INTENSITY for that object.  The other
+ INTENSITY features, diffuse, specular also interact only with each other.
+ Of course you may use any VALUE or FUNCTION in place of dials in
+ these examples.
+
+#1 LOOP ******* Not working on the Titan or ESV ********
+# The LOOP command causes an object to be displayed more than once in
+# its place in the tree. The syntax of the command is:
+#
+#    LOOP NAME NTIMES,DEPTH
+#
+# where NAME is the name of the object to be LOOPed, NTIMES is a NUMBER
+# giving the additional number of times to display the object, and DEPTH
+# is a NUMBER giving the depth in the tree after NAME which should be
+# used for the matrix manipulation explained below. If NAME is not a
+# group, DEPTH must be 1. If NAME is a group, DEPTH may not exceed the
+# maximum depth of the group (displayed with SHOW NAME.)
+#
+# The LOOP command causes an object to be displayed several times when
+# it is encountered in the display tree. With every redisplay of the
+# object, the object's transformation matrices are concatenated with the
+# current transformation matrix, yielding powers of the original
+# transformation matrix. Before the Nth redisplay of the group, the
+# transformation matrix left on the stack at the level given by DEPTH
+# relative to the group start is concatenated with the transformation
+# matrix for the (N-1)th display of the group.
+1 Macro files
+ There are some files in gramps_lib which might be useful to you.
+ They are .gin files and effectively become new gramps commands.
+ See the 'Adding Commands' section for more on this topic.
+ You might also take a look at *.gin in gramps_lib and try any of them.
+ The sub-topics here are the most generally useful, I think.
+2 Colors
+ There are several .gin files in gramps_lib which help you with
+ colors.  The following names can be used as gramps commands:
+
+   cyan blue green grey orange pink purple red white yellow
+   brown flesh black
+
+ These commands require the name of the object to be colored as the
+ first (and only) argument.  As with all gramps macro commands, you
+ may not abbreviate these names, since gramps is looking for a file.
+
+ Examples:
+   red sphere
+   blue cube
+#2 zstereo
+# This files does a SET STEREO and sets the PERSPECTIVE of LWorld and
+# RWorld to effect z-screen stereo.  The amount of stereo is controlled
+# on the mouse device X1.  To make effective use of this command, you
+# will have to have the optional Z-screen device (IRIS only) and be
+# wearing the special glasses.  This also works for the Crystal-eyes
+# stereo device.  After using the zstereo command, you must (with the
+# mouse inside the graphics window) push the F1 (to make full screen)
+# and F2 (to shift into proper refresh mode) buttons on the keyboard
+# before you will see stereo.  To back out of stereo mode, push F1 and
+# F2 (they work as toggles) and type nostereo (in the gramps command
+# window).
+2 nostereo
+ This command returns the system to normal, non-stereo viewing.  Use
+ this command after (or between) using the macro gin file commands
+ zstereo, fstereo, lstereo or rstereo.
+2 stereo
+ This command simply calls the lstereo command.
+2 quit
+ This simply executes the gramps EXIT command.
+#2 rgb
+# This opens a window in RGB mode, set some parameters for a noce
+# lighting model (and switches on 3 Lights on the IRIS).  It calls
+# the window.gin file.
+2 3Lights
+ The 3Lights command switches on three of the eight Lights and
+ sets nice rotation, intensity and color values for them.  It is called
+ by the rgb.gin file.
+2 right
+ This command produces a perspective view meant for the right eye to
+ see in a stereo pair (for making slides or prints).
+2 left
+ This command produces a perspective view meant for the left eye to
+ see in a stereo pair (for making slides or prints).
+#2 center
+# This command returns the perspective to a centered view.  It is meant
+# to be used after the left or right command.
+2 wiggle
+ This command requires three arguments: the name of the object, the
+ device to control its "wiggling" and the initial speed of wiggle.
+ Wiggle is simply a FRAME command and will have no effect on objects
+ which were not read using the GETFRAME command.
+ Example:
+   GETFRAME fish
+   wiggle   fish d8 1000
+#2 orthog
+# This command changes the PERSPECTIVE of the LWorld to give an
+# orthogonal projection, instead of a perspective projection.
+2 lstereo
+ This files does a SET STEREO and sets the PERSPECTIVE of LWorld and
+ RWorld to effect cross-eyed side by side stereo.  The amount of stereo
+ is controlled using the mouse device X1.
+2 rstereo
+ This files does a SET STEREO and sets the PERSPECTIVE of LWorld and
+ RWorld to effect wall-eyed side by side stereo.  The amount of stereo
+ is controlled using the mouse device X1.
+2 fstereo
+ This files does a SET STEREO and sets the PERSPECTIVE of LWorld and
+ RWorld to effect full screen stereo.  The amount of stereo is controlled
+ on the mouse device X1.  Full screen means that the images are not
+ separated.  You may use the following commands to separate the images
+         PERSP LW p  d8
+         PERSP RW p -d8
+2 LWdials
+ This file applies default ROTATION, TRANSLATION and PERSPECTIVE
+ DEVICE assignments to the LWorld.
+2 cd
+ This command requires the name of a directory.  It is analogous to
+ the UNIX cd command.  It simply uses the gramps SET DEFAULT command.
+#2 window
+# This command opens a window for you with a default size and position.
+#2 origin
+# This command moves to the origin the next object you pick with the mouse,
+# using the point at which you picked the object to effect
+# a TRANSLATion.  This works on the IRIS only.
+1 MOVE
+ The MOVE command, like the PERSPECTIVE command, applies only to LWorld
+ or RWorld. The syntax of the command is:
+
+    MOVE NAME AXIS,FUNCTION
+
+ where NAME is either LWorld or RWorld, AXIS is one or more of X, Y,
+ and Z, and FUNCTION is described in its own help topic.
+
+ The effect of the MOVE command is very similar to that of the
+ TRANSLATE command, except that the motion takes place after the
+ perspective transformation is applied. So, if the LWorld were
+ TRANSLATEd, the perspective view of objects with this world would
+ change. However, if the LWorld were MOVEd, the perspective would
+ remain the same, but the objects within the LWorld would be shifted on
+ the screen. This command is useful for stereo viewing so that the
+ LWorld and RWorld can be separated on the screen. The SET STEREO
+ command sets this MOVE up and the user need not concern himself with
+ this.
+1 PAUSE
+ The PAUSE command stops automatic continuous transformations from
+ occurring until the CONTINUE command is entered. PAUSE will also
+ stop automatic delayed updates (see FUNCTION) from happening. This is
+ useful if two objects need to be synchronized in their continuous
+ transformations. The PAUSE command can be issued first, the
+ transformations can be set up, and then the CONTINUE command is given.
+ In the time between the transformation set-ups no changes will occur
+ in continuous transformations for any object.
+
+ Even while PAUSE is in effect, continuous or delayed update functions
+ will happen if you use the ADVANCE command. Regardless of the state
+ of the PAUSE or CONTINUE command, non-continuous transformations are
+ updated simply by turning the dial associated with the transformation.
+ If it is desired to synchronize two non-continuous transformations,
+ simply refrain from turning the dial until both transformations are
+ set up.
+1 PERSPECTIVE
+ All objects being displayed by GRAMPS are viewed with a perspective
+ transformation. This perspective applies to all objects, but not
+ individual objects. It is possible to modify the perspective
+ transformation of all objects with the PERSPECTIVE command. The
+ syntax of this command is:
+
+    PERSPECTIVE NAME KEYWORD,FUNCTION
+
+ where NAME may be either LWorld or RWorld, KEYWORD is one or more of
+ S, V, P, A, H, Y, F, D, E, and W.   FUNCTION is described in its own help
+ topic. For information on the WORLDs, see the help topic Worlds.
+
+ The KEYWORD to the PERSPECTIVE command specifies how the perspective
+ window is to be modified.
+ H and Y refer to the hither and yon clipping planes. E is the eye position.
+ F is the fog location where the depth-cueing begins and D is the
+ depth of the fog.  W is the scaling factor for the values specified for
+ the H, Y, E, F and D KEYWORD.  Unlike SCALE in which W serves to divide the overal
+ scale factor, the PERSPECTIVE W serves to multiply to values.
+ One way to think of W is the size of the window which can be fully
+ seen.  When W=1 (default), objects that are expressed in coordinates that
+ range from -1 to 1 will be readily seen.  To accomodate larger objects,
+ say proteins expressed in Angstrom units and about 100 A big,
+ use W=100, leaving the other KEYWORDS set to default values.
+ S refers to the "shear" (or separation of the eye view point in stereo).
+ V is the field of view angle in degrees.
+ P is the parallax and A is the aspect ratio.
+ 
+ Perspective may be modified in order to acheive a stereoscopic
+ effect.  See the SET STEREO command and the STEREO commands under
+ 'HELP Macro files'.
+
+1 PICK
+ The PICK command assigns to VARIABLE the name of an object or a
+ coordinate point of an object. The syntax of the command is:
+
+    PICK/SWITCH VARIABLE [VALUE]
+
+ where SWITCH is SYMBOL, PARAMETER, or POINT. VARIABLE is either a #N
+ (a point variable), a $SYMBOL, or a $PARAMTER. VALUE is optional. If
+ VALUE is missing, then the VARIABLE is assigned a VALUE by using the
+ mouse to pick the $SYMBOL, $PARAMETER, or #N point. If the VALUE is
+ given, then the VARIABLE is assigned that VALUE, and the mouse is not
+ used. The /WAIT switch is used in combination with the switches in
+ gin files. See also USE/AXIS. 
+2 /PARAMETER
+ /PARAMETER - The value of a $PARAMETER may be changed by using the
+ PICK/PARAMETER command. The syntax of this command is:
+
+        PICK/PARAMETER $PARAMETER "string"
+
+ where $PARAMETER is a $PARAMETER ($1 through $10) and
+ "string" is any character string up to 40 characters.
+ The double quotation marks are not necessary unless the
+ string contains DELIMITERs or a string which could be
+ interpreted as a $PARAMETER. This latter restriction is
+ necessary since a $PARAMETER may be assigned the value of
+ another $PARAMETER.
+
+ The PICK/PARAMETER command is only valid in .gin command
+ files. Usually, the /WAIT switch is used with /PARAMETER
+ in .gin files.
+
+ If the "string" is not given in the command, then GRAMPS
+ will assign the $PARAMETER the NAME of the next object
+ picked using the mouse.
+2 /POINT
+ /POINT - The PICK/POINT command has the following syntax:
+
+    PICK/POINT #NUMBER [X,Y,Z,W]
+
+ where NUMBER is any value from 1 through 10. The other
+ arguments are VALUEs specifying the coordinates of a point.
+ The symbol # is a required part of the syntax of this
+ command. The effect of the PICK/POINT command is to store
+ the coordinates of a point in a variable named by #1 through
+ #10. The current limit on the number of axes that may be
+ picked and remembered is 10 (1 through 10.) Once two points
+ are picked, they may be used in the USE/AXIS command.
+
+ If no VALUE is specified, then the mouse is used by GRAMPS to
+ fill in the VALUE.
+2 /SYMBOL
+ /SYMBOL - The value of a $SYMBOL may be changed by using the
+ PICK/SYMBOL command. The syntax of this command is:
+
+     PICK/SYMBOL $SYMBOL "string"
+
+ where $SYMBOL is a $SYMBOL ($1 through $10) and "string" is
+ any character string up to 12 characters. The double
+ quotation marks are not necessary, unless the string
+ contains DELIMITERs or a string which could be interpreted
+ as a $SYMBOL. This latter restriction is necessary since a
+ $SYMBOL may be assigned the value of another $SYMBOL.
+
+ The PICK/SYMBOL command is only valid at GRAMPS terminal
+ command level.
+
+ If the "string" is not given in the command, then GRAMPS
+ will assign the $SYMBOL the NAME of the next object picked
+ using the mouse.
+2 /WAIT
+ If a PICK command is used within a gin file, you will probably
+ want to wait until the user PICKs the object before
+ continuing.  The /WAIT switch will ensure that GRAMPS waits
+ until a hit does occur.  If you do not use the /WAIT switch,
+ the results of the PICK may be incorrect.  If you want to pick
+ both a PARAMETER and a POINT, give the /WAIT SWITCH only on the
+ latter of the two commands. For example, PICK/PARAMETER/WAIT $1
+ followed by PICK/POINT/WAIT #3 will require two pen picks;
+ PICK/PARAMETER $2 followed by PICK/POINT/WAIT #5 will require
+ only one pick, but will return $2 and #5.
+1 Picture Files
+ There are two picture file formats -- pix and qix files. The file
+ formats are described below in the subtopic FORMAT.
+2 pix Files
+ pix files are ASCII, free FORMAT files with every line containing
+ three (or more) real values. Lines in the file are either INFO
+ lines or DATA lines.
+2 FORMAT
+ The file must begin with an INFO line. Assume that the three integers
+ on an INFO line are named N, L1, and L2. The type of information is
+ specified first by the value of N.
+
+ 1) If N>0, then N DATA lines follow. The DATA lines are interpreted
+ as Cartesian coordinates and are used to draw a line on the
+ screen. The values of L1 and L2 determine how the coordinates
+ will be connected. If L1=2, then the points are connected in a
+ continuous line from 1 to N. If L1=4, then every other point is
+ is connected, that is connections from 1-2, 3-4, 5-6 ... and not
+ connected 2-3, 4-5 .... Only L2=4 is currently available.
+ There are many other options to draw points, lines, spheres,
+ polygons and triangle meshes.  The complete description is not
+ yet in this file.  There is a separate document descrbing N>0
+ picture file formats.
+
+ 2) If N=0, then L1 is used to further specify the information as
+ follows:
+
+ a) If L1=0, then read the next line and set the base register
+ equal to the coordinates on that line.  
+
+#  **** L1=1 is not not yet working ****
+# b) If L1=1, then if L2.NE.0 make the following lines blink, or
+# if L2=0, make them not blink. Blinking an object in this way
+# is not recommended since there is no way for GRAMPS to stop
+# the blinking. See the BLINK command.
+
+#    **** L1=2 is not not yet working ****
+# c) If L1=2, make the following lines dashed. The type of dashes
+# is specified by L2 and is explained in the E&S description of
+# the LDASH subroutine. If the entire picture is to be dashed
+# or blinked, use the DASH or BLINK command of GRAMPS.
+
+ d) If L1=3, then text information follows. L2 is interpreted as
+ the size of the text characters and may range from 1 (small)
+ to 8 (large). A DATA line then follows which contains X, Y,
+ and Z coordinates for the placement of the text string.
+ Finally, on the next line, the text string is given. It must
+ be less than 80 characters.
+
+ e) If L1=4, then color information follows. L2 is used as
+ explained below. Another input line is read which contains
+ two values. If L2=0, then these values are interpreted as
+ HUE and SATURATION (see COLOR). If L2
+ is not zero, then HUE and SATURATION are in the 0 to 63 and 
+ 0 to 7 range, respectively.
+
+ f) If L1=5, this line is ignored.
+
+ g) If L1=6, then L2 is used to set the dimension of all
+ subsequent coordinate data. L2 may be 2, 3, or 4. All
+ coordinates that follow will then be 2, 3, or 4 dimensional
+ data. When L2=4, there can be 4 coordinates on following
+ data lines. IMPORTANT - when the dimensionality of data is
+ changed using this feature in a qix file, subsequent records
+ must contain NDIM*N values. See HELP sub-topic on qix files.
+
+ h) If L1=7, then intensity information follows. L2 is ignored.
+ Two values are read from the following record and these are
+ used to set the FRONT intensity and the SHIFT in intensity,
+ respectively. See HELP INTENSITY for more help on what these
+ values mean.
+
+ 3) If N < 0, then this is the end of the picture or frame. More
+ frames may follow. They will be read by the GETFRAME command but 
+ not by the GET command. It is not necessary to end a file with
+ this INFO line. See the GETFRAME command for more information.
+2 qix files
+ qix files contain the same information as pix files, but qix files are
+ unFORMATted and consist of variable length records. qix files should
+ be created with a FORTRAN program writing without a FORMAT. The first
+ line must be an INFO line and must contain three REAL values. Every 
+ INFO line should contain three REAL values. DATA lines are of variable 
+ length in qix files: DATA records must contain NDIM*N values where N
+ is the number of data values specified in the previous INFO line and
+ NDIM is the current dimensionality of data, as specified in a previous
+ INFO line having L1=6. If you have not used such an INFO line, the
+ default dimensionality of three is in effect.
+
+ qix files may contain text INFO or DATA lines. If they do, then
+ the text string in record 3 must be an 80 character record. Also, the
+ XYZ position in record 2 must be a 40 character record. The character
+ string for XYZ is necessary to support the "*" feature for the X
+ coordinate. See also HELP TEXT.
+1 PLOT
+ The PLOT command is used to make a hardcopy of what you see on the
+ screen. The syntax of the PLOT command is:
+
+    PLOT [/SWITCH] [FILE]
+ where file specifies the Post-script format file which is to be
+ written.  If you omit FILE, the output will be written to
+ /usr/tmp/plot.ps. 
+2 /HOLD
+ means do not try to automatically print the file.  You
+ should use this option until the automatic printing capability
+ is extended.
+2 /NOREVERSE
+ The gramps colors white and black are handled specially.
+ Because the background in gramps is (typically) black, but the
+ page is white, the PLOT command makes lines which are drawn white
+ in gramps be drawn as black lines.  /NOREVERSEBW causes gramps
+ black color to be printed black and white to be printed as white.
+2 /NOCOLOR
+ produces a file suitable for a black&white postscript device. 
+ It causes colors to come out black.  The gramps colors white and
+ black are handled specially.  Because the background in gramps is
+ (typically) black, but the page is white, the PLOT command makes
+ lines which are drawn white in gramps be drawn as black lines.
+ See also the /NOREVERSE switch.
+#1 PUT **** Not working yet ****
+# The PUT command is used to write .pix files onto disk. The syntax of
+# the command is:
+#
+#    PUT NAME
+#
+# where name is a previously created picture. NAME must be an ordinary
+# object. NAME may not be a GROUP, FRAME, or SYNONYM. A file with the
+# same name as NAME and with the file extension .pix will be created in
+# the current default directory. This command is mostly used for object
+# that have been DRAWn or CONDENSEd.
+#2 /FIX
+# If you give the /FIX switch, then the coordinates will be multiplied
+# by the FIX matrix before being written. This is useful with the
+# CONDENSE command. PUT/FIX is the default.
+#2 /NOFIX
+# If you use the /NOFIX switch, then the coordinates will be written out
+# as they were input, without change. Be careful when using this switch
+# with pictures created using the CONDENSE command.
+1 RAYT
+ This command writes out a file which can be used as input to the
+ RayT program of Tom Palmer, or to rayshade of Craig Kolb.
+ You must have one of these programs to make much use of this command.
+ You can contact Tom P via email as palmer@ncsc.org.  Rayshade is
+ available fron princeton.edu via anonymous ftp.
+ Either one of these ray-tracers produces high-quality
+ renderings of the scene, as you have manipulated it with Gramps.
+ Its result should look just like the Gramps output screen at the
+ moment you give the RAYT command, except for the higher quality
+ rendering.  WARNING: it may take a long time to run either of these
+ programs, depending on the complexity of the scene.  In my experience,
+ RayT is faster, so try it first.
+
+ The syntax of the command is:
+
+  RAYT [filename] [optional args to RayT or rayshade....]
+
+ where filename is the name of the output file for the RayT input
+ data.  If you leave out the file name, Gramps uses /usr/tmp/plot.ray.
+ The optional arguments are passed on to RayT and are not explained
+ here.
+
+ There are several switches for RAYT.  The /RAYSHADE switch causes gramps
+ to output a file in rayshade format.  The /RAYT switch causes gramps
+ to output a file in RayT format.  The /POV switch causes gramps to
+ output a file in POV format.  The /HOLD switch causes the
+ output file to be written, but no rendering occurs.  If you do not have
+ RayT, rayshade or POC, you should use this switch routinely.  If you do
+ have RayT, rayshade or POV, it should be in your path along with the
+ display command.  If possible, a rendering will appear in a separate
+ window as soon as rayshade is done, or will appear while RayT is working.
+ If there is no automatic display, You can still create rendered output
+ into a file, but you will have to do it as follows:
+
+    RAYTRACE/HOLD filename
+    SYSTEM rayt [options] -o filename.rle filename.ray
+         or
+    RAYTRACE/RAYSHADE/HOLD filename
+    SYSTEM rayshade [options] -o filename.rle filename.ray
+         or
+    RAYTRACE/POV/HOLD filename
+    SYSTEM pov [options] -o filename.rle filename.ray
+
+ You can then convert the rle files to other types of files using a utility.
+ 
+ The /LINEWIDTH switch is used to render lines, and possibly dots.
+ RayT and rayshade do not have a line primitive, so Gramps uses cylinders.
+ LINEWIDTH is a scale factor for the radius of the cylinder-lines.
+ The default LINEWIDTH is 1.0, so use a larger or smaller real number
+ as you like.  Rayshade does not have a dot primitive, so the LINEWIDTH
+ factor is used to scale the rayshade disc primitive.
+1 RELEASE
+ The RELEASE command will unFREEZE an object's transformations. The
+ syntax of the command is:
+
+    RELEASE NAME
+2 /GROUP
+ /GROUP - Unlike the INTENSITY, DASH, BLINK, BLANK, and FRAME commands,
+ which function on groups by affecting each individual of the
+ group, the FREEZE and RELEASE command may or may not operate
+ on each member of the group. If NAME is a group name and the
+ FREEZE or RELEASE command is given as in the syntax example
+ above, then only the group transformations are frozen or
+ released. These commands allow the /GROUP switch, signifying
+ that in addition to affecting the group's transformations,
+ each member of the group should have its transformations
+ affected.
+1 REMOVE
+ Objects can be removed from groups by using the REMOVE command. The
+ effect of this command is to remove the object from all grouping and
+ place it at the end of the display list. The syntax of the REMOVE
+ command is:
+
+    REMOVE ANYNAME
+
+ where ANYNAME is any object or group name. Of course, the display on
+ the screen reflects the changes made to the tree by the REMOVE
+ command.
+2 /MENU
+ /MENU - Causes specified objects to be removed from the menu. The
+ syntax of this command is:
+
+    REMOVE/MENU NAME [,NAME,NAME...]
+
+ where NAME is any GRAMPS object NAME. Multiple NAMEs may be
+ given on one line. The effect of this command is to remove
+ the NAMEd object from the menu and reinsert it into the WORLD.
+ If the item had been a member of a GROUP at the time it had
+ been INSERTed into the MENU, it will not be returned to that
+ GROUP. It will be put at the end of the TREE.
+1 RENAME
+ The RENAME command allows a picture to be renamed. When a picture is
+ initially gotten with the GET or GETFRAME command, its name is the
+ same as its name on the disk. For convenience, a picture may be
+ renamed. The syntax of this command is:
+
+    RENAME OLDNAME NEWNAME
+
+ where OLDNAME is a picture name already known to the system and
+ NEWNAME is any name not already known to the system. The effect of
+ this command is to modify the name by which the picture is known to
+ the system. It has no effect on the display.
+1 RESET
+ The RESET command will reset all transformation values to their
+ original values. This is 0.0 for rotations and translations and 1.0
+ for scales. The syntax of the command is:
+
+    RESET NAME
+    or
+    RESET/switch NAME
+
+ Each of these switches may be used alone or in combination with any of
+ the other allowed switches of the RESET command. Many of the switches
+ have optional values (designated by the [ ] braces.)
+2 /COLOR
+ /COLOR[=HSV] - Fixes the hue, saturation and/or value for the object.
+2 /FRAME
+ /FRAME - Resets the frame of a framed picture.
+2 /GROUP
+ /GROUP - The RESET command may also operate on groups, in which case
+ it will affect only the group's transformations. If,
+ however, the /GROUP switch is used, then each member of the
+ group will also be affected as well as the group itself.
+2 /INTENSITY
+ /INTENSITY[=FST] - Fixes the front, size and/or transparent intensity
+ of the object.
+2 /LEAVE
+ /LEAVE - Any assignments of transformations to dials is cancelled,
+ unless the /LEAVE switch is specified.
+2 /MOVE
+ /MOVE[=XYZ] - Resets the MOVE transformations affecting the WORLDs for
+ the specified axes.
+2 /PERSPECTIVE
+ /PERSPECTIVE[=LRBTHYEW] - Resets the perspective windows affecting the
+ WORLDs. The optional values are PERSPECTIVE keywords.
+2 /ROTATE
+ /ROTATE[=XYZPQR] - Resets the ROTATE transformation. The optional
+ value resets the rotation for the axis or axes specified.
+2 /SCALE
+ /SCALE[=XYZWPQRS] - Resets the scale transformation of the specifed axes.
+2 /TRANSLATE
+ /TRANSLATE[=XYZWPQRS] - Resets the translation transformations of the
+ specified axes.
+2 /UNFIX
+ /UNFIX - The RESET command allows the /UNFIX SWITCH. If this switch
+ is used, the effect of any previous FIXes (see the
+ description of FIX) will be cancelled.
+1 RESTART
+ The RESTART command will restart the GRAMPS program. This deletes all
+ pictures from the screen and reinitializes the graphics system. It is
+ possible to modify the restarting procedure of GRAMPS using special
+ features of the RESTART command. When GRAMPS is first initialized,
+ or when the RESTART command is given, various system parameters are
+ reSET. This is accomplished by the interpretation of the gramps.gin
+ file residing in the gramps_lib: directory. The file contains the
+ commands necessary to set up the default rotation and scaling of the
+ WORLDS, as well as several SET commands. The RESTART command will
+ also cause the interpretation of a file in the current default
+ directory with a name of gramps.gin. In this way the user has some
+ control over the RESTART procedure.
+
+ Note: The output window will not be closed. A set out command used
+ after RESTART will open a new window.
+1 ROTATE
+ The ROTATE command is used to rotate an object. The object must have
+ been previously read in (via the GET command). The syntax of a
+ ROTATE command is:
+
+    ROTATE NAME KEYWORD FUNCTION
+
+ where NAME is the name of the object, KEYWORD is an axis specified by
+ one or more of the characters X, Y, Z, P, Q, and R. FUNCTION may be
+ any valid device name (like D3) or a value (like 120) or a more
+ complicated FUNCTION. FUNCTION specifications are discussed further
+ in the help topic FUNCTION. The VALUE specified for a rotation is
+ the angle of rotation.
+
+ The KEYWORD specification indicates the axis about which the object
+ should rotate. X, Y, or Z specify the Cartesian coordinate axes. P,
+ Q, or R relate to an arbitrary axis system defined by using the
+ PICK/POINT and USE/AXIS commands. Any combination of these axes is
+ allowed.
+2 /LAB
+ Normally, ROTATE refers its axes to the axes "internal" to the object
+ being rotated. This is often what is desired. To see an example of 
+ this, GET AXES and ROTATE AXES X,D6 Y,D7 Z,D8. On the other hand, it
+ can be difficult to orient an object to a desired view using these
+ rotation axes. GRAMPS provides a set of "laboratory" axes which are
+ parallel to the axes in the room with you (quick - did you just see
+ them?). In the default gramps.gin file, the LWorld is using ROTATE/LAB.
+ Any other object may also use ROTATE/LAB, but if the LWorld is also
+ rotated in any way, the objects LAB axes will be rotated by the LWorld
+ rotation. Any other groups that contain an object may also affect its
+ rotations, /LAB or otherwise. Since the LWorld can only be affected by
+ its own rotations, ROTATE/LAB LWorld always applies to your lab frame of
+ reference.
+1 SAVE
+ SAVE is a useful command for saving the VALUEs that are currently
+ applied to an object. The syntax of the command is:
+
+    SAVE NAME
+
+ where NAME is any known object name. The effect of the command is to
+ list the GRAMPS commands necessary to transform NAME to its present
+ state. If a SET COLLECT is in effect, the commands are written to the
+ file. Thus the state of an object can be saved at any point.
+
+ There are several SWITCHES that modify the function of SAVE. The /ALL
+ SWITCH supercedes any of the SWITCHES described below.
+
+ It is possible to save only certain active transformations by using
+ the switches that name the transformation. For example, note that
+ /SCALE does not specify that all scale values for the object are to be
+ saved, but rather that only scale values are to be considered for
+ SAVing, dependant on the /ALL,/ACTIVE, etc. So, if an object had a
+ default value for its X scale, that value would not be SAVEd even if
+ the /SCALE SWITCH was given. It would be saved if the X scale
+ transformation was active. Many of the switches have optional values
+ (designated by the [] braces.)
+2 /ALL
+ /ALL - By default, only transformations which have changed from their
+ initial values are saved. In addition, transformations which
+ are active, i.e., transformations associated with a DEVICE, are
+ also saved. However, the /ALL SWITCH indicates that every
+ transformation value is to be saved.
+2 /ACTIVE
+ /ACTIVE - The /ACTIVE SWITCH indicates that only active
+ transformations currently linked to a DEVICE are saved.
+2 /DIALS
+ /DIALS - The /DIALS switch indicates that the name of the DEVICE
+ associated with each transformation is to be saved as well as
+ the VALUE associated with the transformation.
+2 /GROUP
+ /GROUP - The /GROUP SWITCH indicates that every member of the GROUP,
+ if NAME is a GROUP, is to be SAVEd.
+2 /COLOR
+ /COLOR[=HSV] - Fixes the hue, saturation and/or value for the object.
+2 /INTENSITY
+ /INTENSITY[=FST] - Fixes the front, size and/or transparent intensity
+ of the object.
+2 /MOVE
+ /MOVE[=XYZ] - Saves the move transformations affecting the WORLDs for
+ the specified axes.
+2 /PERSPECTIVE
+ /PERSPECTIVE[=LRBTHYEW] - Saves the perspective windows affecting the
+ WORLDs. The optional values are PERSPECTIVE keywords.
+2 /ROTATE
+ /ROTATE[=XYZPQR] - Saves the ROTATE transformation. The optional
+ value resets the rotation for the axis or axes specified.
+2 /SCALE
+ /SCALE[=XYZWPQRS] - Saves the scale transformation of the specifed axes.
+2 /TRANSLATE
+ /TRANSLATE[=XYZWPQRS] - Saves the translation transformations of the
+ specified axes.
+1 SCALE
+ The SCALE command is used to make objects appear larger or smaller.
+ The general syntax of the SCALE command is as follows:
+
+    SCALE NAME AXIS FUNCTION
+
+ where NAME is the name of any object known to GRAMPS, AXIS is one or
+ more of the characters X, Y, Z, P, Q, R, S or W. FUNCTION may be
+ DEVICE specification or a number VALUE. The AXIS specification tells
+ which axis (or axes) are to be used for the scaling. If the P, Q, or
+ R axes are specified, the scale will relate to the arbitrary axis
+ given in any USE/AXIS commands referring to this picture. See the
+ description of PICK/POINT and USE/AXIS.
+
+ If AXIS is given as W or S, then the FUNCTION is used to modify
+ the reference point for the "original" scale of the object. The
+ default value for W and S is arbitrarily set at 1.0.
+ If negative VALUE is given for FUNCTION, then the
+ object is inverted with respect to the axis or axes used for the
+ scaling. The net scale factor is X/W, Y/W, Z/W and/or P/S, Q/S , R/S.
+
+ If the object contains text, only the position of the text will be
+ scaled, not the size of the characters. The size of the characters is
+ fixed once the object is created. To change character size, use the
+ SET TEXTSIZE command BEFORE the TEXT command. Also, see the help
+ information on Picture files format.
+1 SET
+ The SET command is used to set various system parameters and variables
+ which may tailor the GRAMPS environment to your particular needs.
+ Many of the parameters which may be set using the SET command are
+ shown using the SHOW command. The syntax of the command is:
+
+    SET SPECIFIER
+
+ where the various SPECIFIERs are described in the subtopics below.
+2 ALPHA
+ When using transparency (See INTENSITY and the T KEYWORD), the
+ SET ALPHA command can control how the transparency is accomplished.
+ If your machine has "alpha-planes", gramps can use them to do
+ the transparency.  If not, it will use a "screen-door" pattern
+ to fill polygons.  The density of the screen determines the amount
+ of transparency.  If you do not have alpha planes, then the
+ SET ALPHA command has no effect and the screen-door transparency
+ is used.  If you do have alpha planes, SET NOALPHA will cause
+ the screen-door transparency to be used.  SET ALPHA 4 5 will cause
+ the alpha planes transparency to be used.  If you have the
+ alpha planes hardware, you may experiment with other SET ALPHA
+ numbers, but SET ALPHA 4 5 will always work OK, as will SET NOALPHA.
+2 NOALPHA
+ This turns off transparency using alpha-planes and instead uses a
+ "screen-door" patten to simulate transparency.  SET NOALPHA is equivalent to
+ SET ALPHA -1, -1.
+2 BACKFACE and NOBACKFACE
+ For polygon and triangle mesh surfaces (including spheres), then
+ backward facing polygons can be switched off by giving the SET
+ BACKFACE command.  BACKFACE means back-facing poygon will be shown.
+ NOBACKFACE means they are not shown.  If your surface is totally enclosed,
+ as is a sphere, back-facing polygons will always be hidden anyway.
+ For "open" surfaces, such as a plane for example, the back-face
+ will be black if removed.  Removing back-facing polygons can speed
+ the display of objects.
+
+2 BACKGROUND
+ The  SET BACKGROUND VALUE  command is  used to set the background color on 
+ your window.  The VALUE ranges from 0 to 255.  0 is black, 255 is white
+ and other colors are shades of grey.
+2 BACKHSV
+ The SET BACKHSV command is used to set the background color on your
+ workstation. Three numbers should follow the BACKHSV KEYWORD. They
+ define the hue, saturation and value of the color to use.
+ See the COLOR command for more information on how these values
+ are interpreted.
+2 BACKRGB
+ The SET BACKRGB command is used to set the background color on your
+ workstation. Three numbers should follow the BACKRGB KEYWORD. They
+ define the red, green and blue components of the color to use.
+ The values are in the range of 0.0 to 1.0.
+2 COLLECT 
+  SET COLLECT
+  SET NOCOLLECT
+
+ The SET COLLECT command is used to collect commands typed at the
+ terminal into a file for later use. The syntax of the command is:
+
+    SET COLLECT FILENAME
+
+ If no extension is given for for FILENAME, an extension of gin is
+ assumed. If no FILENAME is given, the FILENAME from the previous SET
+ COLLECT command is used. If no previous SET COLLECT command had been
+ given, then GRAMPS reports an error. Only one SET COLLECT may be in
+ effect at any one time.
+
+ The effect of the SET COLLECT command is to cause each command line to
+ be written into the file FILENAME after the line is interpreted by
+ GRAMPS. Any command lines which cause an error to be printed are not
+ stored in the file. Certain commands, such as SHOW and HELP are also
+ not collected. If a command line begins with the symbol %, then
+ the line is interpreted but not collected. If a command line begins
+ with %%, then the line is COLLECTed, but not interpreted. If the
+ typed command is a DO command, that command is stored in the file, but
+ the contents of the file that is DOne are not stored in the new file.
+ If the DOing of the file causes an error to be printed, the DO that
+ referred to that file will still appear in FILENAME. The SET
+ NOCOLLECT command closes FILENAME and stops the collection of command
+ lines until another SET COLLECT command is given. See also the SAVE
+ command.
+#2 CURSOR **** Not working yet ****
+#    SET CURSOR
+#    SET NOCURSOR
+#
+# The SET CURSOR command will cause the automatic cursor to track the
+# position of the pen of the data tablet. SET NOCURSOR will stop the
+# automatic tracking of the pen. See also the help information on PICK.
+2 DEFAULT
+ The SET DEFAULT command requires another argument: a string
+ specifying a default directory for all GETs, GETFRAMEs, DOs, and SET
+ COLLECTs. The saved default directory will be used for commands that
+ read or write files.
+
+ If the directory name
+ begins with a dollar sign ($), it is interpreted as an
+ environment variable, set by the use before starting GRAMPS.
+2 DISPLAY
+    SET DISPLAY
+    SET NODISPLAY
+
+ It is possible to SET NODISPLAY, which instructs GRAMPS to disallow
+ display of all objects until the SET DISPLAY command is given.
+2 ECHO
+    SET ECHO
+    SET NOECHO
+
+ The SET ECHO command causes GRAMPS to echo each command line received
+ by GRAMPS. Normally, the line need not be echoed since it will have
+ been typed in at the terminal. It is possible for a user-written 
+ program to communicate with GRAMPS. For example, a program could
+ construct GRAMPS command lines and send them to GRAMPS via the 
+ interprocess communcation through which GRAMPS accepts commands. In
+ that case, it may be useful to have the command lines echoed. The
+ SET NOECHO command causes command to no longer be echoed.
+
+ If the SET VERIFY command is in effect while SET ECHO is also in
+ effect, then command lines retrieved from a file will also be printed.
+
+ An asterisk (*) as the first character of a GRAMPS line will cause the
+ line not to be echoed, regardless of the state of the ECHO flags.
+ This is useful when reading a GRAMPS response through interprocess
+ communication, without having to worry whether the command line will
+ be echoed before the response.
+2 FILMPAUSE
+    SET FILMPAUSE number
+
+ The SET FILMPAUSE command requires an additional number argument.
+ This number is interpreted as a number of seconds (the number need not
+ be an integer) to pause between ADVANCEs. If SET FILMPAUSE 0 is
+ given, then no pause will be made.
+2 FRAMECOUNT
+ When filming, the ADVANCE command is used to advance the display one
+ cycle and to ring the bell on the terminal (to trigger a camera.)
+ GRAMPS keeps a count of the number of ADVANCEs that have occurred.
+ This count is shown with the SHOW/SYSTEM command. It is possible to
+ set this counter to any number using the SET FRAMECOUNT command. The
+ syntax of the command is:
+
+    SET FRAMECOUNT NUMBER
+
+ When GRAMPS is
+ initialized, the frame counter is 0. RESTART also resets the frame
+ counter to 0.
+2 FULLERROR
+    SET FULLERROR
+    SET NOFULLERROR
+
+ Normally, GRAMPS prints out errors messages when it encounters
+ something in a command line that it cannot deal with. In general,
+ when SET FULLERROR is in effect, any FORTRAN run time errors that
+ accompany normal GRAMPS errors will be reported. SET NOFULLERROR
+ turns off this mode of error reporting.
+2 HIDESURF and NOHIDESURF
+ Objects composed of polygons, triangle meshes and/or spheres can
+ hide each other when one passes in front of the other.  This effect
+ can be switched on with HIDESURF and off with NOHIDESURF.
+ This essentially corrsponds to using z-buffering (or not).
+2 GOURAUD and FLAT
+ Polygons are shaded based on the angle between the Light source(s)
+ and the normal vector perpendicular to the polygon.  When the
+ polygon is shaded all the same color, it appears flat.  If the
+ shading is varied, depending on the normals of the neighboring
+ polygons and well as the normal of the the polygon being shaded,
+ a smoother shading effect results.  Use SET GOURAUD to get this
+ smoother shading; use SET FLAT for flat shading.
+#2 INTERPTYPE *** Titan systems only ***  See SET GOURAUD and SET FLAT
+#
+#    SET INTERPTYPE N
+#
+# Interpolation type refers to the ways surface normal are used to
+# interpolate light source shading.  A value for N may be 0, 1, 2,
+# or 3.  0 means faceted shading (no interpolation).  1 and 2 give
+# a smooth shaded effect, as in Gouraud or Phong shading.  3 gives
+# a flat shaded effect; normals are ignored.
+2 LIBRARY
+ The SET LIBRARY command requires another argument: a string
+ specifying a possible directory for any GETs, GETFRAMEs, DOs, and SET
+ COLLECTs. The default directory (see SET DEFAULT) will be used for
+ commands that read or write files. If the file cannot be found in
+ the default direcotry, the library directory will be searched.
+
+ Under UNIX, if the directory name
+ begins with a dollar sign ($), it is interpreted as an
+ environment variable, set by the user before starting GRAMPS.
+2 LOWERCASE
+    SET LOWERCASE
+    SET NOLOWERCASE
+
+ Normally, GRAMPS will translate lower case letters to upper case. If
+ you do not want this translation to occur, use the command SET
+ NOLOWERCASE. To restore GRAMPS to normal, use the command SET
+ LOWERCASE. In either mode of operation, no translation from lower
+ case to upper case will take place for strings enclose in quotation
+ marks. This is most useful with the TEXT command in order to draw
+ text using both upper and lower case letters.
+2 MAXDEPTH ** esoteric **
+ GRAMPS uses a matrix stack for pushing and popping transformation
+ matrices. The software and or hardware may be limited in the size, or
+ depth of this stack. The SET MAXDEPTH command allows the user to
+ change the maximum depth to which GROUPing can be used (the maximum
+ amount of the stack that will be utilized.) The syntax of the command
+ is:
+
+    SET MAXDEPTH NUMBER
+
+ where NUMBER is any number greater than 0. If the number you give is
+ greater than the hardware stack limit minus 1, then the display
+ may freak out and give you odd transformations; GRAMPS may even crash.
+ The MAXDEPTH is set at the correct maximum value in GRAMPS and there is
+ no reason to alter its value, except for play.
+2 NOOUTPUT
+ The SET NOOUTPUT command stops any graphics output from coming to
+ your terminal or to an output file. See the SET OUTPUT command.
+2 OUTPUT
+ The SET OUTPUT command is used to direct the display output of
+ GRAMPS somewhere, since it has no preordained place to go.
+ Display output may go to a file in .pix or .qix format, or to
+ your display screen.
+
+ If you type SET OUTPUT filename, then output will go to a .pix file
+ with the name 'filename'. You can also type SET OUTPUT filename.qix
+ to create an output file in .qix format.
+
+ If you SET OUTPUT WINDOW, output will go to a window on your
+ display. You will have to open a window according to the
+ method normally used by your window manager for opening new
+ windows with the mouse.  If you do not want to use the mouse,
+ you may specify the window size and location of the upper left
+ as in the following example:
+
+      SET OUTPUT WINDOW 1024x1024+500+100
+
+ will make a window 1024 by 1024 pixels, with the origin
+ at 500 right and 100 (up or down).
+
+ The ADVANCE command is necessary to initiate any and all displays
+ into a file. The SET NOOUTPUT command causes further display
+ output to stop, until you use SET OUTPUT again.
+#2 HARDTEXT
+# This tells GRAMPS to use hardware characters in subsequent TEXT
+# commands. It cancels the SET SOFTTEXT command. It is the default
+# setting for GRAMPS.
+#2 PROCESSORS *** Titan systems only ***
+# Titan systems may have 1-4 processors.  Use SET PROCESSORS BEFORE
+# you SET OUTPUT WINDOW to select the desired number of processors
+# for GRAMPS to use.  For example, SET PROC 1  or SET PROC 2.
+#2 PRODUCTION *** Titan systems only ***
+# There are two rendering types supported by GRAMPS, REALTIME and
+# PRODUCTION.  PRODUCTION uses Dore production rendering, which is
+# a ray-tracing rendere.  IT IS VERY SLOW!!!!!  If you SET PRODUCTION,
+# all subsequent images will be rendered using Dore production mode.
+# See also SET REALTIME and ADVANCE/PRODUCTION.
+# See also RAYT on the Iris version.
+#2 REALTIME
+# There are two rendering types supported by GRAMPS, REALTIME and
+# PRODUCTION.  REALTIME uses Dore real-time renderer.  It is as fast
+# as the complexity of the picture allows.  
+# See also SET PRODUCTION and ADVANCE/PRODUCTION.
+#2 REPTYPE
+#
+#    SET REPTYPE N
+#
+# For surfaces, the representation type can be 0, 1 or 2.  0 means
+# represent the surface as dots.  1 will respresent the surfaces as
+# lines.  2 uses filled polygons to represent the surface.
+# For example,  SET REPTYPE 2.
+#
+# On the Iris, you may also use type 4, which represents the surface
+# as lines and shows the normal vectors as lines, too.  On the Iris,
+# You must SET REPTYPE *before* you get the object you wish rendered
+# in the chosen style.  On the Titan or ESV, SET REPTYPE takes effect
+# immediately for all objects, even those previously read in.  Also,
+# on the Iris, the sphere and cylinder primitives are re-rendered
+# only when you use the SET SURFACEDIV command (q.v.).  So to have
+# these primitives rendered as lines:
+#  SET REPTYP 2
+#  SET SURFACEDIV 0.08 0.25
+# Primitive spheres never show their normals on the Iris (they're shy),
+# but cylinders do.
+2 REPORT
+    SET REPORT
+    SET NOREPORT
+
+ When GRAMPS encounters an error it cannot handle, that error is
+ normally reported to the user. The use of the SET NOREPORT command
+ causes GRAMPS to neglect reporting of error messages. SET REPORT
+ restores the normal error reporting operation.
+2 SENSITIVITY
+    SET SENSITIVITY number
+
+ The effect of the command is to multiply all subsequent dial values by
+ the NUMBER given. A large NUMBER decreases the sensitivity with which
+ the dials may be used. The default value for the sensitivity is 1.0.
+ Real numbers may be used. If the NUMBER given is less than 1.0, then
+ the sensitivity will be increased.
+
+ This command has no effect on the mouse since it is treated in GRAMPS
+ as absolute rather than relative devices.
+2 SMOOTHLINE
+ On a raster system, lines can appear jagged, especially those lines
+ which are nearly but not exactly horizontal or vertical. This is an
+ effect of using discreet pixels on a video screen. Using a method
+ sometimes call anti-aliasing, this effect can be lessened. Use the
+ command SET SMOOTHLINE to enable anti-aliasing of lines. Use the
+ command SET NOSMOOTHLINE to disable anti-aliasing.
+ *** BUT BEWARE ****
+ Because of the way SMOOTHLINE is implemented, fewer colors are
+ available when SMOOTHLINE is set on. Depth-cueing is also affected;
+ there are fewer levels of intensity depth-cueing when SET SMOOTHLINE
+ is used. These effects are due to the color map modifications which
+ are made to make smooth lines. Because the color map is modified,
+ there are differences in the shades of colors corresponding to color
+ values when SMOOTHLINE mode is set. FINALLY, TEXT AND POLYGONS ARE
+ NOT DRAWN CORRECTLY WHEN SMOOTHLINE IS SET.
+#2 SOFTTEXT
+#
+#   SET SOFTTEXT font
+#
+# The SET SOFTTEXT command tells GRAMPS to use software text characters
+# in subsequent TEXT commands. There are several fonts available. 
+# This command does not affect text drawn as part of pix files.
+# See the help entry for Picture files to use sofware text there.
+#
+# On the Titan:
+# If you do not give a font name, that is just type SET SOFTTEXT, then
+# the default is SET SOFTTEXT SROM. You may also give two real
+# numbers after the font name. These are interpreted as X and Y scale
+# values. They cause the text to be stretched or compressed in one
+# or both directions. If you give only one number, then both the X
+# and Y scales are set to that number. This scale is used along with
+# the character scale set by SET TEXTSIZE. Thus it is possible to get
+# larger characters with either SET TEXTSIZE or with the scale factor
+# as part of the SET SOFTTEXT command.
+#
+# On the Iris:
+# If you do not give a font name, no change is made to the font used.
+# The SET TEXTSIXE command is used to scale the text.  The textsize 
+# is interpreted as character "point" size.  For some fonts, large
+# point sizes may give ragged characters.  If you stick with
+# Helvetica, Courier and Times-Roman, any font size looks OK. 
+#3 Iris fonts
+# The fonts available for SOFTTEXT are:
+#
+#   AvantGarde-Book
+#   AvantGarde-BookOblique
+#   AvantGarde-Demi
+#   AvantGarde-DemiOblique
+#   Bookman-Demi
+#   Bookman-DemiItalic
+#   Bookman-Light
+#   Bookman-LightItalic
+#   CharterBT-Black
+#   CharterBT-BlackItalic
+#   CharterBT-Italic
+#   CharterBT-Roman
+#   Courier
+#   Courier-Bold
+#   Courier-BoldOblique
+#   Courier-Oblique
+#   Haeberli
+#   Haebfix
+#   Helvetica
+#   Helvetica-Bold
+#   Helvetica-BoldOblique
+#   Helvetica-Narrow
+#   Helvetica-Narrow-Bold
+#   Helvetica-Narrow-BoldOblique
+#   Helvetica-Narrow-Oblique
+#   Helvetica-Oblique
+#   ISOScreen
+#   International
+#   Iris
+#   NewCenturySchlbk-Bold
+#   NewCenturySchlbk-BoldItalic
+#   NewCenturySchlbk-Italic
+#   NewCenturySchlbk-Roman
+#   Palatino-Bold
+#   Palatino-BoldItalic
+#   Palatino-Italic
+#   Palatino-Roman
+#   Rock
+#   Screen
+#   Screen-Bold
+#   Space
+#   Symbol
+#   Times-Bold
+#   Times-BoldItalic
+#   Times-Italic
+#   Times-Roman
+#   Type
+#   Utopia-Bold
+#   Utopia-BoldItalic
+#   Utopia-Italic
+#   Utopia-Regular
+#   ZapfChancery-MediumItalic
+#   ZapfDingbats
+#3 Titan fonts
+# The fonts available for SOFTTEXT are:
+#
+#    PROM PLAIN ROMAN (ALL UPPER CASE)
+#    SROM Simplex Roman
+#    DROM Duplex Roman
+#    CSRO Complex small Roman
+#    CROM Complex Roman
+#    TROM Triplex Roman
+#    CSIT Complex small Italic
+#    CITA Complex Italic
+#    TITA Triplex Italic
+#    SSCR Simple Script
+#    CSCR Complex Script
+#    GGER Gothic German
+#    GENG Gothic English
+#    GITA Gothic Italian
+#    PGRK PLAIN GREEK
+#    SGRK Simplex Greek
+#    CSGR Complex small Greek
+#    CGRK Complex Greek
+#    CCYR Complex Cyrillic
+#    UMAT Upper-case math
+#    LMAT Lower-case math 
+#    MUSI Music
+#    METR Meteorology
+#    SYMB Symbols
+#    ASTR Astrology
+#    HELV Helvetica
+2 STEREO **** Use the STEREO macro-command ****
+    SET STEREO
+    SET NOSTEREO
+
+ The SET STEREO command causes two drawings of every object to appear
+ on the screen. The effect is to create a cross-eyed stereo picture.
+ The SET NOSTEREO command returns the display to the normal mode of
+ operation. The SET STEREO command also accepts an optional VALUE
+ which specifies the amount of X translation (stereo separation) to be
+ used. The general syntax of the command is:
+
+    SET STEREO VALUE
+
+ where VALUE is any number in the range -1 to +1 (default is
+ 0.2.) For a lesser stereo effect, use a VALUE less than 0.2. For a
+ heightened stereo effect use a VALUE greater than 0.2. To cause the
+ SET STEREO command to create a non-cross-eyed (wall-eyed?) stereo
+ view, use a negative VALUE.
+
+ Any transformations applying to LWorld at the time SET STEREO is put
+ into effect are copied to RWorld before the PERSPECTIVE, TRANSLATE,
+ and MOVE commands are executed.
+#2 SURFACEDIVIS
+#
+#     SET SURFACEDIVIS value
+#
+# The primitive sphere which can be specified in a GRAMPS pix file, is
+# actually drawn as a set of triangles.  One can use few or many
+# triangles to approximate a sphere.  Select value in the range of
+# 0.05-1.0.  Use 0.08 to 0.25 for most work; 0.8 or 0.9 for high quality
+# images.  This also controls the rendering of cylinders, except on
+# the TITAN.
+#2 SPECULARINT
+#
+#    SET SPECULARINT value
+#
+# Surfaces are lit with a special GRAMPS objects called LIGHTS.  The
+# LIGHTS may be rotated with the ROTATE LIGHTS command, for example
+# ROT/LAB LIG X,D6 Y,D7.  The lights can bounce off the surface and
+# cause a shiny spot (specular highlight).  SPECULARI refers to the
+# intensity of this highlight.  Select value in the range of 0.0-1.0.
+# See also SET AMBIENTINT and SET DIFFUSEINT and Help Light.
+#2 DIFFUSEINT
+#
+#    SET DIFFUSEINT value
+#
+# Surfaces are lit with a special GRAMPS objects called LIGHTS.  The
+# LIGHTS may be rotated with the ROTATE LIGHTS command, for example
+# ROT/LAB LIG X,D6 Y,D7.  The lights can reflect off the surface and
+# shade each polygon depending on the angle of the polygon relative to
+# the light source.  DIFFUSEINT refers to the intensity of this shading.
+# Select value in the range of 0.0-1.0.
+# See also SET AMBIENTINT and SET SPECULARINT and Help Light.
+#2 AMBIENTINT
+#
+#    SET AMBIENTINT value
+#
+# Surfaces are lit with a special GRAMPS objects called LIGHTS.  The
+# LIGHTS may be rotated with the ROTATE LIGHTS command, for example
+# ROT/LAB LIG X,D6 Y,D7.  The lights can bounce off the surface and
+# cause a shiny spot (specular highlight) and a diffuse shading.
+# See SET AMBIENTINT and SET SPECULARINT for more information.  See also
+# Help Light.
+#
+# The extent to which surfaces are evenly lit (flat lighting) is the
+# ambient intensity.  AMBIENTINT refers to the intensity of this ligthing.
+# Select value in the range of 0.0-1.0.
+#2 EMISSIVITY
+#
+#    SET EMISSIVITY value
+#
+# Surfaces are lit with a special GRAMPS objects called LIGHTS.  The
+# LIGHTS may be rotated with the ROTATE LIGHTS command, for example
+# ROT/LAB LIG X,D6 Y,D7.  The lights can bounce off the surface and
+# cause a shiny spot (specular highlight) and a diffuse shading.
+# See SET DIFFUSEINT and SET SPECULARINT for more information.
+#
+# The extent to which surfaces are evenly lit (flat lighting) is the
+# ambient intensity.  AMBIENTINT refers to the intensity of this ligthing.
+# Polygons can also be lit without the effect of the external Light(s).
+# This is referred to as the emissivity of the polygon.
+# Select value in the range of 0.0-1.0.
+#
+# See also Help Light.
+#2 SHADOW  *** Titan systems only ***
+# The SET SHADOW command instructs Dore to cast shadows of objects onto
+# other objects.  This only works in PRODUCTION mode.  See SET PRODUCTION.
+2 TEXTSIZE 
+    SET TEXTSIZE value
+
+ The SET TEXTSIZE command requires a VALUE argument in the range 1 to
+ 100. All subsequent TEXT commands will output characters to the screen
+ using the text size specified here. 1 is small and 10 is large. The
+ default value used by GRAMPS is 7.
+2 VERIFY
+    SET VERIFY
+    SET NOVERIFY
+
+ The SET VERIFY command will cause each line of a gin file which is
+ being DOne to be printed at the terminal as it is being interpreted.
+ The SET NOVERIFY command stops this mode of operation. Commands which
+ are typed in at the terminal are not printed since they will already
+ appear on the terminal. See also the SET ECHO command.
+2 WATCH
+    SET WATCH
+    SET NOWATCH
+
+ The effect of SET WATCH is to have the display reflect the changes
+ made by a gin file as each line is interpreted. Normally, the total
+ effect is seen only after the entire file has finished being
+ interpreted. The SET WATCH option increases the time for
+ interpretation of the gin file slightly, but it is quite entertaining
+ and useful for debugging, too. SET NOWATCH cancels this mode of
+ operation of GRAMPS.
+1 SHOW
+ The SHOW command is used to show the current state of any object of
+ the GRAMPS system in general.
+
+ The SHOW command may be used to show the transformation currently
+ being applied to an object. Other information, such as how the object
+ is framed, is also shown. The syntax of this command is:
+
+    SHOW NAME
+
+ where NAME is any name known to the system.
+
+ This command is also useful for reminding yourself of which keywords
+ are valid for a particular command, since the name of each valid
+ keyword appears in the list generated by the SHOW command along with
+ the value for the transformation specified by the keyword.
+2 Outputs
+ The first line printed by SHOW contains eight pieces of information,
+ some of which are system variables not needed by the user. In order
+ of presentation from left to right these are:
+
+    Object name
+    Object type (Ordinary, Frame, Oneframe, Group)
+    Object number
+    Object ID (object name in E&S UDATA calls)
+    Object location
+    Object length
+    Object maximum number of frames
+    Object current frame on display
+
+ Next are shown the values of the various transformations used by
+ GRAMPS. Since the transformations (rotate, scale, translate, etc.)
+ used in GRAMPS are not commutative, the order in which these
+ transformations apply to an object is important. The order (top to
+ bottom) in which transformations are listed by the SHOW command is the
+ reverse of the order in which these transformations are applied to an
+ object. From the list generated by SHOW, one can also see that the Z
+ rotation is applied before the X rotation, and that the P, Q, and R
+ axis (arbitrary axis) rotations are applied before any of the X, Y, or
+ Z axis rotations. It is not possible to alter the order in which
+ transformation matrices are applied to objects in GRAMPS.
+
+ There are several SWITCHES for the SHOW command. Many of the switches
+ have optional values (designated by the [ ] braces.)
+2 /BUFFER
+ /BUFFER - The /BUFFER switch of the SHOW command may be used to get
+ more information about the display list buffers used in
+ GRAMPS. These buffers will function well without user
+ intervention, but in some cases it might be useful to modify
+ the buffering for better system response. Currently, the
+ buffering may be altered by turning it completely off (SET
+ NOBUFFERED) or by changing the SPILL parameter (see SET
+ SPILL.) The SHOW/BUFFER command is useful for monitoring
+ the effect of changing the SPILL size.
+2 /DIALS
+ /DIALS - The /DIALS SWITCH shows the names of the objects which
+ currently have transformations associated with each of the
+ DEVICEs. This is very useful for seeing which DEVICEs are free.
+2 /FIX
+ /FIX[object] - Shows the values of the 4 X 4 fix matrix for the object
+ It is 4 records each of 4 values. See the appendix on
+ homogeneous coordinate techniques in Newman & Sproull.
+ See also the FIX command which modifies the fix matrix.
+2 /TFM
+ /TFM[object] - Shows the values of a 4 X 4 matrix for the object which
+ is the result (concatenation) of the transformations
+ applied to the object. This matrix would be the fix
+ matrix if the FIX command were to be given. See also
+ SHOW/FIX.
+2 /INFO
+ /INFO - Shows only the information line for the object ID, size, etc.,
+ of an object.
+2 /MENU
+ /MENU - Shows the items in the menu. See also INSERT/MENU and REMOVE/MENU.
+2 /MOVE
+ /MOVE[=XYZ] - Shows the move transformations affecting the WORLDs for
+ the specified axes.
+2 /PARAMETER
+ /PARAMETER - It is possible to use the SHOW/PARAMETER command to show
+ the value of any $PARAMETER within the gin file. The
+ syntax of the command is:
+
+    SHOW/PARAMETER $PARAMETER
+
+ where $PARAMETER is the name of any $PARAMETER. If this
+ argument is omitted, the value of each $PARAMETER is
+ shown. Since $PARAMETERs are local to a gin file, using
+ the command SHOW/PARAMETER at GRAMPS command level will
+ not refer to the $PARAMETERs of any gin file.
+2 /PERSPECTIVE
+ /PERSPECTIVE[=LRBTHYEW] - Shows the perspective windows affecting the
+ WORLDs. The optional values are PERSPECTIVE keywords.
+2 /POINT
+ /POINT[#N] - Shows the value of the point variable #N. If #N is
+ omitted, all point values are shown. See also PICK/POINT.
+2 /ROTATE
+ /ROTATE[=XYZPQR] - Shows the ROTATE transformation. The optional
+ value resets the rotation for the axis or axes specified.
+2 /SCALE
+ /SCALE[=XYZWPQRS] - Shows the scale transformation of the specifed axes.
+2 /SYMBOL
+ /SYMBOL - The /SYMBOL switch is used to show the current value of any
+  or all of the $SYMBOLs. The syntax of the command is:
+
+    SHOW/SYMBOL $SYMBOL
+
+ The value of the named $SYMBOL will be printed. If no
+ argument is given, the value of each symbol will be printed.
+ The SHOW/SYMBOL command is only valid at GRAMPS command
+ level, since $SYMBOLs are local to GRAMPS command level.
+2 /SYSTEM
+ /SYSTEM - The /SYSTEM SWITCH will print out some system variables.
+ The values of the following variables are typed out.
+
+    UDFREE = amount of host memory used.
+    NOBJ = the number of known objects.
+    NIDS = the number of known objects + frames.
+    TREEEND = the size of the display tree.
+    USSIZE = the total size of the display buffer(s).
+    NBUF = the number of display buffers used.
+    SPILL = the point at which buffer spillage occurrs.
+
+ Also printed is the state of the system with regard to the following:
+
+    FILMPAUSE                     FRAMECOUNT
+    LOWERCASE/NOLOWERCASE         COLLECT/NOCOLLECT
+    SENSITIVITY                   TEXTSIZE
+    VERIFY/NOVERIFY               WATCH/NOWATCH
+    PAUSE/CONTINUE
+
+ Each of these system parameters may be changed by the user
+ by using the SET command. For a description of the function
+ of these system parameters, see the SET, PAUSE, and CONTINUE
+ commands.
+2 /TABLE
+ /TABLE - The /TABLE switch decodes the table of information about
+ objects which is maintained by GRAMPS software. If the
+ name of a known object is given as an ARGUMENT to the
+ SHOW/TABLE command, the table entries for that object are
+ shown. If no ARGUMENT is given, the table entries for all
+ known objects plus all known frames are shown. In addition,
+ the table entries for the two worlds and for several GRAMPS
+ internal objects are shown. This command is expected to be
+ of little use to those not interested in modifying GRAMPS
+ code.
+2 /TRANSLATE
+ /TRANSLATE[=XYZWPQRS] - Shows the translation transformations of the
+ specified axes.
+2 /TREE
+ /TREE - The SHOW/TREE command will list all pictures displayed on the
+ screen in the order in which they are displayed. This is
+ normally the order in which they were input by the GET or
+ GETFRAME command (or COPYed or SYNONYMed.) Objects which have
+ been BLANKed are listed in parentehese.
+1 Symbols
+ There is a set of $SYMBOLs available for use in GRAMPS. These are
+ variables which store character strings such as names. There are
+ currently 10 of them, named $1 to $10. These variables may be used
+ anywhere a command argument is required, and the value of the $SYMBOL
+ will replace the $SYMBOL in the command line. For example, if the
+ $SYMBOL named $3 had a value of SPHERE, then the following command:
+
+    ROTATE $3 X D4
+
+ would be equivalent to the command:
+
+    ROTATE SPHERE X D4
+
+ The value of a $SYMBOL may be changed by using the PICK/SYMBOL
+ command. See the help information on PICK/SYMBOL.
+2 Concatenation
+ If you wish to have a $SYMBOL concatenated to the letter A, for
+ example, with the resulting string used for the NAME of the picture,
+ then the correct way to specify the sample command line is:
+
+    SCALE $1$A,X,D3
+
+ where the extra $ after $1 serves to delimit the end of the $SYMBOL
+ name. It is not necessary to use this final $ if another DELIMITER (a
+ comma, a blank, or the end of the line) clearly and unambiguously
+ marks the end of the $SYMBOL name.
+
+ It is also possible to concatenate two $SYMBOLs to produce a single
+ string upon substitution. For example:
+
+    ROTATE $1,$2$$3,D3
+
+ When $SYMBOL substitution takes place, the axis specification for this
+ ROTATE command will be the concatenation of $2 and $3. Either $2 or
+ $3 may be the null string.
+
+ Although two or more $SYMBOLs may be concatenated to form one
+ ARGUMENT, it is never true that a $SYMBOL or the concatenation of
+ several $SYMBOLs will be interpreted as two command ARGUMENTs. In
+ other words, if a $SYMBOL contains a DELIMITER, that DELIMITER will
+ not be interpreted by GRAMPS as a DELIMITER.
+1 SYNONYM
+ The SYNONYM command is similar to the COPY command in that it causes
+ another object to be displayed on the screen which uses the same data
+ as an object already on display. The syntax of the SYNONYM command
+ is:
+
+    SYNONYM NAME NEWNAME
+
+ where NAME is an object known to the system, and NEWNAME is the name
+ of the new object.
+
+ Whereas the COPY command makes a copy of an object which can transform
+ independantly of the original, SYNONYM creates an object whose
+ transformations are always identical to those of the original object.
+ It would appear that the newly created SYNONYM has no purpose other
+ than to have an object drawn twice, effectively doubling its
+ intensity. Using the GROUP command, however, it is possible to have
+ an object and its synonym appear differently on the screen. See the
+ section on GROUP OPERATIONS in the GRAMPS document for more details
+ about SYNONYMing GROUPs.
+
+ If a framed picture is SYNONYMed, the resulting object will transform
+ like the original. However, since framing is not a transformation,
+ the SYNONYM will be able to be FRAMEd as if it were an independent
+ object.
+2 /MARK
+ /MARK - The SYNONYM/MARK command will mark an object as a synonym
+ without creating another object. The SYNONYM/MARK command
+ accepts only one object name as an ARGUMENT. The purpose of
+ this command is to cause implicit duplicates of this object
+ (created when it is a member of a GROUP that is being COPYed
+ or SYNONYMed) to be SYNONYMs when the duplicates are created.
+2 /PREFIX
+ /PREFIX=name - The SYNONYM command will accept a /PREFIX SWITCH which
+ allows the user to define the prefix to be used when
+ constructing new names during the SYNONYMing of a
+ GROUP.
+1 TEXT
+ The TEXT command is used to draw text characters on the screen. The
+ syntax of the command is:
+
+    TEXT STRING NAME VALUE,VALUE,VALUE
+
+ STRING is any string of one or more characters. If STRING is to
+ contain DELIMITERs (blanks or commas) it must be enclosed in double
+ quotation marks. If the string contains lower case letters, even if
+ it contains no DELIMITER characters, it should also be enclosed in
+ double quotation marks to ensure no translation to upper case is done.
+ NAME must be a new name not already known to the system.
+
+ The VALUEs are interpreted as X, Y, and Z coordinates for placement of
+ the lower left corner of the first character in STRING. These VALUEs
+ are optional. For the VALUEs which are omitted, an assumption is
+ made. If the X or Y coordinate is missing, then the default value of
+ 0 is used. If the Z coordinate is missing, the default value used is 0.
+#2 Features
+# A special feature is available for specifying the X position of the
+# text string. If * is used in place of an X coordinate, then GRAMPS
+# will calculate an X coordinate such that the text string will appear
+# centered on the screen. The default Y and Z values will be used, if
+# not specified.
+#
+#    **** The /FLOAT switch is not yet working ****
+# If the /FLOAT switch is used, the text string is not specifically
+# positioned. In this situation the text string will be drawn at the X,
+# Y,Z coordinate of the most recently drawn vector. Thus "floating"
+# text can be repositioned by causing it to be drawn after any object in
+# the display tree through the use of the GROUP, REMOVE, or INSERT
+# command. "Floating" text can also be used to continue a previous text
+# string by causing the new text string to follow the old text string
+# immediately in the TREE.
+#1 TRACK
+# The TRACK command is used to control the 3SPACE TRACKER.
+# The syntax of the command is:
+#
+#    TRACK object-name
+#
+# where object_name is a known GRAMPS object. Object_name does not
+# have to be given, if you use a switch.
+#
+# When you specify an object_name, the reference frame of the TRACKER
+# is redefined based on the laboratory reference frame compounded with
+# the current position of the tracker. In addition, the arbitrary axes
+# (P, Q and R) for the object are redefined so that subsequent ROTATE
+# and TRANSLATE commands can be used to manipulate the object with the 
+# 3SPACE TRACKER. See the examples for a typical use of this command.
+#2 Examples
+# first get LWorld rotated and translated how you want.
+#  SET ALTSTEREO
+#  TRACK/LAB
+#  move the cursor to a spot on or near the object. The origin of
+#  rotations will be the sharp point of the cursor. 
+#  TRACK object   (the cursor will disappear.)
+#  ROTATE object P T1 Q T2 R T3
+#  TRANSLATE object P TX Q TY R TZ   (do what you want and then...)
+#  FREEZE object
+#    or
+#  FIX object
+#    or
+#  ROTATE object PQR .
+#  TRANSLATE object PQR .
+#2 /ON
+# will cause the 3SPACE cursor to be displayed in whatever reference
+# frame it is currently set to. See /LAB and /RESET to find out about
+# what a reference frame is. This does not change the function or
+# reference frame of the cursor, nor does it affect any objetcs. It
+# simply makes the cursor visible.
+#2 /OFF
+# will cause the 3SPACE cursor not to be displayed any more. This does
+# not change the function or reference frame of the cursor, nor does 
+# it affect any objetcs. It simply makes the cursor invisible.
+#2 /LAB
+# will cause the 3SPACE tracker to be displayed in a reference frame
+# corresponding to the real world, sometimes called the laboratory
+# reference frame. This means that motion of the tracker matches
+# the motion of the 3SPACE cursor on the screen, regardless of how the
+# LWorld might be rotated. However, if you change LWorld after
+# TRACK/LAB, you must say TRACK/LAB again to get back the match between
+# tracker and cursor.
+#2 /RESET
+# will cause the 3SPACE tracker to be displayed in a reference frame
+# corresponding to the original Cartesian coordinate axes. These axes
+# may have been reoriented by transformations of LWorld, and so in 
+# general, the correspondence between tracker and 3SPACE cursor may be 
+# lost. This command also sends commands to the 3SPACE TRACKER device
+# to reset it to its initial state. If you have forgotten to turn on
+# the device until after you have started GRAMPS, you may turn it on
+# and then give the TRACK/RESET command and everything will be OK. 
+#2 /RANGE
+# defines the volume inside of which the tracker operates. The syntax
+# is TRACK/RANGE number, where number is between 1024 and 32767. The
+# default range is around 25000, so you can make it bigger or smaller.
+# If you make the range too small, moving the tracker will cause
+# large motions on the screen. TRACK/RESET will reset the range to the
+# default value.
+#2 Notes
+# You can use a dividing factor to do fine adjustments. For example, 
+# TRANSLATE object P TX/5 or ROTATE object R T3/4. The ranges of 
+# translation and rotation of the TRACKER will be restricted, which is 
+# OK for fine adjustments of translation, but can cause problems with 
+# rotations. The problem is that the TRACKER rotation will correspond 
+# to the object only for small rotation values. 
+#
+# If you use SET STEREO or SET ALTSTEREO, be sure to use the TRACK/LAB
+# command AFTER the SET command to get proper correspondence between the
+# screen and the tracker.
+1 Transformations
+ The available picture transformations are ROTATE, SCALE, TRANSLATE,
+ PERSPECTIVE, and MOVE. The way to set up these transformations is
+ detailed under the particular command name, e.g., ROTATE. This
+ section describes the syntax which is necessary to set up a
+ transformation for a picture.
+
+ GRAMPS transformation commands fit the following syntax:
+
+    COMMAND NAME KEYWORD FUNCTION
+
+ where the "parts of speech" are those described in the Command Syntax
+ help topic. KEYWORD is a specification of an axis to which the
+ transformation is to be referred, typically X, Y, or Z. FUNCTION is
+ typically a DEVICE name or a VALUE. See the help information on
+ FUNCTION.
+
+ Every transformation command has a COMMAND, a NAME and a pair of
+ {KEYWORD, FUNCTION}. In any transformation command line, additional
+ pairs of {KEYWORD, FUNCTION} may be added. They will apply to the
+ NAME and COMMAND already given on that line.
+2 Continuous Transformations
+ All transformations allow continuous variation of a picture simply by
+ continuously turning the dial associated with the particular
+ transformation. It is also possible to make a continuous
+ transformation automatically occur without having to continuously turn
+ a dial. In this case, the postion of the dial is interpreted as the
+ rate of continuous transformation.
+
+ To specify a continuous transformation, the letter "C" is included
+ with the KEYWORD or AXIS specification in any transformation command.
+1 TRANSLATE
+ The TRANSLATE command is used to translate objects on the screen. The
+ syntax of the command is:
+
+    TRANSLATE NAME AXIS,FUNCTION
+
+ where NAME is the name of a known object. AXIS is one or more of the
+ following letters: X, Y, Z, P, Q, and R. FUNCTION is described in
+ its own help topic.
+
+ The effect of the TRANSLATE command is to translate the object along
+ the specified axis by an amount corresponding to the FUNCTION. X, Y,
+ and Z refer to the Cartesian coordinate axes and P, Q, and R refer to
+ arbitrary axes. Arbitrary axes can be defined and used by the
+ PICK/POINT and USE/AXIS commands.
+1 USE
+ The USE command uses two of the previously PICKed points.
+ The syntax of the command is:
+
+    USE #N1, #N2 NAME
+
+ where N1, N2 and N3 are point variables (see PICK/POINT)
+ The # symbol is a required part
+ of the syntax of this command. The effect of the command is to refer
+ the arbitrary axis R to the axis specified by the endpoints N1 and N2.
+ Using axis R in any ROTATE command will cause the picture to rotate
+ around the arbitrary axis that the picture is currently USing.
+
+1 Worlds
+ There are two objects known to GRAMPS that have the names LWorld and
+ RWorld. These worlds contain all other objects being displayed.
+ Transformations applying to LWorld or RWorld indirectly affect all
+ objects on display. For example, any object that is displayed may be
+ rotated "with the WORLD" by rotating LWorld. Of course, any objects
+ may be further rotated on its own. PERSPECTIVE (along with MOVE) is a
+ unique type of transformation in GRAMPS since it may affect only the
+ objects LWorld and RWorld directly. Since LWorld and RWorld contain
+ all other objects, PERSPECTIVE and MOVE affect these objects
+ indirectly. When GRAMPS is initialized, RWorld is inactive and
+ remains inactive until the SET STEREO command is used.

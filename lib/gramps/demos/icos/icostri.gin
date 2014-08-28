@@ -1,0 +1,32 @@
+!get tri
+group tri,tri  MOTIF
+syno  MOTIF, BMOTIF
+group MOTIF, BMOTIF PAIR
+
+get/name=cyl icos.cyl
+rot cyl x 60
+scal cyl xyz 1.13
+purple cyl
+
+TRANSLATE   MOTIF  Q,   0.28868:s$1 ! sqrt(3)/6
+adv $1
+ROTATE      BMOTIF Z,  180.00:s$1
+adv $1
+ROTATE      BMOTIF X,  42.840:s$1 ! why this angle?
+adv $1
+!rot LW x 60:s$1
+ROTATE      PAIR X, -53.280:s$1 ! why this angle?
+!adv $1
+TRANSLATE   PAIR R,  1.1547:s$1 ! sqrt(3) * 2/3
+adv $1
+
+5mer PAIR $1 ! creates 2PAIR, 3PAIR, 4PAIR, 5PAIR, 5mer
+syno  5mer a5mer
+group 5mer,a5mer icos
+remove cyl
+
+!rot LW x 0:s$1
+ROTATE      a5mer X, 180.00:s$1
+adv $1
+TRANSLATE   5mer  Y,  -0.50:s$1
+adv $1

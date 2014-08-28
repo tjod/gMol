@@ -1,0 +1,4 @@
+set def $gramps_lib/demos/$1
+!set def /home/tj/gramps/lib/demos/$1
+!get/url index.html
+setup

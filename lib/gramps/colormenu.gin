@@ -1,0 +1,19 @@
+set newunits
+! this set oldunits "inside" the .pix file (for hues, etc.), too
+set oldunits
+get/name=squares colormenu
+get/name=numbers colormenu.lab
+translate   numbers    x, -5072:$1
+translate   numbers    y, -6848:$1
+translate   numbers    w,  6000:$1
+scale       numbers    x, 15000:$1
+scale       numbers    Y, 15000:$1
+translate   squares    x, -5072:$1
+translate   squares    y, -6848:$1
+translate   squares    w,  6000:$1
+scale       squares    x, 15000:$1
+scale       squares    Y, 15000:$1
+adv
+insert/menu squares
+insert/menu numbers
+white numbers

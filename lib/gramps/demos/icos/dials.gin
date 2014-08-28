@@ -1,0 +1,4 @@
+deass x1,y1,x2,y2,x3,y3
+ROTATE      BMOTIF  X,-Y2/10
+ROTATE      MOTIF   R,Y3/5
+rot/lab LW x,-y1 y,x1
