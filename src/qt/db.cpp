@@ -742,7 +742,7 @@ QSqlQuery Db::iterChainCoords(int imol, char chain, int filter) {
     qDebug() << "Db::iterChainCoords";
 #endif
     QSqlQuery query;
-    QString sql = "Select x,y,z,resnum,name From main.atom Where molid=? And chain=?";
+    QString sql = "Select x,y,z,resnum,name From main.atom Where molid=? And chain=? And atom.hetatm=0";
     if (filter) {
         QString filterClause = getFilter(filter).sql;
         //qDebug() << filterClause;
@@ -1348,7 +1348,7 @@ void Db::addBonds(int mol1, int molid) {
     query.finish();
 
     // add res(n)C-res(n+1)N residue-residue bonds
-    query.prepare("Insert Into tmpbond Select atom.molid,atom.atid,nbr.atid,1 From main.atom Join main.atom nbr On atom.molid=nbr.molid And atom.chain=nbr.chain And nbr.resnum=atom.resnum+1 Where atom.molid=? And atom.name='C' And nbr.name='N'");
+    query.prepare("Insert Into tmpbond Select atom.molid,atom.atid,nbr.atid,1 From main.atom Join main.atom nbr On atom.molid=nbr.molid And atom.chain=nbr.chain And nbr.resnum=atom.resnum+1 Where atom.molid=? And atom.name='C' And nbr.name='N' And nbr.hetatm=0");
     query.addBindValue(mol1);
     if (!query.exec()) tellError(query);
     query.finish();
