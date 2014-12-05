@@ -153,6 +153,8 @@ void settimer_(int state) {
 }
 
 int setdevval_(int *dev, float *rval, int *state) {
+  //qDebug() << mainWindow;
+  if (mainWindow == NULL) return 0;
   if (*state == 0) {
     mainWindow->controlWidget->setValue(*dev, *rval, false);
   } else {
