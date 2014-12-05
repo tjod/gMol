@@ -1,0 +1,45 @@
+!! make an icosohedral viral capsid from a monomer named amol
+!! for example 1IHM.pdb displayed in gmol and group mol1.1, mol1.1 amol
+!! follow this with reset/leave LW and scale LW w 150
+pick/point #3  0.0000     -2.3561      6.1684      1.0000
+pick/point #5 -1.4562      0.0000      2.3561      1.0000
+pick/point #10  0 0 0
+
+! make pentamer from amol
+syno amol bmol
+syno amol cmol
+syno amol dmol
+syno amol emol
+group bmol,emol 5mer
+insert amol 5mer
+use/axis #10,#5 bmol
+use/axis #10,#5 cmol
+use/axis #10,#5 dmol
+use/axis #10,#5 emol
+rot bmol r 72
+rot cmol r 144
+rot dmol r -72
+rot emol r -144
+
+! make 10mer from two pentamer
+syno 5mer a5mer
+group a5mer,a5mer 10mer
+insert 5mer 10mer
+rot a5mer z -180
+! align 10mer for upcoming 3-fold rotation
+use/axis #10,#5 10mer
+rot 10mer r 72
+
+! make 30mer from 3 10mers
+syno 10mer a10mer
+syno 10mer b10mer
+group a10mer,b10mer 30mer
+insert 10mer 30mer
+use/axis #10,#3 a10mer
+use/axis #10,#3 b10mer
+rot a10mer r 120
+rot b10mer r -120
+
+! complete icos with additional 30mer
+syno 30mer a30mer
+rot a30mer x 180

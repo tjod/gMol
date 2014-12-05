@@ -3,7 +3,12 @@ lib/extjs/extjs-4/
 lib/extjs/extjs/
 bin/
 *.o
+moc_*
 gmol-*/
 gmol.app
 dbchem
 dbsurf
+.qmake*
+build-gmol-Qt_5_3_2_clang_64-Debug/
+gmol.pro.user.16
+gmol.pro.user.3.2-pre1
