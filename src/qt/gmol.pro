@@ -8,12 +8,12 @@ QT += opengl \
     sql
 isEqual(QT_MAJOR_VERSION, 5): {
    cache()
-QMAKE_CXXFLAGS += -DQT5
-QT += uitools \
+   QMAKE_CXXFLAGS += -DQT5
+   QT += uitools \
     widgets \
     webkitwidgets
 } else {
-QT += webkit
+   QT += webkit
 }
 CONFIG += glu \
     debug

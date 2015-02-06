@@ -685,14 +685,14 @@ QSqlQuery Db::iterBonds(int imol, int resnum, char chain, int filter, int hydrog
 #ifdef DEBUG
     qDebug() << "Db::iterBonds";
 #endif
-    QSqlQuery query;
     //QString sql = "Select atom.x,atom.y,atom.z,atom.atnum,atom.resnum,atom.chain,atom.hetatm, b.x,b.y,b.z,b.atnum,b.resnum,b.chain,b.hetatm From main.bond Join main.atom a On (atom.atid=aid And atom.molid=bond.molid) Join main.atom b On (b.atid=bid And b.molid=bond.molid) Where bond.molid=(Select ifnull(model, molid) From main.molecule Where molid=?) And atom.atnum>? And b.atnum>?";
     //QString sql = "Select atom.x,atom.y,atom.z,atom.atnum,atom.resnum,atom.chain,atom.pcharge,atom.hetatm, b.x,b.y,b.z,b.atnum,b.resnum,b.chain,b.pcharge,b.hetatm From (Select aid,bid From main.bond Where bond.molid=(Select Case When type='pdb' Then model Else molid End From main.molecule Where molid=?)) as bond Join main.atom a On atom.atid=aid Join main.atom b On b.atid=bid And atom.molid=b.molid And atom.molid=? And atom.atnum>? And b.atnum>?";
     QString sql = "Select a.x,a.y,a.z,a.atnum,a.resnum,a.chain,a.pcharge,a.hetatm, \
             b.x,b.y,b.z,b.atnum,b.resnum,b.chain,b.pcharge,b.hetatm \
             From atom a Join atom b On (aid=a.atid And bid=b.atid And a.molid=b.molid) \
             Join (Select Distinct atom.molid,aid,bid From \
-                  (Select molid,aid,bid From bond Where molid=(Select Case When type='pdb' Then model Else molid End From molecule Where molid=:molid)) bond \
+                  (Select molid,aid,bid From bond \
+                   Where molid=(Select Case When type='pdb' Then model Else molid End From molecule Where molid=?)) bond \
                   Join atom Using(molid) Where (atid=aid Or atid=bid)";
                   if (chain != NOCHAIN) sql += " And atom.chain='" + QString(chain) + "'";
             if (resnum) sql += " And atom.resnum=" + QString::number(resnum);
@@ -704,11 +704,13 @@ QSqlQuery Db::iterBonds(int imol, int resnum, char chain, int filter, int hydrog
     sql += ") Where a.molid=b.molid And a.molid=" + QString::number(imol);
     if (hydrogens == HYDROGEN_HIDE) sql += " And a.atnum>1 And b.atnum>1";
 
-    //qDebug() << sql;
-    query.prepare(sql);
-    query.bindValue("imol", imol);
-    if (!query.exec()) tellError(query);
-    //qDebug() << numRows(query);
+    QSqlQuery query;
+    if (!query.prepare(sql)) {
+        //qDebug() << sql;
+        tellError(query, sql);
+    }
+    query.bindValue(0,imol);
+    if (!query.exec()) tellError(query, sql);
     return query;
 }
 bondRecord Db::nextBond(QSqlQuery qbond) {
