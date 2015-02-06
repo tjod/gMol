@@ -1,7 +1,11 @@
 lib/jtest/
 lib/extjs/extjs-4/
 lib/extjs/extjs/
+.gitignore
 bin/
+doc/
+hpmc/
+newSurf/
 *.o
 moc_*
 Makefile
