@@ -1,4 +1,5 @@
-FC = /usr/bin/gfortran
+#FC = /usr/bin/gfortran
+FC = /opt/local/bin/gfortran-mp-4.5
 FFLAGS = -g -O -DGFORTRAN -DQT # -DUSE_SOCK
 #FFLAGS = -g -O -IMesa/include/GL
 
