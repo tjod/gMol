@@ -68,6 +68,7 @@ private slots:
     QString doCmd(const QString, bool);
     void showdock(bool);
     void advanceDone();
+    void toggleStatus(bool);
 
 private:
     QMenu *fileMenu;

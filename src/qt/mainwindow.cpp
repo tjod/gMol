@@ -154,6 +154,12 @@ void MainWindow::createDockWindows() {
     addDockWidget(Qt::LeftDockWidgetArea, controlDock);
     addMenuItem(controlDock, tr("Toggle control devices"));
 
+// status bar
+    QAction *act = tabMenu->addAction(tr("Status")); //, this, SLOT(toggleStatus(bool)));
+    act->setCheckable(true);
+    act->setChecked(true);
+    connect(act, SIGNAL(toggled(bool)), this, SLOT(toggleStatus(bool)));
+
 // subsumed into help; see doHelp(QAction)
     demoView = NULL;
 
@@ -165,7 +171,7 @@ void MainWindow::createDockWindows() {
     chemDock->setWidget(chemWidget);
     addDockWidget(Qt::LeftDockWidgetArea, chemDock);
     addMenuItem(chemDock, tr("Toggle gMol tree control"));
-    chemDock->setMinimumWidth(200);
+    chemDock->setMinimumWidth(450);
 #endif
 }
 
@@ -489,6 +495,15 @@ void MainWindow::advanceDone() {
 void MainWindow::showStatus(const QString msg) {
     statusBar()->showMessage(msg);
 }
+
+void MainWindow::toggleStatus(bool hidden) {
+    if (hidden) {
+        statusBar()->show();
+    } else {
+        statusBar()->hide();
+    }
+}
+
 void MainWindow::fatal(const QString msg) {
     QMessageBox::critical(this, tr("Unable to continue"), msg);
     close();
