@@ -2,13 +2,14 @@
 QMAKE_CXXFLAGS     += -DDEBUG -DPDBREADER
 INCLUDEPATH  += ../ ../ChemDb
 QT += sql \
-		opengl \
-		network
+      opengl \
+      network
 isEqual(QT_MAJOR_VERSION, 5): {
-cache()
-QT +=	webkitwidgets
+  cache()
+  QMAKE_CXXFLAGS += -DQT5
+  QT +=	webkitwidgets
 } else {
-QT +=	webkit
+  QT +=	webkit
 }
 win32 {
  CONFIG += console
@@ -28,8 +29,9 @@ win32 {
  LIBS         += -lgfortran
 }
 macx {
- fortran.commands = /usr/local/bin/gfortran -c ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
- CONFIG -= app_bundle
+ fortran.commands = /opt/local/bin/gfortran-mp-4.5 -c ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
+  CONFIG -= app_bundle
+  INCLUDEPATH  += /Users/tj/Documents/openbabel/include/openbabel-2.0 ../
 }
 FORTRAN_SOURCES += isolib.F
 fortran.output = ${QMAKE_FILE_BASE}.o
