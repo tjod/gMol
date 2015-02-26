@@ -25,6 +25,7 @@ CONFIG += console
 macx {
  QMAKE_CXXFLAGS     += -D__APPLE__
  CONFIG -= app_bundle
+ QMAKE_MAC_SDK = macosx10.9
 }
 HEADERS       = dbchem.h \
                 ../db.h \

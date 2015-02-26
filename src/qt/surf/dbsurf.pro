@@ -32,6 +32,7 @@ macx {
  fortran.commands = /opt/local/bin/gfortran-mp-4.5 -c ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
   CONFIG -= app_bundle
   INCLUDEPATH  += /Users/tj/Documents/openbabel/include/openbabel-2.0 ../
+  QMAKE_MAC_SDK = macosx10.9
 }
 FORTRAN_SOURCES += isolib.F
 fortran.output = ${QMAKE_FILE_BASE}.o

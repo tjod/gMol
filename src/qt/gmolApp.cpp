@@ -22,10 +22,16 @@ gmolApp::~gmolApp() {
 extern MainWindow *mainWindow;
 bool gmolApp::event(QEvent *event)
 {
+    //qDebug() << event << mainWindow->isFullScreen();
     if (event->type() == QEvent::FileOpen) {
         QFileOpenEvent *fileOpenEvent = static_cast<QFileOpenEvent*>(event);
         mainWindow->openFile(fileOpenEvent->file());
         return true;
     }
+    /*
+    if (event->type() == QEvent::ApplicationStateChange) {
+        qDebug() << "fullscreen: " << mainWindow->isFullScreen();
+    }
+    */
     return QApplication::event(event);
 }

@@ -62,6 +62,8 @@ void GLWidget::resizeGL(int width, int height)
     int zero = 0;
     g0wset_(&zero, &zero, &width, &height, &zero);
     glViewport(0,0, width, height);
+    //qDebug() << width << height;
+    //qDebug() << windowState() << topLevelWidget()->isFullScreen() << isFullScreen();
 }
 
 void GLWidget::mouseDoubleClickEvent(QMouseEvent* event)

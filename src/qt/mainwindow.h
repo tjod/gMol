@@ -69,6 +69,7 @@ private slots:
     void showdock(bool);
     void advanceDone();
     void toggleStatus(bool);
+    //void visibilityChanged(QWindow::Visibility);
 
 private:
     QMenu *fileMenu;
@@ -108,7 +109,7 @@ private:
     QTimer * continuousUpdater;
     void addMenuItem(QDockWidget *dock, QString tip);
     QString showDock(QDockWidget *);
-
+    //void resizeEvent(QResizeEvent *);
 };
 
 #endif

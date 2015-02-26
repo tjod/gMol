@@ -27,7 +27,10 @@ MainWindow::MainWindow()
 
     glWidget = new GLWidget;
     setCentralWidget(glWidget);
-
+/*
+    connect(this, SIGNAL(visibilityChanged(QWindow::Visibility)),
+            this,   SLOT(visibilityChanged(QWindow::Visibility)));
+*/
     createActions();
     createMenus();
     createDockWindows();
@@ -512,3 +515,10 @@ void MainWindow::select() {
   cmdInput->setText(cmdOutput->textCursor().selectedText());
   //cmdOutput->copy();
 }
+
+/*
+void MainWindow::visibilityChanged(QWindow::Visibility visibility) {
+    qDebug() << visibility << isFullScreen();
+}
+*/
+

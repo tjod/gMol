@@ -33,9 +33,10 @@ C *************************************************************
 #define ITEM_HUE 12
 #define ITEM_SATURATION 13
 #define ITEM_VALUE 14
-#define ITEM_HYDROGENS 15
-#define ITEM_MAINSIDE 16
-#define ITEM_CHECKED 17
+#define ITEM_ALPHA 15
+#define ITEM_HYDROGENS 16
+#define ITEM_MAINSIDE 17
+#define ITEM_CHECKED 18
 
 // these  must correspond to the id column in the table filters in init.gdb3
 #define FILTER_NONE       0  // None filtered, so all

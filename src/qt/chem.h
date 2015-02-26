@@ -118,6 +118,7 @@ private slots:
     void colorMolBySolid();
     void colorMolByAtom();
     void colorMolByCharge();
+    void colorMolTransparent(bool);
     void zoomMol();
     void highlightMol();
     void centerMol();

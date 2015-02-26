@@ -122,7 +122,7 @@ bool Db::openExisting(QString filename) {
 
 bool Db::createTreeTable() {
     QSqlQuery query;
-    if (!query.exec("Create Table main.tree (itemid Integer Primary Key, parentid Integer, imol Integer, iatom Integer, grampsname Text, rowname Text, resnum integer, chain Char(1), ignore Integer, style Integer, colorBy Integer, filter Integer, hue Integer, saturation Integer, value Integer, hydrogens Integer, mainSide Integer, checked Integer, Foreign key (imol) References molecule (molid) On Delete Cascade)")) return tellError(query);
+    if (!query.exec("Create Table main.tree (itemid Integer Primary Key, parentid Integer, imol Integer, iatom Integer, grampsname Text, rowname Text, resnum integer, chain Char(1), ignore Integer, style Integer, colorBy Integer, filter Integer, hue Integer, saturation Integer, value Integer, alpha Integer, hydrogens Integer, mainSide Integer, checked Integer, Foreign key (imol) References molecule (molid) On Delete Cascade)")) return tellError(query);
     return true;
 }
 
@@ -144,10 +144,11 @@ bool Db::attachResidue() {
 
 bool Db::updateTreeColor(int itemid, QColor color) {
     QSqlQuery query;
-    query.prepare("Update main.tree Set hue=?, saturation=?, value=? Where itemid=?");
+    query.prepare("Update main.tree Set hue=?, saturation=?, value=?, alpha=? Where itemid=?");
     query.addBindValue((int)color.hue());
     query.addBindValue((int)color.saturation());
     query.addBindValue((int)color.value());
+    query.addBindValue((int)color.alpha());
     query.addBindValue((int)itemid);
     if (!query.exec()) {
         tellError(query);
@@ -273,21 +274,21 @@ int Db::maxItemId() {
 
 treeRow Db::getTreeRow(int itemid) {
     QSqlQuery query;
-    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, hydrogens, mainSide, checked From main.tree Where itemid=?");
+    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From main.tree Where itemid=?");
     query.addBindValue((int)itemid);
     if (!query.exec()) tellError(query);
     return nextTreeRow(query);
 }
 treeRow Db::getTreeRow(QString grampsName) {
     QSqlQuery query;
-    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, hydrogens, mainSide, checked From main.tree Where grampsname=?");
+    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From main.tree Where grampsname=?");
     query.addBindValue((QString)grampsName);
     if (!query.exec()) tellError(query);
     return nextTreeRow(query);
 }
 treeRow Db::getTreeSibling(int parentid, char sibchain) {
     QSqlQuery query;
-    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, hydrogens, mainSide, checked From main.tree Where parentid=? and chain=?");
+    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From main.tree Where parentid=? and chain=?");
     query.addBindValue(parentid);
     query.addBindValue((QString)sibchain);
     if (!query.exec()) tellError(query);
@@ -297,7 +298,7 @@ treeRow Db::getTreeSibling(int parentid, char sibchain) {
 int Db::newTreeRow(treeRow &row) {
     QSqlQuery query;
     ++itemId;
-    query.prepare("Insert Into main.tree (itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, hydrogens, mainSide, checked) Values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+    query.prepare("Insert Into main.tree (itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked) Values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
     query.addBindValue((int)itemId);
     query.addBindValue((int)row.parentId);
     query.addBindValue((int)row.imol);
@@ -313,6 +314,7 @@ int Db::newTreeRow(treeRow &row) {
     query.addBindValue((int)row.color.hue());
     query.addBindValue((int)row.color.saturation());
     query.addBindValue((int)row.color.value());
+    query.addBindValue((int)row.color.alpha());
     query.addBindValue((int)row.hydrogens);
     query.addBindValue((int)row.mainSide);
     query.addBindValue((int)row.checked);
@@ -459,14 +461,14 @@ molRecord Db::nextMol(QSqlQuery qmol) {
 }
 QSqlQuery Db::iterTreeRows() {
     QSqlQuery query;
-    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, hydrogens, mainSide, checked From main.tree Order by itemid");
+    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From main.tree Order by itemid");
     if (!query.exec()) tellError(query);
     return query;
 }
 QSqlQuery Db::IterTreeRowsToRestore() {
     // find items needing to be drawn on restore
     QSqlQuery query;
-    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, hydrogens, mainSide, checked From main.tree Where style != 0 Order by itemid");
+    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From main.tree Where style != 0 Order by itemid");
     if (!query.exec()) tellError(query);
     return query;
 }
@@ -488,10 +490,11 @@ treeRow Db::nextTreeRow(QSqlQuery query) {
         int hue   = query.value(ITEM_HUE).toInt();
         int sat   = query.value(ITEM_SATURATION).toInt();
         int val   = query.value(ITEM_VALUE).toInt();
+        int alpha = query.value(ITEM_ALPHA).toInt();
         if (hue == 0.0 && sat == 0.0 && val == 0.0) {
             row.color   = QColor();
         } else {
-            row.color   = QColor::fromHsv(hue,sat,val);
+            row.color   = QColor::fromHsv(hue,sat,val,alpha);
         }
         row.hydrogens = query.value(ITEM_HYDROGENS).toInt();
         row.mainSide  = query.value(ITEM_MAINSIDE).toInt();

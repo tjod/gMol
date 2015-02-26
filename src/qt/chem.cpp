@@ -210,6 +210,22 @@ void ChemWidget::addColorMenu(QMenu *colorMenu, int current_color) {
     act->setCheckable(true);
     if (current_color == COLOR_BY_CHARGE) act->setChecked(true);
     g->addAction(act);
+
+    colorMenu->addSeparator();
+
+    act = colorMenu->addAction(tr("Transparent"));
+    act->setCheckable(true);
+    QColor c = currentRow.color;
+    qDebug() << c.alpha();
+    if (c.alpha() < 255) {
+        act->setChecked(true);
+        //act->setData(255);
+    } else {
+        act->setChecked(false);
+        //act->setData(128);
+    }
+    connect(act, SIGNAL(triggered(bool)), this, SLOT(colorMolTransparent(bool)));
+    //g->addAction(act);
 }
 
 void ChemWidget::addHydrogenMenu(QMenu *styleMenu, int hydrogens) {
@@ -427,7 +443,9 @@ void ChemWidget::createContextMenu(QTreeWidgetItem *item, int filter, QMenu *men
           // not for multi-mol file
       } else {
           // surface, filters for entire "file" (root level) when a protein
-          menu->addAction(tr("Surface"), this, SLOT(addSurfRow()));
+          menu->addSeparator();
+          QAction *act = menu->addAction(tr("Surface"), this, SLOT(addSurfRow()));
+          if (Db::isTreeRow(imol,currentRow.chain,"Surface")) act->setDisabled(true);
           if (currentRow.chain != NOCHAIN) addFilterMenus(menu);
       }
   }
@@ -691,7 +709,26 @@ QColor ChemWidget::applyColor(QString grampsName, QColor color) {
     emit cmdReady(cmd);
     return acolor;
 }
-
+void ChemWidget::colorMolTransparent(bool makeTransparent) {
+    //if (makeTransparent) {};
+    //QAction *act = static_cast<QAction *>(QObject::sender());
+    //qDebug() << "got " <<  act->data();
+    //int alpha = act->data().toInt();
+    int alpha;
+    float transp;
+    if (makeTransparent) {
+        alpha = 128;
+        transp = 0.5;
+    } else {
+        alpha = 255;
+        transp = 0.0;
+    }
+    currentRow.color.setAlpha(alpha);
+    QString cmd;
+    QTextStream(&cmd) << "inten " << currentRow.grampsName << " t," << transp;
+    cmdReady(cmd);
+    Db::updateTreeColor(currentRow.itemId, currentRow.color);
+}
 int ChemWidget::cycleZoom()
 {
     // cycle through tree items after double click on background graphics area

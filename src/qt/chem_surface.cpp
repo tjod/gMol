@@ -72,7 +72,9 @@ int ChemWidget::drawSurface(int itemid) {
   if (err == 0) {
     QString cmd = "intensity " + name + " t,0.5";
     cmdReady(cmd);
+    color.setAlpha(128);
     if (color.isValid()) applyColor(item.grampsName, color);
+    Db::updateTreeColor(itemid, color);
   }
   return err;
 }
