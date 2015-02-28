@@ -132,6 +132,7 @@ signals:
     void msgReady(const QString);
     void molAdded(const int);
     void fatal(const QString);
+    void textWebPage(const QString, const QString);
 
 protected:
     //bool event(QEvent *event);

@@ -43,6 +43,8 @@ MainWindow::MainWindow()
     connect(chemWidget,  SIGNAL(cmdReady(const QString)),  this, SLOT(doCmd(const QString)));
     connect(chemWidget,  SIGNAL(msgReady(const QString)),  this, SLOT(showStatus(const QString)));
     connect(chemWidget,  SIGNAL(fatal(const QString)),     this, SLOT(fatal(const QString)));
+    connect(chemWidget,  SIGNAL(textWebPage(const QString, const QString)),
+                     this, SLOT(showTextWebPage(const QString, const QString)));
     tabifyDockWidget(logDock, chemDock);
 #endif
     logDock->hide();
@@ -415,6 +417,24 @@ QDockWidget * MainWindow::openUrl(QString url, bool canDelete)
       QMessageBox::information(this, tr("URL"), Url.errorString());
     }
     return webDock;
+}
+void MainWindow::showTextWebPage(const QString text, const QString title) {
+    QDockWidget *webDock = new QDockWidget("web", this);
+    bool canDelete = true;
+    bool allowAccess = false;
+    WebWidget *webView = new WebWidget(webDock, canDelete, allowAccess);
+    webView->setMinimumWidth(450);
+    webView->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+    webDock->setWidget(webView);
+    webDock->setWindowTitle(title);
+    addDockWidget(Qt::LeftDockWidgetArea, webDock);
+    addMenuItem(webDock, tr("Toggle"));
+    //webDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetClosable);
+    webViewConnections(webView, allowAccess);
+    tabifyDockWidget(logDock, webDock);
+    QString content = "<header><title>"+title+"</title></header>"+text;
+    //qDebug() << content << content.toHtmlEscaped();
+    webView->setHtml(content);
 }
 
 void MainWindow::webViewConnections(WebWidget *view, bool allowAccess) {

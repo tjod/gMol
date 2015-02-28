@@ -855,18 +855,44 @@ void ChemWidget::infoMol() {
   QString msg;
   //QTextStream(&msg) << item->text(0);
   QTextStream(&msg) << currentRow.rowname;
+  QString title;
+  QString filename;
+  QString style = "\
+  <style>\
+    td\
+      {border-left:1px solid grey;\
+       border-top:1px solid grey;}\
+    table\
+      {border-right:1px solid grey;\
+       border-bottom:1px solid grey;}\
+  </style>";
+  QString props = style + "<table>";		  
   if (currentRow.imol) {
-    QTextStream(&msg) << ":" << Db::molTitle(currentRow.imol);
+	 title = Db::molTitle(currentRow.imol);
+	 props += "<caption><b>" + title + "</b></caption><tr><th>name</th><th>value</th></tr>";
+	 QSqlQuery pq = Db::iterMolProperties(currentRow.imol);
+	 for (propertyRecord p = Db::nextMolProperty(pq); p.valid; p = Db::nextMolProperty(pq)) {
+		 props += "<tr><td>" + p.name.toHtmlEscaped() + "</td><td>" + p.value.toHtmlEscaped() + "</td></tr>";
+	 }
+	 props += "</table>";
+	 QStringList fparts = Db::molFilename(currentRow.imol).split(".");
+	 if (fparts.size() > 2) fparts.removeLast();
+	 filename = fparts.join(".");
   } else {
-    QTextStream(&msg) << ":" << "NOMOL";
+    title = "NOMOL";
+	 props = "no properties";
+	 filename = "Unknown";
   }
+  QTextStream(&msg) << ":" << title;
   QTextStream(&msg) << ":mol#" << currentRow.imol;
   QTextStream(&msg) << ":chain" << currentRow.chain;
   QTextStream(&msg) << ":residue" << currentRow.resnum;
   if (currentRow.imol) QTextStream(&msg) << "/" << Db::molNumRes(currentRow.imol);
   QTextStream(&msg) << ":" << currentRow.grampsName;
   if (currentRow.ignore) QTextStream(&msg) << ":ignore";
-  emit msgReady(msg); 
+  emit msgReady(msg);
+  emit textWebPage(props, filename);
+  
 }
 
 void ChemWidget::addAtom() {

@@ -63,7 +63,6 @@ void WebWidget::loadUrl(const QUrl & url) {
   //QWebView::load(url);
   load(url);
 }
-
 void WebWidget::download(const QNetworkRequest request) {
   qDebug() << "download request" << request.url();
 }
@@ -101,7 +100,7 @@ bool WebWidget::handlePDB(QNetworkReply *reply, QString header, QString path) {
     if (header.isEmpty() || header == "application/download") {
         spdb = QString(reply->readAll());
         QString title =  QFileInfo(path).fileName();
-        setHtml("<header><title>"+title+"</title></header><pre>"+spdb);
+        setHtml("<header><title>"+title+"</title></header><pre>"+spdb.toHtmlEscaped());
     } else {
         spdb = page()->mainFrame()->toPlainText();
         //page()->history()->back();

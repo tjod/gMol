@@ -42,6 +42,7 @@ signals:
     void pickReady(const QPoint &p, QString name, float *xyzw);
     void doubleClickReady(const QPoint &p, QString name, float *xyzw);
     void restore();
+    //void textWebPage(const QString);
 
 public slots:
     void showStatus(const QString);
@@ -56,6 +57,8 @@ private slots:
     QString saveas();
     QString saveas(QString fileName);
     void openUrl();
+    void showTextWebPage(const QString, const QString );
+
     void snap();
     void reset();
     void restart();

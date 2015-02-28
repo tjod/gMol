@@ -71,6 +71,14 @@ struct molRecord {
   int model;
 };
 
+struct propertyRecord {
+    bool valid;
+    int imol;
+    QString name;
+    QString value;
+    int order;
+};
+
 // struct chainRecord {
 //   bool valid;
 //   char name;
@@ -209,8 +217,11 @@ public:
     static molRecord nextMol(QSqlQuery);
     static float molCenter(int imol, unsigned int resnum, char chain, int filter, float *center, float *sizes);
     static QString molTitle(int imol);
+    static QString molFilename(int imol);
     static QSqlQuery iterMolsByFile();
     static QSqlQuery iterMolsinFile(int imol);
+    static QSqlQuery iterMolProperties(int imol);
+    static propertyRecord nextMolProperty(QSqlQuery);
     static int molNumAtoms(int imol);
     static void molBounds(int imol, unsigned int resnum, char chain, int filter, float *min, float *max);
 
@@ -279,7 +290,7 @@ private:
     static int symbolToNumber(QString symbol);
     static void addAtom(QSqlQuery q, int molid, int aidx, int resnum, QString resnam, char altLoc, char icode, int atnum,
                         float x, float y, float z, QString name, char chain, int hetatm);
-    static bool addProperty(int molid, QMap<QString,QString>property);
+    static bool addProperty(int molid, QString name, QString value, int irecord);
     static void newMolecule(int molid);
     static void updateMolecule(int molid, QString file, int natom, QString title);
     static void updateMoleculeFile(int molid, QString file);

@@ -358,9 +358,14 @@ int Db::molNumAtoms(int imol) {
     return getMol(imol).natoms;
 }
 
+QString Db::molFilename(int imol) {
+    return getMol(imol).filename;
+}
+
 int Db::molNumRes(int imol) {
     return getMol(imol).nresidue;
 }
+
 
 QString Db::molResName(int imol, int resnum, char chain) {
     QString name;
@@ -459,6 +464,28 @@ molRecord Db::nextMol(QSqlQuery qmol) {
     }
     return mol;
 }
+QSqlQuery  Db::iterMolProperties(int imol) {
+    QSqlQuery query;
+    query.prepare("Select molid,name,value,record from property where molid=? order by record asc");
+    query.addBindValue(imol);
+    if (!query.exec()) tellError(query);
+    return query;}
+
+propertyRecord  Db::nextMolProperty(QSqlQuery query) {
+    propertyRecord prop;
+    if(query.next()) {
+        prop.imol = query.value(0).toInt();
+        prop.name = query.value(1).toString();
+        prop.value = query.value(2).toString();
+        prop.order = query.value(3).toInt();
+        prop.valid = true;
+
+    } else {
+        prop.valid = false;
+    }
+    return prop;
+}
+
 QSqlQuery Db::iterTreeRows() {
     QSqlQuery query;
     query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From main.tree Order by itemid");
@@ -1248,14 +1275,15 @@ int Db::readPDB(std::istream& is, QString filename, int fsize) {
 #ifdef DEBUG
     qDebug() << "addAtoms";
 #endif
+    int iline = 0;
     int imodel = 0;
 #define MAXLINE 120
     char line[MAXLINE];
     int mol1;
     newMolecule(molid);
-    QMap<QString, QString> property;
     while (is.getline(line, MAXLINE)) {
         QString s = line;
+        ++iline;
         if (s.startsWith("ATOM  ")) {
             processAtom(s, insertAtom, molid);
             ++natom;
@@ -1268,6 +1296,7 @@ int Db::readPDB(std::istream& is, QString filename, int fsize) {
             processHetatm(s, insertAtom, molid);
             ++natom;
         } else if (s.startsWith("TITLE ")) {
+            addProperty(molid, s.mid(0,6), s.mid(6), iline);
             if (!title.isNull()) title += " ";
             title += s.mid(10).trimmed();
         } else if (s.startsWith("TER   ")) {
@@ -1292,20 +1321,13 @@ int Db::readPDB(std::istream& is, QString filename, int fsize) {
             ++molid;
         } else if (s.startsWith("END   ") || s == "END") {
             if (natom > 0) {
-                property["TITLE"] = title;
                 updateMolecule(molid, QFileInfo(filename).fileName(), natom, title);
-                addProperty(molid, property);
                 ChemDb::addSecondaryStructure(molid);
                 mol1 = molid;
                 ++molid;
             }
         } else {
-            QString pname = s.mid(0,6);
-            if (property.contains(pname)) {
-                property[pname] += "\n" + s.mid(6);
-            } else {
-                property[pname] = s.mid(6);
-            }
+            addProperty(molid, s.mid(0,6), s.mid(6), iline);
         }
     }
     db.commit();
@@ -1450,20 +1472,15 @@ void Db::updateMolecule(int molid, QString file, int natom, QString title) {
 #endif
 }
 
-bool Db::addProperty(int molid, QMap<QString,QString> property) {
-    qDebug() << "Properties: " << property.keys();
+bool Db::addProperty(int molid, QString name, QString value, int irecord) {
+    //qDebug() << "Properties: " << property.keys();
     QSqlQuery query;
-    query.prepare("Insert Into property (molid, name, value) Values (?,?,?)");
-    //QMapIterator<QString,QString> it(property);
-    QMap<QString,QString>::const_iterator it = property.constBegin();
-    while (it != property.constEnd()) {
-        query.addBindValue((int)molid);
-        query.addBindValue(it.key().trimmed());
-        query.addBindValue(it.value());
-        if (!query.exec()) return false;
-        ++it;
-    }
-    return true;
+    query.prepare("Insert Into property (molid, name, value, record) Values (?,?,?,?)");
+    query.addBindValue((int)molid);
+    query.addBindValue(name.trimmed());
+    query.addBindValue(value);
+    query.addBindValue(irecord);
+    return query.exec();
 }
 
 #endif
