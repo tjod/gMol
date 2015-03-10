@@ -2055,7 +2055,7 @@ QTreeWidgetItem * ChemWidget::addMolRow(QTreeWidgetItem *root, QString rowname, 
   } else {
       makeNewCurrentRow(rowname, root->type(), grampsName, resnum, state, imol, iatom, chain, drawstyle, colorBy, color, filter);
       // store this row info in db
-      QSqlQuery hquery = Db::iterAtoms(imol, resnum, chain, filter, -2);
+      QSqlQuery hquery = Db::iterAtoms(imol, resnum, chain, filter, HYDROGEN_COUNT);
       int hcount = Db::numRows(hquery);
       currentRow.hydrogens = (hcount == 0) ? HYDROGEN_NONE : hydrogenDefault;
       currentRow.itemId = Db::newTreeRow(currentRow);

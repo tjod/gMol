@@ -66,6 +66,7 @@ MainWindow::MainWindow()
     // don't let the title change as page changes
     helpView->disconnect(SIGNAL(loadFinished(bool))); // was connected in webViewConnections
     helpDock->setWindowTitle(tr("Help"));
+    //connect(helpDock, SIGNAL(visibilityChanged(bool)), this, SLOT(dockVisible(bool)));
 
     QFile *startPage = new QFile(QDir::homePath() + "/gmol.html");
     if (startPage->exists()) openUrl(startPage->fileName(), false);
@@ -116,8 +117,15 @@ void MainWindow::showdock(bool b) {
     //qDebug() << act->text() << act->parentWidget() << act->associatedWidgets();
     QDockWidget *dock = static_cast<QDockWidget *>(act->parentWidget());
     QString title = dock->windowTitle();
-    if (b) title = showDock(dock);
-    showStatus(title);
+    if (b) {
+        title = showDock(dock);
+    } else {
+//        if (dock->isFloating()) {
+//            dock->setFloating(false);
+//            //dock->showMinimized();
+//        }
+    }
+    //showStatus(title);
     //qDebug() << "showdock" << title << b;
 }
 
@@ -150,6 +158,7 @@ void MainWindow::createDockWindows() {
     logDock->setWidget(cmdWidget);
     addDockWidget(Qt::LeftDockWidgetArea, logDock);
     addMenuItem(logDock, tr("Toggle command log"));
+    //connect(logDock, SIGNAL(visibilityChanged(bool)), this, SLOT(dockVisible(bool)));
 
 // control widget
     controlDock = new QDockWidget(tr("Control"), this);
@@ -158,11 +167,13 @@ void MainWindow::createDockWindows() {
     controlDock->setWidget(controlWidget);
     addDockWidget(Qt::LeftDockWidgetArea, controlDock);
     addMenuItem(controlDock, tr("Toggle control devices"));
+    //connect(controlDock, SIGNAL(visibilityChanged(bool)), this, SLOT(dockVisible(bool)));
 
 // status bar
     QAction *act = tabMenu->addAction(tr("Status")); //, this, SLOT(toggleStatus(bool)));
     act->setCheckable(true);
-    act->setChecked(true);
+    act->setChecked(false);
+    statusBar()->hide();
     connect(act, SIGNAL(toggled(bool)), this, SLOT(toggleStatus(bool)));
 
 // subsumed into help; see doHelp(QAction)
@@ -177,8 +188,17 @@ void MainWindow::createDockWindows() {
     addDockWidget(Qt::LeftDockWidgetArea, chemDock);
     addMenuItem(chemDock, tr("Toggle gMol tree control"));
     chemDock->setMinimumWidth(450);
+    //connect(chemDock, SIGNAL(visibilityChanged(bool)), this, SLOT(dockVisible(bool)));
 #endif
 }
+//void MainWindow::dockVisible(bool visible) {
+//    QDockWidget *dock = static_cast<QDockWidget *>(QObject::sender());
+//    //qDebug() << "dock visible: " << visible << " floating:" << dock->isFloating();
+//    if (dock->isFloating() && !visible) {
+//        dock->setFloating(false);
+//        //dock->widget()->hide();
+//    }
+//}
 
 void MainWindow::createActions()
 {

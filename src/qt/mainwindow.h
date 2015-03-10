@@ -73,6 +73,7 @@ private slots:
     void advanceDone();
     void toggleStatus(bool);
     //void visibilityChanged(QWindow::Visibility);
+    //void dockVisible(bool);
 
 private:
     QMenu *fileMenu;
