@@ -1404,18 +1404,22 @@ void ChemWidget::molReady(int imol) {
 
 void ChemWidget::restore() {
     // redraw entries in the database table tree, creating TreeWidget items and gramps objects.
-    //QSqlQuery qmol = Db::iterMolsByFile();
-    //for (molRecord mol = Db::nextMol(qmol); mol.valid; mol = Db::nextMol(qmol)) {
+
+ // create new query items for this newly opened db
 	atom_query = atomQuery();
 	pickedAtom = atomQuery();
 	mol_query = molQuery();
 	property_query = propertyQuery();
-	for (mol_query.getByFile(); mol_query.next(); ) {
+    currentRow = treeQuery();
+
+    // top level molQuery for scope of this restore loop
+    molQuery mquery = molQuery();
+    for (mquery.getByFile(); mquery.next(); ) {
 #ifdef DEBUG
-		qDebug() << "Restore #" << mol_query.imol << mol_query.title << mol_query.filename;
+        qDebug() << "Restore #" << mquery.imol << mquery.title << mquery.filename;
 #endif
 		// the standard items opened when file is read
-		open(mol_query.imol);
+        open(mquery.imol);
 	}
     treeQuery t = treeQuery();
     //items.IterTreeRowsToRestore();

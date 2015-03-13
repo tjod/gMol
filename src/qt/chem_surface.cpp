@@ -24,7 +24,7 @@ int ChemWidget::drawSurface(int itemid) {
   vertexQuery vtx = vertexQuery::vertexQuery();
   vtx.iter(itemid, treeRow.imol, treeRow.resnum, treeRow.chain, treeRow.filter, treeRow.hydrogens, currentRow.colorBy, nearAtom);
   int nvtx = vtx.count(); // vertexQuery::count(itemid);
-  qDebug() << tr("drawSurface vertex count") + " = " << nvtx;
+ // qDebug() << tr("drawSurface vertex count") + " = " << nvtx;
   float buff[9] = {nvtx,ldm1,2};
   int err = getMem(name.toLocal8Bit().data(), buff, 3, name.length());
   if (err) {
@@ -54,11 +54,11 @@ int ChemWidget::drawSurface(int itemid) {
       ++nvtx;
       if (err) { qDebug() << tr("drawSurface vertex error after ") << nvtx; break; }
     }
-    qDebug() << tr("drawSurface vertex count") + " = " << nvtx;
+    //qDebug() << tr("drawSurface vertex count") + " = " << nvtx;
 
     int ntri = triangleQuery::count(itemid)/3;
     buff[0] = ntri; buff[1] = 8; buff[2] = -1;
-    qDebug() << tr("drawSurface triangle count") + " = " << ntri;
+    //qDebug() << tr("drawSurface triangle count") + " = " << ntri;
     err += getMemMore("", buff, 3, 0);
     ntri=0;
     triangleQuery tri = triangleQuery::triangleQuery();
@@ -72,7 +72,7 @@ int ChemWidget::drawSurface(int itemid) {
       ++ntri;
       if (err) { qDebug() << tr("drawSurface triangle error after ") << ntri; break; }
     }
-    qDebug() << tr("surface ready") << itemid << ntri << tr("triangles") + ".";
+    //qDebug() << tr("surface ready") << itemid << ntri << tr("triangles") + ".";
     err += getMemDone("", NULL, 0, 0);
   }
   return err;
@@ -81,7 +81,7 @@ int ChemWidget::drawSurface(int itemid) {
 void ChemWidget::surfReady(int exitcode) {
   QString errout = QString(surfproc->readAllStandardError());
   QStringList msg = errout.split('\n');
-  if (exitcode) qDebug() << errout;
+  //if (exitcode) qDebug() << errout;
   int itemid = msg[msg.size()-2].split("=")[1].toInt(); // last line itemid=%d
   //db.open();
   progress->setMaximum(100);
@@ -138,7 +138,7 @@ void ChemWidget::makeSurface() {
     return;
   }
 
-  qDebug() << prog << arguments;
+  //qDebug() << prog << arguments;
   //QSqlDatabase::database().commit();
   progress->setWindowTitle(title);
   progress->setLabelText(tr("Computing surface"));

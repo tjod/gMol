@@ -1222,7 +1222,7 @@ bool vertexQuery::iter(int itemid, int imol, int /*resnum*/, char /*chain*/, int
     } else {
         Db::tellError(*this);
     }
-    qDebug() << sql;
+    //qDebug() << sql;
     return valid;
 }
 

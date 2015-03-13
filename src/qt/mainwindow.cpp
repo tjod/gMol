@@ -26,6 +26,7 @@ MainWindow::MainWindow()
     saveFile = "";
 
     glWidget = new GLWidget;
+    glWidget->resize(500,500);
     setCentralWidget(glWidget);
 /*
     connect(this, SIGNAL(visibilityChanged(QWindow::Visibility)),
