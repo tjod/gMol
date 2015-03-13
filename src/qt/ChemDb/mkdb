@@ -1,0 +1,3 @@
+#! /bin/bash
+export gmol_lib=../../../lib
+./dbchem $@
