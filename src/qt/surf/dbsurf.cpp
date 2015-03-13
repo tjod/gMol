@@ -40,7 +40,7 @@ extern "C" void unit_(float *);
 #define DB  3
 #define CUBE  4
 QSqlQuery *addQuery; // used in addtri, setup in main
-bool computeGrid(float *grid, int *tags, atomRecord atom, float step, int xDim, int yDim, int zDim, float min[3]) {
+bool computeGrid(float *grid, int *tags, atomQuery atom, float step, int xDim, int yDim, int zDim, float min[3]) {
     //float vdwR = etab.GetVdwRad(a->GetAtomicNum());
     float vdwR = Atom::radius[atom.atnum];
     float  R = pow((vdwR + rProbe), 2);
@@ -136,12 +136,13 @@ void makeGrid(int imol, float step, float padding, char chain, int resnum, int f
 
   fgrid = (float *)calloc(xyzDim, sizeof(float));
   tags  = (int *)  calloc(xyzDim, sizeof(int));
-
-  //QSqlQuery qatom = Db::iterAtoms(imol, resnum, chain, filter, hydrogen);
-  QSqlQuery qatom = Db::iterAtoms(imol, 0, chain, filter, hydrogen);
   int natom = 0;
-  for (atomRecord atom = Db::nextAtom(qatom); atom.valid; atom = Db::nextAtom(qatom)) {
-     computeGrid(fgrid, tags, atom, step, xDim, yDim, zDim, min);
+  //QSqlQuery qatom = Db::iterAtoms(imol, resnum, chain, filter, hydrogen);
+  //QSqlQuery qatom = Db::iterAtoms(imol, 0, chain, filter, hydrogen);
+  //for (atomRecord atom = Db::nextAtom(qatom); atom.valid; atom = Db::nextAtom(qatom)) {
+  atomQuery atom_query = atomQuery();
+  for (atom_query.iter(imol, resnum, chain, filter, hydrogen); atom_query.next(); ) {  
+     computeGrid(fgrid, tags, atom_query, step, xDim, yDim, zDim, min);
      ++natom;
   }
   qDebug() << natom << "atoms.";
@@ -314,7 +315,8 @@ int main(int argc,char **argv)
   }
 
   if (itemid) {
-    treeRow item = Db::getTreeRow(itemid);
+    treeQuery item;
+    item.getRow(itemid);
     chain = item.chain;
     imol = item.imol;
     filter = item.filter;

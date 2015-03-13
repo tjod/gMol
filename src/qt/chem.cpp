@@ -28,7 +28,7 @@ ChemWidget::ChemWidget(QDockWidget *parent)
     : QTreeWidget(parent)
 {
   hydrogenDefault = HYDROGEN_HIDE;
-  pickedAtom.valid = false;
+  //pickedAtom.valid = false;
   setAnimated(true);
   //molMenu.reset(new QMenu(this));
   //pickMenu = new QMenu(tr("Pick"), this);
@@ -50,7 +50,8 @@ ChemWidget::ChemWidget(QDockWidget *parent)
   setContextMenuPolicy(Qt::CustomContextMenu);
   connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(showContextMenu(const QPoint &)));
 
-  Db::open();
+  //Db::open();
+  //pickedAtom = atomQuery::atomQuery();
   dbproc = new QProcess();
   connect(dbproc, SIGNAL(finished(int)), this, SLOT(molReady(int)));
   connect(dbproc, SIGNAL(readyReadStandardOutput()), this, SLOT(readProc()));
@@ -59,7 +60,7 @@ ChemWidget::ChemWidget(QDockWidget *parent)
   connect(surfproc, SIGNAL(readyReadStandardOutput()), this, SLOT(readProc()));
   progress = new QProgressDialog();
 
-  Db::createTreeTable();
+  treeQuery::createTable();
 }
 
 ChemWidget::~ChemWidget()
@@ -79,7 +80,7 @@ bool ChemWidget::getCurrentRow(int itemid) {
     if (currentRow.itemId == itemid && currentRow.valid) {
         ;
     } else {
-        currentRow = Db::getTreeRow(itemid);
+        currentRow.getRow(itemid);
     }
     return currentRow.valid;
 }
@@ -90,9 +91,9 @@ int ChemWidget::setItemsFromPick(QTreeWidgetItem *item, grampsPick gp) {
     getCurrentRow(itemid);
     if (currentRow.iatom == NOATOM) {
         float range = 1.0;
-        pickedAtom = Db::findAtomNear(currentRow.imol,currentRow.chain, gp.xyzw, range);
+        pickedAtom.near(currentRow.imol,currentRow.chain, gp.xyzw, range);
     } else {
-        pickedAtom = Db::getAtom(currentRow.imol,currentRow.iatom);
+        pickedAtom.get(currentRow.imol, currentRow.iatom); //Db::getAtom(currentRow.imol,currentRow.iatom);
     }
     return itemid;
 }
@@ -216,7 +217,7 @@ void ChemWidget::addColorMenu(QMenu *colorMenu, int current_color) {
     act = colorMenu->addAction(tr("Transparent"));
     act->setCheckable(true);
     QColor c = currentRow.color;
-    qDebug() << c.alpha();
+    //qDebug() << currentRow.rowname << c.alpha();
     if (c.alpha() < 255) {
         act->setChecked(true);
         //act->setData(255);
@@ -374,7 +375,7 @@ void ChemWidget::createContextMenu(QTreeWidgetItem *item, int filter, QMenu *men
 
 //  picked atom, or atom row selected
   if (filter == FILTER_ATOM) {
-      bool hasRow = Db::isTreeRow(currentRow.imol, currentRow.chain, pickedAtom.atid);
+      bool hasRow = treeQuery::isRow(currentRow.imol, currentRow.chain, pickedAtom.atid);
       if (hasRow) {
           QMenu *colorMenu = menu->addMenu(tr("Color"));
           addColorMenu(colorMenu, currentRow.colorBy);
@@ -420,17 +421,18 @@ void ChemWidget::createContextMenu(QTreeWidgetItem *item, int filter, QMenu *men
     QString resLabel;
     //QTextStream(&resLabel) << Db::getAtomResName(currentRow.imol, pickedAtom.atid) << currentRow.resnum;
     QTextStream(&resLabel) << pickedAtom.resnam << currentRow.resnum;
-    if (filter != FILTER_RESIDUE || Db::isTreeRow(currentRow.imol, currentRow.chain, resLabel)) {
+    if (filter != FILTER_RESIDUE || treeQuery::isRow(currentRow.imol, currentRow.chain, resLabel)) {
         menu->addAction(tr("Hide"), this, SLOT(hideMol()));
         menu->addAction(tr("Ignore"), this, SLOT(ignoreMol()));
     }
   }
 
   if (currentRow.style == STYLE_SURF_MOL || currentRow.style == STYLE_SURF_WATER) return;
+  int nresidues = mol_query.nresidue;
   if (!item->parent()) {
     // root level
     menu->addAction(tr("Delete"), this, SLOT(deleteMol()));
-  } else if (imol && Db::molNumRes(imol) < 2 && currentRow.style == STYLE_NONE) {
+  } else if (imol && nresidues < 2 && currentRow.style == STYLE_NONE) {
     //  multi mol files can delete single mol, but only put delete menu on mol level (style=none)
     menu->addAction(tr("Delete"), this, SLOT(deleteMol()));
 //} else { don't allow deleting chain, LIG, HOH, etc.
@@ -439,13 +441,13 @@ void ChemWidget::createContextMenu(QTreeWidgetItem *item, int filter, QMenu *men
   if (item->childCount()) { // containers, e.g. chains, mols in multi-mol sdf, or entire molecule
       QMenu *colorMenu = menu->addMenu(tr("Color"));
       addColorMenu(colorMenu, currentRow.colorBy);
-      if (!item->parent() && Db::molNumRes(imol) < 2) {
+      if (!item->parent() && nresidues < 2) {
           // not for multi-mol file
       } else {
           // surface, filters for entire "file" (root level) when a protein
           menu->addSeparator();
           QAction *act = menu->addAction(tr("Surface"), this, SLOT(addSurfRow()));
-          if (Db::isTreeRow(imol,currentRow.chain,"Surface")) act->setDisabled(true);
+          if (treeQuery::isRow(imol,currentRow.chain,"Surface")) act->setDisabled(true);
           if (currentRow.chain != NOCHAIN) addFilterMenus(menu);
       }
   }
@@ -466,7 +468,7 @@ void ChemWidget::addFilterMenus(QMenu *menu) {
         QString menuname = name;
         QTextStream(&menuname) << " (" << counts[name] << ")";
         QAction *act = menu->addAction(menuname, this, SLOT(addFilterRow()));
-        if (n == 0 || Db::isTreeRow(imol, chain, rowname)) act->setDisabled(true);
+        if (n == 0 || treeQuery::isRow(imol, chain, rowname)) act->setDisabled(true);
         //int filterid = Db::filters[i].id;
         act->setData(i);
         //act->setToolTip(counts["name"] + " " + Db::filters[i].tip);
@@ -548,7 +550,7 @@ void ChemWidget::showContextMenu(const QPoint &pos) {
   int filter = currentRow.filter;
   if (filter == FILTER_ATOM) {
       // simulate this atom being picked; for molCenter
-      pickedAtom = Db::getAtom(currentRow.imol, currentRow.iatom);
+      pickedAtom.get(currentRow.imol, currentRow.iatom);
   }
   createContextMenu(item, filter, molMenu.data(), SLOT(styleMol()), true);
   molMenu->exec(viewport()->mapToGlobal(pos));
@@ -563,7 +565,7 @@ void ChemWidget::showPickMenu(const QPoint &p, QTreeWidgetItem *item, QString ro
   if (currentRow.chain != NOCHAIN) {
     QTextStream(&label) << root << ":" << currentRow.chain;
   } else {
-    QTextStream(&label) <<  Db::molTitle(currentRow.imol);
+    QTextStream(&label) << (mol_query.get(currentRow.imol) ? mol_query.title : ""); // mol_query.title;// Db::molTitle(currentRow.imol);
   }
   pickMenu->addAction(label, this, SLOT(infoMol()));
   pickMenu->addSeparator();
@@ -587,7 +589,7 @@ void ChemWidget::showPickMenu(const QPoint &p, QTreeWidgetItem *item, QString ro
           QString resLabel;
           //QTextStream(&resLabel) << Db::getAtomResName(currentRow.imol, pickedAtom.atid) << resnum;
           QTextStream(&resLabel) << pickedAtom.resnam << resnum;
-          if (Db::isTreeRow(currentRow.imol, currentRow.chain, resLabel)) {
+          if (treeQuery::isRow(currentRow.imol, currentRow.chain, resLabel)) {
               QMenu *resMenu = pickMenu->addMenu(indent + resLabel);
               createContextMenu(item, FILTER_RESIDUE, resMenu, NULL, true);
           } else {
@@ -597,7 +599,7 @@ void ChemWidget::showPickMenu(const QPoint &p, QTreeWidgetItem *item, QString ro
           indent = spacer + indent;
       }
       const char* slot;
-      if (Db::isTreeRow(currentRow.imol, currentRow.chain, pickedAtom.atid)) {
+      if (treeQuery::isRow(currentRow.imol, currentRow.chain, pickedAtom.atid)) {
           // atom row exists
           slot = NULL;  // just allow Zoom, Center
       } else {
@@ -616,10 +618,11 @@ void ChemWidget::showPickMenu(const QPoint &p, QTreeWidgetItem *item, QString ro
 
 void ChemWidget::updateColorIcon(QTreeWidgetItem *item, QColor color, int colorBy) {
     if (item->childCount() > 0) return;
-    if (color != COLOR_NONE) item->setBackground(COLOR_COLUMN, QBrush(color));
+    QColor fcolor = QColor(color.red(), color.green(), color.blue()); // no transparency
+    if (color != COLOR_NONE) item->setBackground(COLOR_COLUMN, QBrush(fcolor));
     if (colorBy == COLOR_BY_SOLID) {
         QPixmap px = QPixmap();
-        px.fill(color);
+        px.fill(fcolor);
         item->setIcon(COLOR_COLUMN, QIcon(px));
     } else if (colorBy == COLOR_BY_ATOMS) {
         item->setIcon(COLOR_COLUMN, QIcon(QPixmap(cpk)));
@@ -631,11 +634,11 @@ void ChemWidget::updateColorIcon(QTreeWidgetItem *item, QColor color, int colorB
 void ChemWidget::setMolColor(QTreeWidgetItem *item, QColor color, int colorBy) {
     int itemid = item->type();
     if (color != COLOR_NONE) {
-        Db::updateTreeColor(itemid, color);
+        treeQuery::updateColor(itemid, color);
         currentRow.color = color;
     }
     if (colorBy != COLOR_BY_NONE) {
-        Db::updateTreeColorBy(itemid, colorBy);
+        treeQuery::updateColorBy(itemid, colorBy);
         currentRow.colorBy = colorBy;
     }
     //  treeRow arow = Db::getTreeRow(itemid);
@@ -709,6 +712,7 @@ QColor ChemWidget::applyColor(QString grampsName, QColor color) {
     emit cmdReady(cmd);
     return acolor;
 }
+
 void ChemWidget::colorMolTransparent(bool makeTransparent) {
     //if (makeTransparent) {};
     //QAction *act = static_cast<QAction *>(QObject::sender());
@@ -723,11 +727,13 @@ void ChemWidget::colorMolTransparent(bool makeTransparent) {
         alpha = 255;
         transp = 0.0;
     }
+    //qDebug() << currentRow.rowname << currentRow.color;
     currentRow.color.setAlpha(alpha);
+    //qDebug() << currentRow.rowname << currentRow.color;
     QString cmd;
     QTextStream(&cmd) << "inten " << currentRow.grampsName << " t," << transp;
     cmdReady(cmd);
-    Db::updateTreeColor(currentRow.itemId, currentRow.color);
+    treeQuery::updateColor(currentRow.itemId, currentRow.color);
 }
 int ChemWidget::cycleZoom()
 {
@@ -801,8 +807,9 @@ float ChemWidget::molCenter(int filter,  float *center,  float *sizes) {
                 resnum = pickedAtom.resnum;
                 chain = pickedAtom.chain;
             } else {
-                resnum = Db::getAtomResNum(currentRow.imol, currentRow.iatom);
-                chain  = Db::getAtomChain (currentRow.imol, currentRow.iatom);
+                atom_query.get(currentRow.imol, currentRow.iatom);
+                resnum = atom_query.resnum;
+                chain  = atom_query.chain;
             }
             afilter = FILTER_NONE; // FILTER_RESIDUE not used in db, select using resnum and chain
         } else {
@@ -866,18 +873,19 @@ void ChemWidget::infoMol() {
       {border-right:1px solid grey;\
        border-bottom:1px solid grey;}\
   </style>";
-  QString props = style + "<table>";		  
+  QString props = style + "<table>";
   if (currentRow.imol) {
-	 title = Db::molTitle(currentRow.imol);
-	 props += "<caption><b>" + title + "</b></caption><tr><th>name</th><th>value</th></tr>";
-	 QSqlQuery pq = Db::iterMolProperties(currentRow.imol);
-	 for (propertyRecord p = Db::nextMolProperty(pq); p.valid; p = Db::nextMolProperty(pq)) {
-		 props += "<tr><td>" + p.name.toHtmlEscaped() + "</td><td>" + p.value.toHtmlEscaped() + "</td></tr>";
-	 }
-	 props += "</table>";
-	 QStringList fparts = Db::molFilename(currentRow.imol).split(".");
+	  mol_query.get(currentRow.imol);
+	  QStringList fparts = mol_query.filename.split(".");
 	 if (fparts.size() > 2) fparts.removeLast();
 	 filename = fparts.join(".");
+	 
+	 title = mol_query.title; // currentRow.rowname;
+	 props += "<caption><b>" + title + "</b></caption><tr><th>name</th><th>value</th></tr>";
+     for ( property_query.iter(currentRow.imol); property_query.next(); ) {
+         props += "<tr><td>" + property_query.name.toHtmlEscaped() + "</td><td>" + property_query.text.toHtmlEscaped() + "</td></tr>";
+	 }
+	 props += "</table>";
   } else {
     title = "NOMOL";
 	 props = "no properties";
@@ -887,7 +895,8 @@ void ChemWidget::infoMol() {
   QTextStream(&msg) << ":mol#" << currentRow.imol;
   QTextStream(&msg) << ":chain" << currentRow.chain;
   QTextStream(&msg) << ":residue" << currentRow.resnum;
-  if (currentRow.imol) QTextStream(&msg) << "/" << Db::molNumRes(currentRow.imol);
+  if (currentRow.imol) QTextStream(&msg) << "/" <<  mol_query.nresidue;
+
   QTextStream(&msg) << ":" << currentRow.grampsName;
   if (currentRow.ignore) QTextStream(&msg) << ":ignore";
   emit msgReady(msg);
@@ -930,7 +939,8 @@ void ChemWidget::addResidue() {
 void ChemWidget::addResidue(int drawstyle) {
     // add a single residue after mouse pick
     QTreeWidgetItem *item = currentItem();
-    treeRow parentRow = Db::getTreeRow(item->parent()->type());
+    treeQuery parentRow = treeQuery();
+    parentRow.getRow( item->parent()->type() );
     QColor color = parentRow.color;
     char chain     = currentRow.chain;
     int imol       = currentRow.imol;
@@ -961,7 +971,8 @@ void ChemWidget::addResidue(int drawstyle) {
         parentItem = item->parent(); // the chain
         //int chainid = parentItem->type();
         int parentid = parentItem->parent()->type(); // the molecule
-        treeRow sibling = Db::getTreeSibling(parentid, chain);  // the other chain
+        treeQuery sibling;
+        sibling.getSibling(parentid, chain);  // the other chain
         parentItem = getGrampsItem(sibling.grampsName); // parent item of other chain
     }
     setCurrentItem(addMolRow(parentItem, rowname, pickedAtom.resnum, Qt::Unchecked, imol, NOATOM, chain, "", drawstyle, colorBy, color, filter));
@@ -972,7 +983,7 @@ void ChemWidget::showHydrogens(bool state) {
     QTreeWidgetItem *item = currentItem();
     currentRow.hydrogens = (state == true) ? HYDROGEN_SHOW : HYDROGEN_HIDE;
     int itemid = item->type();
-    Db::updateTreeHydrogens(itemid, state);
+    treeQuery::updateHydrogens(itemid, state);
     styleMol(currentRow.style);
 }
 void ChemWidget::showMainSide(bool state) {
@@ -985,7 +996,7 @@ void ChemWidget::showMainSide(bool state) {
         currentRow.filter = FILTER_SIDE;
     }
     int itemid = item->type();
-    Db::updateTreeMainSide(itemid, currentRow.mainSide, currentRow.filter);
+    treeQuery::updateMainSide(itemid, currentRow.mainSide, currentRow.filter);
     styleMol(currentRow.style);
 }
 void ChemWidget::styleMol() {
@@ -1000,7 +1011,7 @@ void ChemWidget::styleMol(int drawstyle) {
     if (drawstyle != STYLE_CURRENT) {
         currentRow.style = drawstyle;
         int itemid = item->type();
-        Db::updateTreeStyle(itemid, drawstyle);
+        treeQuery::updateStyle(itemid, drawstyle);
         sameStyle = false;
     }
     if (!item->parent()) return; // a first-level molecule (gramps group)
@@ -1021,6 +1032,7 @@ void ChemWidget::styleMol(int drawstyle) {
                 molnam = currentRow.grampsName;
             } else {
                 makeSurface();
+                //colorMolTransparent(true);
                 return;
             }
         } else {
@@ -1029,7 +1041,8 @@ void ChemWidget::styleMol(int drawstyle) {
         QString pname;
         if (!molnam.isNull()) {
             //treeRow parentRow = Db::getTreeRow(item->parent()->type());
-            treeRow parentRow = Db::getTreeRow(currentRow.parentId);
+            treeQuery parentRow;
+            parentRow.getRow(currentRow.parentId);
 #ifdef DEBUG
             qDebug() << item->type() << currentRow.itemId << currentRow.grampsName << molnam << parentRow.grampsName << Gramps::idFromName(parentRow.grampsName);
 #endif
@@ -1043,13 +1056,15 @@ void ChemWidget::styleMol(int drawstyle) {
     blockSignals(false);
 }
 
-void ChemWidget::insertOrGroup(QString molnam, treeRow parentRow) {
+void ChemWidget::insertOrGroup(QString molnam, treeQuery parentRow) {
     //
     QString cmd;
     if (Gramps::idFromName(parentRow.grampsName) == 0) {
         cmd = "group " + molnam + "," + molnam + " " + parentRow.grampsName;
         emit cmdReady(cmd);
-        cmd = "insert " + parentRow.grampsName + " " + Db::getTreeRow(parentRow.parentId).grampsName;
+        treeQuery grandParent;
+        grandParent.getRow(parentRow.parentId);
+        cmd = "insert " + parentRow.grampsName + " " + grandParent.grampsName;
         emit cmdReady(cmd);
     } else {
         cmd = "insert " + molnam + " " + parentRow.grampsName;
@@ -1070,7 +1085,7 @@ void ChemWidget::ignoreMol() {
     }
     currentRow.ignore = 1;
     int itemid = item->type();
-    Db::updateTreeIgnore(itemid, true);
+    treeQuery::updateIgnore(itemid, true);
     item->setCheckState(MOL_COLUMN, Qt::Unchecked);
     blockSignals(true); // just change check boxes, don't act on children
     adjustParents(item);
@@ -1097,7 +1112,7 @@ void ChemWidget::doubleClicked(QTreeWidgetItem *item, int /* col */) {
     getCurrentRow(itemid);
     if (currentRow.iatom != NOATOM) {
         // for centerMol to use
-        pickedAtom = Db::getAtom(currentRow.imol,currentRow.iatom);
+        pickedAtom.get(currentRow.imol,currentRow.iatom);
     }
     zoomMol(currentRow.filter);
 }
@@ -1164,7 +1179,7 @@ void ChemWidget::showOneItem(QTreeWidgetItem *item) {
   // let the checked item(s) be shown - no need to interfere
   } else {
   int itemid = item->type();
-  Db::updateTreeIgnore(itemid, false);
+  treeQuery::updateIgnore(itemid, false);
   // show the first item
     for (int i=0; i< item->childCount(); ++i) {
       QTreeWidgetItem *child = item->child(i);
@@ -1247,7 +1262,8 @@ QTreeWidgetItem * ChemWidget::setCheckedRows() {
     QTreeWidgetItemIterator it(this);
     while (*it) {
         int itemid = (*it)->type();
-        treeRow t = Db::getTreeRow(itemid);
+        treeQuery t = treeQuery();
+        t.getRow(itemid);
         if (first == NULL && t.checked == Qt::Checked) first = *it;
         (*it)->setCheckState(MOL_COLUMN, (Qt::CheckState)t.checked);
         if (t.ignore == 0 && t.checked != Qt::Checked) {
@@ -1267,7 +1283,7 @@ void ChemWidget::updateCheckedRows() {
         int itemid = (*it)->type();
         Qt::CheckState state = (*it)->checkState(MOL_COLUMN);
         //qDebug() << itemid << state;
-        Db::updateTreeChecked(itemid, state);
+        treeQuery::updateChecked(itemid, state);
         ++it;
     }
 }
@@ -1388,73 +1404,81 @@ void ChemWidget::molReady(int imol) {
 
 void ChemWidget::restore() {
     // redraw entries in the database table tree, creating TreeWidget items and gramps objects.
-    QSqlQuery qmol = Db::iterMolsByFile();
-    for (molRecord mol = Db::nextMol(qmol); mol.valid; mol = Db::nextMol(qmol)) {
+    //QSqlQuery qmol = Db::iterMolsByFile();
+    //for (molRecord mol = Db::nextMol(qmol); mol.valid; mol = Db::nextMol(qmol)) {
+	atom_query = atomQuery();
+	pickedAtom = atomQuery();
+	mol_query = molQuery();
+	property_query = propertyQuery();
+	for (mol_query.getByFile(); mol_query.next(); ) {
 #ifdef DEBUG
-        qDebug() << "Restore #" << mol.imol << mol.title << mol.filename;
+		qDebug() << "Restore #" << mol_query.imol << mol_query.title << mol_query.filename;
 #endif
-        // the standard items opened when file is read
-        open(mol.imol);
-    }
-    QSqlQuery items = Db::IterTreeRowsToRestore();
-    // items added during the session; surfaces, residues, atoms, cartoons, etc.
-    for (treeRow t = Db::nextTreeRow(items); t.valid; t = Db::nextTreeRow(items)) {
-        int id = Gramps::idFromName(t.grampsName);
-        if (id == 0) {
+		// the standard items opened when file is read
+		open(mol_query.imol);
+	}
+    treeQuery t = treeQuery();
+    //items.IterTreeRowsToRestore();
+	// items added during the session; surfaces, residues, atoms, cartoons, etc.
+    for (t.iterRestore(); t.next(); ) {
+    //for (treeRow t = Db::nextTreeRow(items); t.valid; t = Db::nextTreeRow(items)) {
+		int id = Gramps::idFromName(t.grampsName);
+		if (id == 0) {
 #ifdef DEBUG
-            qDebug() << "Restore #" << t.itemId << t.rowname << t.grampsName;
+			qDebug() << "Restore #" << t.itemId << t.rowname << t.grampsName;
 #endif
-            QTreeWidgetItem *item = getGrampsItem(t.grampsName);
-            if (item) {
-                // has a row entry, just draw the gramps object, unless it's ignored
-                if (t.ignore == 0) {
+			QTreeWidgetItem *item = getGrampsItem(t.grampsName);
+			if (item) {
+				// has a row entry, just draw the gramps object, unless it's ignored
+				if (t.ignore == 0) {
 #ifdef DEBUG
-                    qDebug() << "item #" << item->type();
+					qDebug() << "item #" << item->type();
 #endif
-                    Db::updateTreeIgnore(t.itemId, 1); // else we think it's already been drawn (not ignored)
-                    t.ignore = 1; // will get reset (in db tree, too) by styleMol
-                    setCurrentItem(item);
-                    currentRow = t;
-                    styleMol(t.style);
-                    setMolColor(item, t.color, t.colorBy);
-                } else {
-                    item->setCheckState(MOL_COLUMN, Qt::Unchecked);
-                }
-            } else {
-                // user-added items need a row entry and possibly a gramps object
-                treeRow parentRow = Db::getTreeRow(t.parentId);
-                QTreeWidgetItem *parentItem = getGrampsItem(parentRow.grampsName);
-                if (parentItem) {
-                    currentRow = t;
-                    setCurrentItem(makeMolRow(parentItem, t.grampsName, t.rowname, Qt::Checked));
-                    setMolColor(currentItem(), t.color, t.colorBy);
+                    treeQuery::updateIgnore(t.itemId, 1); // else we think it's already been drawn (not ignored)
+					t.ignore = 1; // will get reset (in db tree, too) by styleMol
+					setCurrentItem(item);
+					currentRow = t;
+					styleMol(t.style);
+					setMolColor(item, t.color, t.colorBy);
+				} else {
+					item->setCheckState(MOL_COLUMN, Qt::Unchecked);
+				}
+			} else {
+				// user-added items need a row entry and possibly a gramps object
+                treeQuery parentRow = treeQuery();
+                parentRow.getRow(t.parentId);
+				QTreeWidgetItem *parentItem = getGrampsItem(parentRow.grampsName);
+				if (parentItem) {
+					currentRow = t;
+					setCurrentItem(makeMolRow(parentItem, t.grampsName, t.rowname, Qt::Checked));
+					setMolColor(currentItem(), t.color, t.colorBy);
 #ifdef DEBUG
-                    qDebug() << "parent" << parentRow.rowname << t.ignore;
+					qDebug() << "parent" << parentRow.rowname << t.ignore;
 #endif
-                    if (t.ignore == 0) {
-                        t.ignore = 1;  // so as to prevent the forget command from being issued
-                        currentRow.ignore = 1;
-                        if (t.style == STYLE_SURF_WATER || t.style == STYLE_SURF_MOL) {
-                            // no need to re-compute surface, just draw from db tables
-                            drawSurface(t.itemId);
-                            insertOrGroup(t.grampsName, parentRow);
-                        } else {
-                            styleMol(t.style);
-                        }
-                    } else {
-                        // objects was ignored, so don't draw it and uncheck its row
-                        currentItem()->setCheckState(MOL_COLUMN, Qt::Unchecked);
-                    }
-                } else {
-                    qDebug() << tr("can't locate parent item") << parentRow.grampsName;
-                }
-            }
-        } // end of id=0: gramps objects that don't exist yet
-    } // end of iterTreeRowsToRestore
-
-    // until able to restore exact rotation/zoom
-    setCurrentItem(setCheckedRows()); // will cause cycleZoom pick first molecule
-    cycleZoom();
+					if (t.ignore == 0) {
+						t.ignore = 1;  // so as to prevent the forget command from being issued
+						currentRow.ignore = 1;
+						if (t.style == STYLE_SURF_WATER || t.style == STYLE_SURF_MOL) {
+							// no need to re-compute surface, just draw from db tables
+							drawSurface(t.itemId);
+							insertOrGroup(t.grampsName, parentRow);
+						} else {
+							styleMol(t.style);
+						}
+					} else {
+						// objects was ignored, so don't draw it and uncheck its row
+						currentItem()->setCheckState(MOL_COLUMN, Qt::Unchecked);
+					}
+				} else {
+					qDebug() << tr("can't locate parent item") << parentRow.grampsName;
+				}
+			}
+		} // end of id=0: gramps objects that don't exist yet
+	} // end of iterTreeRowsToRestore
+	
+	// until able to restore exact rotation/zoom
+	setCurrentItem(setCheckedRows()); // will cause cycleZoom pick first molecule
+	cycleZoom();
 }
 
 //int ChemWidget::open(QString filename) {
@@ -1478,30 +1502,32 @@ int ChemWidget::open(int molid) {
 
   // file may contain multiple molecules, so iterMolsInFile/nextMol returns all mols that have same file as this molid
   int amol=0; // count # of mols, in order to deal with first mol as a special case
-  QSqlQuery qmol = Db::iterMolsinFile(molid);
   QColor color = COLOR_DEFAULT;
   color = nextColor(color);
-  for (molRecord mol = Db::nextMol(qmol); mol.valid; mol = Db::nextMol(qmol)) {
-    fname = mol.filename; // used outside loop to report possible error
+  //QSqlQuery qmol = Db::iterMolsinFile(molid);
+  //for (molRecord mol = Db::nextMol(qmol); mol.valid; mol = Db::nextMol(qmol)) {
+  for (mol_query.getInFile(molid); mol_query.next(); ) {
+    fname = mol_query.filename; // used outside loop to report possible error
     QStringList fparts = fname.split("."); // tmpfile from web.cpp may have third part name we don't show
     if (fparts.count() > 2) fparts.removeLast();
     QString fshort = fparts.join(".");
-    QString rownam = mol.title;
-    if (rownam.isNull() || rownam.length() == 0) QTextStream(&rownam) << tr("Molecule #") << mol.imol;
+    QString rownam = mol_query.title;
+    if (rownam.isNull() || rownam.length() == 0) QTextStream(&rownam) << tr("Molecule #") << mol_query.imol;
     //bool protein = (Db::molNumRes(mol.imol) > 1);
-    bool pdb = (mol.type.compare("pdb", Qt::CaseInsensitive) == 0);
+    bool pdb = (mol_query.type.compare("pdb", Qt::CaseInsensitive) == 0);
     if (amol == 0) {
       // first mol
-      size = Db::molCenter(mol.imol, 0, NOCHAIN, FILTER_NONE, center, sizes);
+      size = Db::molCenter(mol_query.imol, 0, NOCHAIN, FILTER_NONE, center, sizes);
       char chain = NOCHAIN;
-      if (pdb && mol.nresidue == 1) {
-          atomRecord a = Db::getAtom(mol.imol, 1);
-          if (a.valid) chain = a.chain;
+      if (pdb && mol_query.nresidue == 1) {
+          //atomRecord a = Db::getAtom(mol.imol, 1);
+          atom_query.get(mol_query.imol, 1);
+          if (atom_query.valid) chain = atom_query.chain;
       }
-      parentItem = addMolRow(rootMol, fshort, 0, Qt::Checked, mol.imol, NOATOM, chain, fparts[0], STYLE_NONE, COLOR_BY_NONE, COLOR_DEFAULT, FILTER_NONE);
+      parentItem = addMolRow(rootMol, fshort, 0, Qt::Checked, mol_query.imol, NOATOM, chain, fparts[0], STYLE_NONE, COLOR_BY_NONE, COLOR_DEFAULT, FILTER_NONE);
       QString MOLname = currentRow.grampsName;
-      if (mol.nresidue > 1) {
-        QList<QString>gnames = addChainsRow(parentItem, mol.imol);
+      if (mol_query.nresidue > 1) {
+        QList<QString>gnames = addChainsRow(parentItem, mol_query.imol);
         //addMolRow(parentItem, "Surface", 0, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_MAIN+FILTER_SIDE);
         //QTextStream(&cmd) << "," << MOLname; // finish off command with group name
         if (gnames.count() > 0) {
@@ -1511,11 +1537,12 @@ int ChemWidget::open(int molid) {
         }
       } else {
         int style = STYLE_DEFAULT;
-        if (Db::molNumAtoms(mol.imol) > 200) style = STYLE_LINES;
+        //if (Db::molNumAtoms(mol.imol) > 200) style = STYLE_LINES;
+        if (mol_query.natoms > 200) style = STYLE_LINES;
         // STYLE_NONE for this group parent row
-        QTreeWidgetItem *molRow = addMolRow(parentItem, rownam, 0, Qt::Checked, mol.imol, NOATOM, NOCHAIN, "", STYLE_NONE, COLOR_BY_NONE, color, FILTER_NONE);
+        QTreeWidgetItem *molRow = addMolRow(parentItem, rownam, 0, Qt::Checked, mol_query.imol, NOATOM, NOCHAIN, "", STYLE_NONE, COLOR_BY_NONE, color, FILTER_NONE);
         QString molnam = currentRow.grampsName;
-        QTreeWidgetItem *modelRow = addMolRow(molRow, "Model", 0, Qt::Checked, mol.imol, NOATOM, NOCHAIN, "model", style, COLOR_BY_ATOMS, color, FILTER_NONE);
+        QTreeWidgetItem *modelRow = addMolRow(molRow, "Model", 0, Qt::Checked, mol_query.imol, NOATOM, NOCHAIN, "model", style, COLOR_BY_ATOMS, color, FILTER_NONE);
         QString modelnam = drawMol(modelRow);
         //addMolRow(molRow, "Surface", 0, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_NONE);
         QTextStream(&cmd) << "group " << modelnam << "," << modelnam << "," << molnam;
@@ -1528,10 +1555,11 @@ int ChemWidget::open(int molid) {
     } else {
      // extra mols are added to tree, but not yet sent to gramps
       int style = STYLE_DEFAULT;
-      if (Db::molNumAtoms(mol.imol) > 100) style = STYLE_LINES;
+      //if (Db::molNumAtoms(mol.imol) > 100) style = STYLE_LINES;
+      if (mol_query.natoms > 100) style = STYLE_LINES;
       color.setHsv(color.hue() + 30, color.saturation(), color.value());
-      QTreeWidgetItem *molRow = addMolRow(parentItem, rownam, 0, Qt::Unchecked, mol.imol, NOATOM, NOCHAIN, "", STYLE_NONE, COLOR_BY_NONE, color, FILTER_NONE); // the group for this  mol
-      addMolRow(molRow, "Model",   0, Qt::Unchecked, mol.imol, NOATOM, NOCHAIN, "model", style, COLOR_BY_ATOMS, color, FILTER_NONE);
+      QTreeWidgetItem *molRow = addMolRow(parentItem, rownam, 0, Qt::Unchecked, mol_query.imol, NOATOM, NOCHAIN, "", STYLE_NONE, COLOR_BY_NONE, color, FILTER_NONE); // the group for this  mol
+      addMolRow(molRow, "Model",   0, Qt::Unchecked, mol_query.imol, NOATOM, NOCHAIN, "model", style, COLOR_BY_ATOMS, color, FILTER_NONE);
       //addMolRow(molRow, "Surface", 0, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_NONE);
     }
     ++amol;
@@ -1579,7 +1607,7 @@ QString ChemWidget::encodeMolName(int imol, char chain, unsigned int resnum, QSt
   }
   if (resnum) {
     // a residue in that chain 
-    QString resnam = Db::molResName(imol, resnum, chain);
+    QString resnam  = atom_query.getResnam(imol, resnum, chain);
     QTextStream(&mname) << "." << resnam;
     //if (resnam != "HOH") QTextStream(&mname) << resnum << ".";
     QTextStream(&mname) << resnum << ".";
@@ -1595,13 +1623,13 @@ QString ChemWidget::encodeMolName(int imol, char chain, unsigned int resnum, QSt
       QTextStream(&mname) << "." << suffix;
     } else {
       // a molecule (say from a sdf/molfile)
-      if (imol) QTextStream(&mname) << "." << Db::molTitle(imol) << "." << imol;
+      if (imol) QTextStream(&mname) << "." << mol_query.title << "." << imol;
     }
   }
   return grampsSafe(mname);
 }
 
-int ChemWidget::drawBond(bondRecord bond, bool pairs, int colorBy, float *spec) {
+int ChemWidget::drawBond(bondQuery bond, bool pairs, int colorBy, float *spec) {
   int err = 0;
 
 //     draw the selected bonds, colored perhaps.  bool pairs lets me know whether
@@ -1677,7 +1705,7 @@ QString ChemWidget::drawOneAtom(QTreeWidgetItem *item) {
     } else {
         currentRow.ignore = 0;
         int itemid = item->type();
-        Db::updateTreeIgnore(itemid, false);
+        treeQuery::updateIgnore(itemid, false);
         color = applyColor(grampsName, color);
         setMolColor(item, color, colorBy);
         //updateColorIcon(item, color, colorBy);
@@ -1776,7 +1804,7 @@ QString ChemWidget::drawMol(QTreeWidgetItem *item) {
   } else {
     currentRow.ignore = 0;
     int itemid = item->type();
-    Db::updateTreeIgnore(itemid, false);
+    treeQuery::updateIgnore(itemid, false);
     color = applyColor(grampsName, color);
     setMolColor(item, color, colorBy);
     //updateColorIcon(item, color, colorBy);
@@ -1831,8 +1859,10 @@ int ChemWidget::lines(int imol, const QString molnam, unsigned int resnum, char 
     //    // main chain filter wants both atoms in the bond to be in the main chain
     //    both = true;
     //  }
-    QSqlQuery qbond = Db::iterBonds(imol, resnum, chain, filter, hydrogens);
-    int nbonds = Db::numRows(qbond);
+
+    bondQuery bond;
+    bond.iter(imol, resnum, chain, filter, hydrogens);
+    int nbonds = bond.count();
 
     spec[0] = nbonds * 2; // coordinate count, each bond having 2 atoms
     spec[1] = 0; // alternating lines: move-draw-move-draw-...
@@ -1846,7 +1876,7 @@ int ChemWidget::lines(int imol, const QString molnam, unsigned int resnum, char 
         err = getMemMore("", spec, size, 0);
     }
 
-    for (bondRecord bond = Db::nextBond(qbond); bond.valid; bond = Db::nextBond(qbond)) {
+    for ( bond.first(); bond.valid; bond.next() ) { //= Db::nextBond(qbond); bond.valid; bond = Db::nextBond(qbond)) {
         err += drawBond(bond, pairs, colorBy, spec);
     }
 
@@ -1903,7 +1933,7 @@ void ChemWidget::setChargeColor(float charge) {
   getMemMore("", color, 6, 0);
 }
 
-int ChemWidget::drawAtom(atomRecord atom, int colorBy, float radius, float Hradius, int hetero) {
+int ChemWidget::drawAtom(atomQuery atom, int colorBy, float radius, float Hradius, int hetero) {
 //     draw atoms, but selectively depending on their hetero status.
 //     used for STICKSANDCOLOREDHET style.
 
@@ -1922,7 +1952,7 @@ int ChemWidget::drawAtom(atomRecord atom, int colorBy, float radius, float Hradi
   return 0;
 }
 
-int ChemWidget::drawAtom(atomRecord atom, int colorBy, float radius, float Hradius) {
+int ChemWidget::drawAtom(atomQuery atom, int colorBy, float radius, float Hradius) {
 
 //   color sphere by atom/cpk or charge color
 //   use radius supplied, or vdw radii if 0.0
@@ -1971,14 +2001,13 @@ int ChemWidget::spheres(int imol, int iatom, const QString molnam, unsigned int 
     if (err) return err;
   }
   if (iatom == NOATOM) {
-      // meaning: no particular atom, so all atoms
-      QSqlQuery qatom = Db::iterAtoms(imol, resnum, chain, filter, hydrogens);
-      for (atomRecord atom = Db::nextAtom(qatom); atom.valid; atom = Db::nextAtom(qatom)) {
-          err += drawAtom(atom, colorBy, radius, Hradius, hetero);
+      // no particular atom, so iterate over all atoms in mol/residue/chain/filter
+      for (atom_query.iter(imol, resnum, chain, filter, hydrogens); atom_query.next(); ) {
+          err += drawAtom(atom_query, colorBy, radius, Hradius, hetero);
       }
   } else {
-      atomRecord atom = Db::getAtom(imol, iatom);
-      err = drawAtom(atom, colorBy, radius, Hradius, hetero);
+      atom_query.get(imol, iatom);
+      err = drawAtom(atom_query, colorBy, radius, Hradius, hetero);
   }
 
   //qDebug() << "spheres err " << err << "resnum " << resnum;
@@ -2000,11 +2029,13 @@ int ChemWidget::spheres(int imol, int iatom, const QString molnam, unsigned int 
 //  return 0;
 //}
 
-void ChemWidget::makeNewCurrentRow( QString rowname, int rootType, QString grampsName, unsigned int resnum,
-                                   Qt::CheckState state, int imol, int iatom, char chain, int drawstyle, int colorBy, QColor color, int filter) {
+void ChemWidget::makeNewCurrentRow(QString rowname, int rootType, QString grampsName, unsigned int resnum,
+                                   Qt::CheckState state, int imol, int iatom, char chain, int drawstyle,
+                                   int colorBy, QColor color, int filter, int hydrogens) {
 
     // remember pieces of data for later use when redrawing or other user-driven operations on this row.
     // rowname displayed in tree
+    /*
     currentRow.rowname = rowname;
     // gramps object name
     currentRow.grampsName = grampsName;
@@ -2027,13 +2058,20 @@ void ChemWidget::makeNewCurrentRow( QString rowname, int rootType, QString gramp
     // filters some atoms
     currentRow.filter = filter;
     // draw hydrogens or not
-    currentRow.hydrogens = hydrogenDefault;
+    currentRow.hydrogens = hydrogens;
     // draw main chain atoms along with side chain atoms for single residue
     currentRow.mainSide = 0;
     // tree.atid, if row "belongs" to an atom
     currentRow.iatom = iatom;
     // is this row's checkbox checked
     currentRow.checked = state;
+    */
+    int mainSide = 0;
+    int ignore = (state==Qt::Unchecked);
+
+    currentRow.newRow(rootType, imol, iatom, grampsName, rowname,
+    resnum, chain, ignore, drawstyle, colorBy, filter,
+    color.hue(), color.saturation(), color.value(), color.alpha(), hydrogens, mainSide, state);
 }
 
 QTreeWidgetItem * ChemWidget::addMolRow(QTreeWidgetItem *root, QString rowname, unsigned int resnum,
@@ -2049,16 +2087,14 @@ QTreeWidgetItem * ChemWidget::addMolRow(QTreeWidgetItem *root, QString rowname, 
   //QList<QTreeWidgetItem*>item = findItems(grampsName, Qt::MatchFixedString|Qt::MatchCaseSensitive|Qt::MatchRecursive, NAME_COLUMN);
   if (item) return item;
 
-  currentRow = Db::getTreeRow(grampsName);
+  currentRow.getRow(grampsName);
   if (currentRow.valid) {
       // already have a db entry with this name (when restoring from session file)
   } else {
-      makeNewCurrentRow(rowname, root->type(), grampsName, resnum, state, imol, iatom, chain, drawstyle, colorBy, color, filter);
+      int hcount = atom_query.hcount(imol, resnum, chain, filter);
+      int hydrogens = (hcount == 0) ? HYDROGEN_NONE : hydrogenDefault;
       // store this row info in db
-      QSqlQuery hquery = Db::iterAtoms(imol, resnum, chain, filter, HYDROGEN_COUNT);
-      int hcount = Db::numRows(hquery);
-      currentRow.hydrogens = (hcount == 0) ? HYDROGEN_NONE : hydrogenDefault;
-      currentRow.itemId = Db::newTreeRow(currentRow);
+      makeNewCurrentRow(rowname, root->type(), grampsName, resnum, state, imol, iatom, chain, drawstyle, colorBy, color, filter, hydrogens);
   }
   return makeMolRow(root, grampsName, rowname, state);
 }

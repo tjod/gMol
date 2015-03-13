@@ -142,8 +142,7 @@ private:
     QProgressDialog *progress;
     QTreeWidgetItem *rootMol;
     int hydrogenDefault;
-    treeRow currentRow;
-    atomRecord pickedAtom;
+    treeQuery currentRow;
     int zoomFilter;
     QScopedPointer<QMenu> molMenu;
     QScopedPointer<QMenu> pickMenu;
@@ -163,9 +162,9 @@ private:
     int spheres(int imol, int iatom, const QString molnam, unsigned int resnum, char chain, int colorBy, int hetero,
       int filter, int hydrogens, float radius, float Hradius);
     void normal(float[3], float[3], float[3], float[3]);
-    int drawBond(bondRecord bond, bool pairs, int colorBy, float *spec);
-    int drawAtom(atomRecord atom, int colorBy, float radius, float Hradius);
-    int drawAtom(atomRecord atom, int colorBy, float radius, float Hradius, int hetero);
+    int drawBond(bondQuery bond, bool pairs, int colorBy, float *spec);
+    int drawAtom(atomQuery atom, int colorBy, float radius, float Hradius);
+    int drawAtom(atomQuery atom, int colorBy, float radius, float Hradius, int hetero);
     int sendChain(int nca, float *coord, float cradius, float radius, int spline);
     int drawRibbon(int imol, QString molnam, char cname, int mode, float sradius, float cradius);
     int makeRibbon(int nguide, float *guide_minus, float *guide_plus, float *guide_zero, std::string sstype, int lores, int hires, float radius, float width, bool endcaps, bool showUnknown);
@@ -200,8 +199,9 @@ private:
     void colorMol(QTreeWidgetItem *item, QColor color);
     int resCount(int imol, char cname, int *ntrace, int *nwater, int *nhet, int *nmain, int *nside);
     QList<QString> addChainsRow(QTreeWidgetItem *root, int imol);
-    void makeNewCurrentRow( QString rowname, int rootType, QString grampsName, unsigned int resnum,
-                           Qt::CheckState state, int imol, int iatom, char chain, int drawstyle, int colorBy, QColor color, int filter);
+    void makeNewCurrentRow(QString rowname, int rootType, QString grampsName, unsigned int resnum,
+                           Qt::CheckState state, int imol, int iatom, char chain, int drawstyle,
+                           int colorBy, QColor color, int filter, int hydrogens);
     QTreeWidgetItem * addMolRow(QTreeWidgetItem *root, QString rowname,
      unsigned int rindex, Qt::CheckState state, int imol, int iatom, char chain, QString suffix, int style, int colorBy, QColor color, int filter);
     QTreeWidgetItem * makeMolRow(QTreeWidgetItem *root, QString grampsName, QString rowname, Qt::CheckState state);
@@ -211,7 +211,7 @@ private:
     void adjustParents(QTreeWidgetItem *);
     QTreeWidgetItem *adjustParent(QTreeWidgetItem *);
     void updateColorIcon(QTreeWidgetItem *, QColor, int);
-    void insertOrGroup(QString molnam, treeRow treeParent);
+    void insertOrGroup(QString molnam, treeQuery treeParent);
     QTreeWidgetItem *getGrampsItem(QString name);
 
     float centerMol(int filter);
@@ -230,6 +230,10 @@ private:
     FILE *dfp;
     QString dfname;
 
+    propertyQuery property_query;
+    molQuery mol_query;
+    atomQuery atom_query;
+    atomQuery pickedAtom;
 };
 
 #endif

@@ -53,136 +53,13 @@ C *************************************************************
 
 #define NOCHAIN '\0'
 #define NOATOM -1
+#define NOMOL -1
+#define NORESNUM -1
 
 #define HYDROGEN_NONE -1
 #define HYDROGEN_HIDE 0
 #define HYDROGEN_SHOW 1
 #define HYDROGEN_COUNT -2 // very special case used as param in iterAtoms.  not used in db actually
-
-struct molRecord {
-  bool valid;
-  int imol;
-  QString type;
-  QString filename;
-  QString title;
-  int nresidue;
-  int natoms;
-  int nbonds;
-  int model;
-};
-
-struct propertyRecord {
-    bool valid;
-    int imol;
-    QString name;
-    QString value;
-    int order;
-};
-
-// struct chainRecord {
-//   bool valid;
-//   char name;
-//   int nres;
-//   int nhet;
-//   int nwater;
-//   int nmain;
-//   int nside;
-//   int ntrace;
-
-// };
-
- struct chainCoordRecord {
-   bool valid;
-   float x;
-   float y;
-   float z;
-   int resnum;
-   QString name;
-   char sstype;
- };
-
- struct atomRecord {
-   bool valid;
-   int atid;
-   int molid;
-   int resnum;
-   QString resnam;
-   char altLoc;
-   char icode;
-   int atnum;
-   float x;
-   float y;
-   float z;
-   float fcharge;
-   float pcharge;
-   QString name;
-   char chain;
-   int hetatm;
- };
-
- struct residueRecord {
-   bool valid;
-   int  number;
-   QString name;
- };
-
- struct bondRecord {
-   bool valid;
-   float ax;
-   float ay;
-   float az;
-   int anum;
-   int ares;
-   char achain;
-   float acharge;
-   int ahetatm;
-   float bx;
-   float by;
-   float bz;
-   int bnum;
-   int bres;
-   char bchain;
-   float bcharge;
-   int bhetatm;
- };
-
- struct treeRow {
-   int itemId;
-   int parentId;
-   int imol;
-   int iatom;
-   QString grampsName;
-   QString rowname;
-   int resnum;
-   char chain;
-   int ignore;
-   int style;
-   int colorBy;
-   int filter;
-   QColor color;
-   int hydrogens;
-   int mainSide;
-   int checked;
-   bool valid;
- };
-
- struct triRecord {
-   bool valid;
-   int vid;
-   int tid;
- };
- struct vtxRecord {
-   bool valid;
-   float x;
-   float y;
-   float z;
-   float nx;
-   float ny;
-   float nz;
-   float value;
-   int vid;
-   int atnum;
- };
 
 struct selectionFilter {
     int id;
@@ -195,9 +72,13 @@ struct selectionFilter {
 
 class Db {
 public:
-    static QList<selectionFilter> filters;
-
     Db();
+    ~Db();
+
+    static QList<selectionFilter> filters;
+    static QList<selectionFilter> getFilters();
+    static selectionFilter getFilter(int filterid);
+
     static QSqlDatabase open();
     static QSqlDatabase openDbFile(QString fileName);
     static bool openExisting(QString filename);
@@ -205,35 +86,16 @@ public:
     static bool save(QString file);
     static int numRows(QSqlQuery);
     static bool tellError(QSqlQuery &, QString);
+    static bool tellError(QSqlQuery &);
     static bool deleteFromTables(int imol);
 
     static int readPDB(QString pdb, QString name);
     static int readPDB(QString filename);
     static void checkResidues(int molid);
     static int getMolIdFromInchiKey(QString);
-    static int molNumRes(int imol);
-    static QString molResName(int imol, int resnum, char chain);
-    static QSqlQuery iterMols();
-    static molRecord nextMol(QSqlQuery);
     static float molCenter(int imol, unsigned int resnum, char chain, int filter, float *center, float *sizes);
-    static QString molTitle(int imol);
-    static QString molFilename(int imol);
-    static QSqlQuery iterMolsByFile();
-    static QSqlQuery iterMolsinFile(int imol);
-    static QSqlQuery iterMolProperties(int imol);
-    static propertyRecord nextMolProperty(QSqlQuery);
-    static int molNumAtoms(int imol);
     static void molBounds(int imol, unsigned int resnum, char chain, int filter, float *min, float *max);
-
-    static atomRecord findAtomNear(int imol, char chain, float *xyzw, float range);
-    static atomRecord getAtom(int imol, int iatom);
-    static int getAtomResNum(int imol, int iatom);
-    static char getAtomChain(int imol, int iatom);
-    static QSqlQuery iterAtoms(int imol, int resnum, char chain, int filter, int hydrogens);
-    static atomRecord nextAtom(QSqlQuery);
-    static QSqlQuery iterBonds(int imol, int resnum, char chain, int filter, int hydrogens);
-    static bondRecord nextBond(QSqlQuery);
-
+/*
     static bool createTreeTable();
     static int newTreeRow(treeRow &row);
     static treeRow getTreeRow(int itemid);
@@ -251,41 +113,25 @@ public:
     static QSqlQuery iterTreeRows();
     static QSqlQuery IterTreeRowsToRestore();
     static treeRow nextTreeRow(QSqlQuery query);
-
+*/
     static int chainNumRes(int imol, char chain);
-    static QSqlQuery iterChainCoords(int imol, char chain, int filter);
-    static chainCoordRecord nextChainCoord(QSqlQuery);
     static std::string getChainSS(int molid, char chain, int resnum);
     static QSqlQuery iterChainCounts(int imol, char chain);
     static QSqlQuery iterChainCounts(int imol);
     static QHash<QString, int> nextChainCounts(QSqlQuery);
 
+/*
     static int countVertices(int itemid);
     static QSqlQuery iterVertices(int itemid, int imol, int resnum, char chain, int filter, int hydrogen, int colorBy, float nearAtom);
     static vtxRecord nextVertex(QSqlQuery);
     static QSqlQuery iterTriangles(int itemid);
     static triRecord nextTriangle(QSqlQuery);
+*/
 
 private:
     static int itemId;
     static int maxItemId();
 
-    static bool tellError(QSqlQuery &);
-
-    static int molNumBonds(int imol);
-    static molRecord getMol(int);
-
-    //  static QSqlQuery iterResidues(int imol, int resnum, char chain, int filter);
-    //  residueRecord nextResidue(QSqlQuery);
-
-    //int resCount(int imol, char chain, int *Ntrace, int *Nwater, int *Nhet, int *Nmain, int *Nside);
-    static int findAtomIdNear(int imol, char chain, float *xyzw, float range);
-    static QString getAtomResName(int imol, int iatom);
-    static void getAtomCoord(int imol, int iatom, float *center);
-    static QString getAtomName(int imol, int iatom);
-
-    static QList<selectionFilter> getFilters();
-    static selectionFilter getFilter(int filterid);
 #ifdef PDBREADER
     static int symbolToNumber(QString symbol);
     static void addAtom(QSqlQuery q, int molid, int aidx, int resnum, QString resnam, char altLoc, char icode, int atnum,
@@ -304,4 +150,215 @@ private:
     static int readPDB(std::istream& is, QString filename, int fsize);
 #endif
 };
+
+class propertyQuery : public QSqlQuery {
+public:
+    propertyQuery();
+    ~propertyQuery();
+
+ /* let these be public, to make getting easy.
+  * setting would be harmless, meaningless and ineffective.
+  */
+    bool valid;
+    int imol;
+    QString name;
+    QString text;
+    int order;
+
+    bool next();
+    bool iter(int);
+};
+
+class molQuery : public QSqlQuery {
+public:
+    molQuery();
+    ~molQuery();
+
+    bool valid;
+    int imol;
+    QString type;
+    QString filename;
+    QString title;
+    int nresidue;
+    int natoms;
+    int nbonds;
+    int model;
+
+    bool next();
+    bool get(int);
+    bool getInFile(int);
+    bool getByFile();
+
+};
+
+class atomQuery : public QSqlQuery {
+public:
+    atomQuery();
+    ~atomQuery();
+
+    bool valid;
+    int atid;
+    int molid;
+    int resnum;
+    QString resnam;
+    char altLoc;
+    char icode;
+    int atnum;
+    float x;
+    float y;
+    float z;
+    float fcharge;
+    float pcharge;
+    QString name;
+    char chain;
+    int hetatm;
+
+    bool next();
+
+    bool near(int imol, char chain, float *xyzw, float range);
+    bool get(int imol, int iatom);
+    bool iter(int imol, int resnum, char chain, int filter, int hydrogens);
+    int  hcount(int, int, char, int);
+    QString getResnam(int imol, int resnum, char chain);
+
+private:
+    int findAtomIdNear(int, char, float *, float);
+    QString atomSql(int, int, char, int, int);
+};
+
+class triangleQuery : public QSqlQuery {
+public:
+    triangleQuery();
+    ~triangleQuery();
+
+    bool valid;
+    int vid;
+    int tid;
+
+    bool iter(int);
+    bool next();
+    static int count(int);
+};
+class vertexQuery : public QSqlQuery {
+public:
+    vertexQuery();
+    ~vertexQuery();
+
+    bool valid;
+    float x;
+    float y;
+    float z;
+    float nx;
+    float ny;
+    float nz;
+    float vprop; // computed charge or distance property of this point
+    int vid;
+    int atnum;
+
+    bool iter(int, int, int, char, int, int, int, float);
+    bool next();
+    bool first();
+    bool get();
+    //static int count(int);
+    int count();
+};
+
+class bondQuery : public QSqlQuery {
+public:
+    bondQuery();
+    ~bondQuery();
+
+      bool valid;
+      float ax;
+      float ay;
+      float az;
+      int anum;
+      int ares;
+      char achain;
+      float acharge;
+      int ahetatm;
+      float bx;
+      float by;
+      float bz;
+      int bnum;
+      int bres;
+      char bchain;
+      float bcharge;
+      int bhetatm;
+
+      bool iter(int, unsigned int, char, int, int);
+      bool next();
+      bool first();
+      bool get();
+      //static int count(int, unsigned int, char, int, int);
+      int count();
+
+private:
+      static QString bondSql(int imol, unsigned int resnum, char chain, int filter, int hydrogens);
+};
+
+class chainQuery : public QSqlQuery {
+public:
+    chainQuery();
+    ~chainQuery();
+
+      bool valid;
+      float x;
+      float y;
+      float z;
+      int resnum;
+      QString name;
+      char sstype;
+
+      bool iter(int, char, int);
+      bool next();
+      static int numRes(int, char);
+};
+
+class treeQuery : public QSqlQuery {
+public:
+    int itemId;
+    int parentId;
+    int imol;
+    int iatom;
+    QString grampsName;
+    QString rowname;
+    int resnum;
+    char chain;
+    int ignore;
+    int style;
+    int colorBy;
+    int filter;
+    QColor color;
+    int hydrogens;
+    int mainSide;
+    int checked;
+    bool valid;
+
+    treeQuery();
+    ~treeQuery();
+
+    bool next();
+    bool iter();
+    bool iter(QString);
+    bool iterRestore();
+    bool getRow(int itemid);
+    bool getRow(QString grampsName);
+    bool getSibling(int parentid, char sibchain);
+
+    static bool createTable();
+    bool newRow(int parentid, int imol, int iatom, QString grampsname, QString rowname,
+               int resnum, char chain, int ignore, int style, int colorBy, int filter,
+               int hue, int saturation, int value, int alpha, int hydrogens, int mainSide, bool checked);
+    static bool isRow(int imol, char chain, QString rowname);
+    static bool isRow(int imol, char chain, int iatom);
+    static bool updateColor(int itemid, QColor color);
+    static bool updateColorBy(int itemid, int colorBy);
+    static bool updateIgnore(int itemid, int ignore);
+    static bool updateChecked(int itemid, int checked);
+    static bool updateStyle(int itemid, int style);
+    static bool updateHydrogens(int itemid, int hydrogens);
+    static bool updateMainSide(int itemid, int mainSide, int filter);
+};
+
 #endif

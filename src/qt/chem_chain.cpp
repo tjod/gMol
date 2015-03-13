@@ -52,31 +52,32 @@ int ChemWidget::drawChain(int imol, QString molnam, char chain, int mode, float 
   }
 
   // draw an alpha-carbon trace for this chain.
-  int numres = Db::chainNumRes(imol, chain);
+  int numres = chainQuery::numRes(imol, chain);
   float (*coord)[3] = new float[numres+1][3];
   int ntrace = 0;
   //qDebug() << "drawChain " << chain;
   float ax=0, ay=0, az=0;
   int reslast = 0;
-  QSqlQuery qchain = Db::iterChainCoords(imol, chain, FILTER_TRACE);
-  for (chainCoordRecord chainCoord = Db::nextChainCoord(qchain); chainCoord.valid; chainCoord = Db::nextChainCoord(qchain)) {
+  //QSqlQuery qchain = Db::iterChainCoords(imol, chain, FILTER_TRACE);
+  chainQuery cq;
+  for (cq.iter(imol, chain, FILTER_TRACE); cq.next(); ) {
     if (ntrace) {
-      if (chainCoord.resnum-reslast > 1 ) {
+      if (cq.resnum-reslast > 1 ) {
         if (!endcaps) {
           err += sendChain(ntrace, (float *)coord, cradius, sradius, CatRom);
         }
         ntrace = 0;
       }
     }
-    reslast = chainCoord.resnum;
+    reslast = cq.resnum;
     if (endcaps && ntrace) { // skip all but first and last spheres
-      ax = chainCoord.x;
-      ay = chainCoord.y;
-      az = chainCoord.z;
+      ax = cq.x;
+      ay = cq.y;
+      az = cq.z;
     } else {
-      coord[ntrace][0] = ax = chainCoord.x;
-      coord[ntrace][1] = ay = chainCoord.y;
-      coord[ntrace][2] = az = chainCoord.z;
+      coord[ntrace][0] = ax = cq.x;
+      coord[ntrace][1] = ay = cq.y;
+      coord[ntrace][2] = az = cq.z;
     }
     ntrace++;
   }

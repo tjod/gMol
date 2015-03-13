@@ -26,6 +26,10 @@ extern QString gmolLib;
 int Db::itemId = 0; //static
 QList<selectionFilter> Db::filters = QList<selectionFilter>();
 Db::Db() {
+    ;
+}
+Db::~Db(){
+    ;
 }
 
 QSqlDatabase Db::open() {
@@ -120,13 +124,6 @@ bool Db::openExisting(QString filename) {
     return db.isOpen();
 }
 
-bool Db::createTreeTable() {
-    QSqlQuery query;
-    if (!query.exec("Create Table main.tree (itemid Integer Primary Key, parentid Integer, imol Integer, iatom Integer, grampsname Text, rowname Text, resnum integer, chain Char(1), ignore Integer, style Integer, colorBy Integer, filter Integer, hue Integer, saturation Integer, value Integer, alpha Integer, hydrogens Integer, mainSide Integer, checked Integer, Foreign key (imol) References molecule (molid) On Delete Cascade)")) return tellError(query);
-    return true;
-}
-
-
 bool Db::attachResidue() {
     QSqlQuery query;
 //#ifdef __APPLE__
@@ -142,98 +139,10 @@ bool Db::attachResidue() {
     }
 }
 
-bool Db::updateTreeColor(int itemid, QColor color) {
-    QSqlQuery query;
-    query.prepare("Update main.tree Set hue=?, saturation=?, value=?, alpha=? Where itemid=?");
-    query.addBindValue((int)color.hue());
-    query.addBindValue((int)color.saturation());
-    query.addBindValue((int)color.value());
-    query.addBindValue((int)color.alpha());
-    query.addBindValue((int)itemid);
-    if (!query.exec()) {
-        tellError(query);
-        return false;
-    } else {
-        return true;
-    }
-}
-bool Db::updateTreeColorBy(int itemid, int colorBy) {
-    QSqlQuery query;
-    query.prepare("Update main.tree Set colorBy=? Where itemid=?");
-    query.addBindValue((int)colorBy);
-    query.addBindValue((int)itemid);
-    if (!query.exec()) {
-        tellError(query);
-        return false;
-    } else {
-        return true;
-    }
-}
-bool Db::updateTreeIgnore(int itemid, int ignore) {
-    QSqlQuery query;
-    query.prepare("Update main.tree Set ignore=? Where itemid=?");
-    query.addBindValue((int)ignore);
-    query.addBindValue((int)itemid);
-    if (!query.exec()) {
-        tellError(query);
-        return false;
-    } else {
-        return true;
-    }
-}
-bool Db::updateTreeChecked(int itemid, int checked) {
-    QSqlQuery query;
-    query.prepare("Update main.tree Set checked=? Where itemid=?");
-    query.addBindValue(checked);
-    query.addBindValue((int)itemid);
-    if (!query.exec()) {
-        tellError(query);
-        return false;
-    } else {
-        return true;
-    }
-}
-bool Db::updateTreeStyle(int itemid, int style) {
-    QSqlQuery query;
-    query.prepare("Update main.tree Set style=? Where itemid=?");
-    query.addBindValue((int)style);
-    query.addBindValue((int)itemid);
-    if (!query.exec()) {
-        tellError(query);
-        return false;
-    } else {
-        return true;
-    }
-}
-bool Db::updateTreeHydrogens(int itemid, int hydrogens) {
-    QSqlQuery query;
-    query.prepare("Update main.tree Set hydrogens=? Where itemid=?");
-    query.addBindValue((int)hydrogens);
-    query.addBindValue((int)itemid);
-    if (!query.exec()) {
-        tellError(query);
-        return false;
-    } else {
-        return true;
-    }
-}
-bool Db::updateTreeMainSide(int itemid, int mainSide, int filter) {
-    QSqlQuery query;
-    query.prepare("Update main.tree Set mainSide=?, filter=? Where itemid=?");
-    query.addBindValue((int)mainSide);
-    query.addBindValue((int)filter);
-    query.addBindValue((int)itemid);
-    if (!query.exec()) {
-        tellError(query);
-        return false;
-    } else {
-        return true;
-    }
-}
 
 std::string Db::getChainSS(int molid, char chain, int numres) {
     QSqlQuery query;
-    query.prepare("Select resnum, type From main.secondary_structure Where molid=? And chain=? Order by resnum");
+    query.prepare("Select resnum, type From secondary_structure Where molid=? And chain=? Order by resnum");
     query.addBindValue((int)molid);
     query.addBindValue((QString)chain);
     if (query.exec()) {
@@ -254,161 +163,18 @@ std::string Db::getChainSS(int molid, char chain, int numres) {
 int Db::maxItemId() {
     int itemid = 0;
     QSqlQuery query;
-    query.prepare("Select max(itemid) From main.tree");
+    query.prepare("Select max(itemid) From tree");
     if (!query.exec()) tellError(query);
     query.next();
     itemid = query.value(0).toInt();
     return itemid;
 }
 
-//  int getTreeRowId(int molid) {
-//    int itemid = 0;
-//    QSqlQuery query;
-//    query.prepare("Select itemid From main.tree Where imol=? And parentid > 0");
-//    query.addBindValue((int)molid);
-//    if (!query.exec()) tellError(query);
-//    query.next();
-//    itemid = query.value(0).toInt();
-//    return itemid;
-//  }
-
-treeRow Db::getTreeRow(int itemid) {
-    QSqlQuery query;
-    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From main.tree Where itemid=?");
-    query.addBindValue((int)itemid);
-    if (!query.exec()) tellError(query);
-    return nextTreeRow(query);
-}
-treeRow Db::getTreeRow(QString grampsName) {
-    QSqlQuery query;
-    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From main.tree Where grampsname=?");
-    query.addBindValue((QString)grampsName);
-    if (!query.exec()) tellError(query);
-    return nextTreeRow(query);
-}
-treeRow Db::getTreeSibling(int parentid, char sibchain) {
-    QSqlQuery query;
-    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From main.tree Where parentid=? and chain=?");
-    query.addBindValue(parentid);
-    query.addBindValue((QString)sibchain);
-    if (!query.exec()) tellError(query);
-    return nextTreeRow(query);
-}
-
-int Db::newTreeRow(treeRow &row) {
-    QSqlQuery query;
-    ++itemId;
-    query.prepare("Insert Into main.tree (itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked) Values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-    query.addBindValue((int)itemId);
-    query.addBindValue((int)row.parentId);
-    query.addBindValue((int)row.imol);
-    query.addBindValue((int)row.iatom);
-    query.addBindValue(row.grampsName);
-    query.addBindValue(row.rowname);
-    query.addBindValue((int)row.resnum);
-    query.addBindValue((QString)row.chain);
-    query.addBindValue((int)row.ignore);
-    query.addBindValue((int)row.style);
-    query.addBindValue((int)row.colorBy);
-    query.addBindValue((int)row.filter);
-    query.addBindValue((int)row.color.hue());
-    query.addBindValue((int)row.color.saturation());
-    query.addBindValue((int)row.color.value());
-    query.addBindValue((int)row.color.alpha());
-    query.addBindValue((int)row.hydrogens);
-    query.addBindValue((int)row.mainSide);
-    query.addBindValue((int)row.checked);
-    if (!query.exec()) tellError(query);
-    return itemId;
-}
-
-bool Db::isTreeRow(int imol, char chain, QString rowname) {
-    QSqlQuery query;
-    query.prepare("Select itemid From main.tree Where imol=? And chain=? And rowname=?");
-    query.addBindValue((int)imol);
-    query.addBindValue((QString)chain);
-    query.addBindValue((QString)rowname);
-    if (!query.exec()) tellError(query);
-    bool retval = query.next();
-    //qDebug() << "isTreeRow" << imol << chain << rowname << retval;
-    return retval;
-}
-
-bool Db::isTreeRow(int imol, char chain, int iatom) {
-    QSqlQuery query;
-    query.prepare("Select itemid From main.tree Where imol=? And chain=? And iatom=?");
-    query.addBindValue((int)imol);
-    query.addBindValue((QString)chain);
-    query.addBindValue((int)iatom);
-    if (!query.exec()) tellError(query);
-    bool retval = query.next();
-    //qDebug() << "isTreeRow" << imol << chain << iatom << retval;
-    return retval;
-}
-
-QString Db::molTitle(int imol) {
-    return getMol(imol).title;
-}
-
-int Db::molNumBonds(int imol) {
-    return getMol(imol).nbonds;
-}
-
-int Db::molNumAtoms(int imol) {
-    return getMol(imol).natoms;
-}
-
-QString Db::molFilename(int imol) {
-    return getMol(imol).filename;
-}
-
-int Db::molNumRes(int imol) {
-    return getMol(imol).nresidue;
-}
-
-
-QString Db::molResName(int imol, int resnum, char chain) {
-    QString name;
-#ifdef DEBUG
-    qDebug() << "Db::molResName";
-#endif
-    QSqlQuery query;
-    query.prepare("Select Distinct resnam From main.atom Where molid=? And resnum=? And chain=?");
-    query.addBindValue(imol);
-    query.addBindValue(resnum);
-    query.addBindValue((QString)chain);
-    if (query.exec()) {
-        query.next();
-        name = query.value(0).toString();
-    } else {
-        tellError(query);
-    }
-    return name;
-}
-
-int Db::chainNumRes(int imol, char chain) {
-    int nres = 0;
-#ifdef DEBUG
-    qDebug() << "Db::chainNumRes";
-#endif
-    QSqlQuery query;
-    query.prepare("Select max(resnum) From main.atom Where molid=? And chain=?");
-    query.addBindValue((int)imol);
-    query.addBindValue((QString)chain);
-    if (query.exec()) {
-        query.next();
-        nres = query.value(0).toInt();
-    } else {
-        tellError(query);
-    }
-    return nres;
-}
-
 int Db::numRows(QSqlQuery query) {
-    /* workaround for sqlite (numRows not implemented in driver) to get number of rows in a query result.
-      should be called before first result is retrieved, since this method reset result set to before
-      the first result
-  */
+//      workaround for sqlite (numRows not implemented in driver) to get number of rows in a query result.
+//      should be called before first result is retrieved, since this method reset result set to before
+//      the first result
+
     int current = query.at();
     if (query.last()) {
         int nrows = query.at() + 1;
@@ -418,124 +184,16 @@ int Db::numRows(QSqlQuery query) {
         return 0;
     }
 }
+
 /* These iter* methods prepare a SQL statement for use in a while (query->next()) type loop
      in the manner of an iterator
   */
-QSqlQuery Db::iterMols() {
-    QSqlQuery query;
-    query.prepare("Select molid,file,title,type,nresidue,natoms,nbonds,model From molecule Order By molid Asc, file");
-    if (!query.exec()) tellError(query);
-    return query;
-}
-QSqlQuery Db::iterMolsByFile() {
-    QSqlQuery query;
-    query.prepare("Select min(molid),file,title,type,nresidue,natoms,nbonds,model From molecule Group By file Order By molid Asc");
-    if (!query.exec()) tellError(query);
-    return query;
-}
-QSqlQuery Db::iterMolsinFile(int imol) {
-    QSqlQuery query;
-    query.prepare("Select molid,file,title,type,nresidue,natoms,nbonds,model From main.molecule Where file=(Select file From main.molecule Where molid=?) Order By molid Asc");
-    query.addBindValue(imol);
-    if (!query.exec()) tellError(query);
-    return query;
-}
-molRecord Db::getMol(int imol) {
-    QSqlQuery query;
-    query.prepare("Select molid,file,title,type,nresidue,natoms,nbonds,model From main.molecule Where molid=?");
-    query.addBindValue(imol);
-    if (!query.exec()) tellError(query);
-    return nextMol(query);
-}
-molRecord Db::nextMol(QSqlQuery qmol) {
-    molRecord mol;
-    if (qmol.next()) {
-        mol.imol     = qmol.value(0).toInt();
-        mol.filename = qmol.value(1).toString();
-        mol.title    = qmol.value(2).toString();
-        mol.type     = qmol.value(3).toString();
-        mol.nresidue = qmol.value(4).toInt();
-        mol.natoms   = qmol.value(5).toInt();
-        mol.nbonds   = qmol.value(6).toInt();
-        mol.model    = qmol.value(7).toInt();
-        mol.valid    = true;
-    } else {
-        mol.valid = false;
-    }
-    return mol;
-}
-QSqlQuery  Db::iterMolProperties(int imol) {
-    QSqlQuery query;
-    query.prepare("Select molid,name,value,record from property where molid=? order by record asc");
-    query.addBindValue(imol);
-    if (!query.exec()) tellError(query);
-    return query;}
 
-propertyRecord  Db::nextMolProperty(QSqlQuery query) {
-    propertyRecord prop;
-    if(query.next()) {
-        prop.imol = query.value(0).toInt();
-        prop.name = query.value(1).toString();
-        prop.value = query.value(2).toString();
-        prop.order = query.value(3).toInt();
-        prop.valid = true;
 
-    } else {
-        prop.valid = false;
-    }
-    return prop;
-}
-
-QSqlQuery Db::iterTreeRows() {
-    QSqlQuery query;
-    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From main.tree Order by itemid");
-    if (!query.exec()) tellError(query);
-    return query;
-}
-QSqlQuery Db::IterTreeRowsToRestore() {
-    // find items needing to be drawn on restore
-    QSqlQuery query;
-    query.prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From main.tree Where style != 0 Order by itemid");
-    if (!query.exec()) tellError(query);
-    return query;
-}
-treeRow Db::nextTreeRow(QSqlQuery query) {
-    treeRow row;
-    if (query.next()) {
-        row.itemId      = query.value(ITEM_ID).toInt();
-        row.parentId    = query.value(ITEM_PARENTID).toInt();
-        row.imol        = query.value(ITEM_IMOL).toInt();
-        row.iatom       = query.value(ITEM_IATOM).toInt();
-        row.grampsName  = query.value(ITEM_GRAMPSNAME).toString();
-        row.rowname     = query.value(ITEM_ROWNAME).toString();
-        row.resnum      = query.value(ITEM_RESNUM).toInt();
-        row.chain       = query.value(ITEM_CHAIN).toString().toLocal8Bit().data()[0];
-        row.ignore      = query.value(ITEM_IGNORE).toInt();
-        row.style       = query.value(ITEM_STYLE).toInt();
-        row.colorBy     = query.value(ITEM_COLORBY).toInt();
-        row.filter      = query.value(ITEM_FILTER).toInt();
-        int hue   = query.value(ITEM_HUE).toInt();
-        int sat   = query.value(ITEM_SATURATION).toInt();
-        int val   = query.value(ITEM_VALUE).toInt();
-        int alpha = query.value(ITEM_ALPHA).toInt();
-        if (hue == 0.0 && sat == 0.0 && val == 0.0) {
-            row.color   = QColor();
-        } else {
-            row.color   = QColor::fromHsv(hue,sat,val,alpha);
-        }
-        row.hydrogens = query.value(ITEM_HYDROGENS).toInt();
-        row.mainSide  = query.value(ITEM_MAINSIDE).toInt();
-        row.checked   = query.value(ITEM_CHECKED).toInt();
-        row.valid = true;
-    } else {
-        row.valid = false;
-    }
-    return row;
-}
 /*
   QSqlQuery iterChains(int imol) {
     QSqlQuery query;
-    query.prepare("Select Distinct chain From main.atom Where molid=?");
+    query.prepare("Select Distinct chain From atom Where molid=?");
     query.addBindValue(imol);
     if (!query.exec()) tellError(query);
     return query;
@@ -621,70 +279,11 @@ QHash<QString, int> Db::nextChainCounts(QSqlQuery qchain) {
     return chainCounts;
 }
 
-QSqlQuery Db::iterAtoms(int imol, int resnum, char chain, int filter, int hydrogens) {
-#ifdef DEBUG
-    qDebug() << "Db::iterAtoms";
-#endif
-    QString sql = "Select molid,atid,resnum,resnam,altLoc,icode,atnum,x,y,z,fcharge,pcharge,name,chain,hetatm \
-            From main.atom Where molid=" + QString::number(imol);
-            if (chain != NOCHAIN) sql += " And chain='" + QString(chain) + "'";
-    if (resnum) sql += " And resnum=" + QString::number(resnum);
-    if (hydrogens == HYDROGEN_HIDE) {
-        sql += " And atnum>1";
-    } else if (hydrogens == HYDROGEN_COUNT) {
-        // very special case used once to determine hcount
-        sql += " And atnum=1";
-    }
-    //if (filter)  sql += " And flag=" + QString::number(filter);
-    if (filter) {
-        QString filterClause = getFilter(filter).sql;
-        //qDebug() << filterClause;
-        sql += " And (" + filterClause + ")";
-    }
-    QSqlQuery query;
-    if (!query.prepare(sql)) tellError(query);
-    if (!query.exec()) tellError(query);
-    return query;
-}
-atomRecord Db::nextAtom(QSqlQuery qatom) {
-    atomRecord atom;
-    if (qatom.next()) {
-        atom.molid   = qatom.value(0).toInt();
-        atom.atid    = qatom.value(1).toInt();
-        atom.resnum  = qatom.value(2).toInt();
-        atom.resnam  = qatom.value(3).toString();
-        atom.altLoc  = qatom.value(4).toString().toLocal8Bit().data()[0];
-        atom.icode   = qatom.value(5).toString().toLocal8Bit().data()[0];
-        atom.atnum   = qatom.value(6).toInt();
-        atom.x       = qatom.value(7).toDouble();
-        atom.y       = qatom.value(8).toDouble();
-        atom.z       = qatom.value(9).toDouble();
-        atom.fcharge = qatom.value(10).toDouble();
-        atom.pcharge = qatom.value(11).toDouble();
-        atom.name    = qatom.value(12).toString();
-        atom.chain   = qatom.value(13).toString().toLocal8Bit().data()[0];
-        atom.hetatm  = qatom.value(14).toInt();
-        atom.valid = true;
-    } else {
-        atom.valid = false;
-    }
-    return atom;
-}
-atomRecord Db::getAtom(int imol, int iatom) {
-    QString sql = "Select molid,atid,resnum,resnam,altLoc,icode,atnum,x,y,z,fcharge,pcharge,name,chain,hetatm From main.atom Where molid=? And atid=?";
-    QSqlQuery query;
-    if (!query.prepare(sql)) tellError(query);
-    query.addBindValue(imol);
-    query.addBindValue(iatom);
-    if (!query.exec()) tellError(query);
-    return nextAtom(query);
-}
-
 //  QSqlQuery Db::iterResidues(int imol, int resnum, char chain, int filter) {
 //#ifdef DEBUG
 //    qDebug() << "Db::iterResidues";
 //#endif
-//    QString sql = "Select resnum,resnam From main.atom Where molid=?";
+//    QString sql = "Select resnum,resnam From atom Where molid=?";
 //    if (chain != NOCHAIN) sql += " And chain=?";
 //    if (resnum)  sql += " And resnum=?";
 //    if (filter)  sql += " And flag=?";
@@ -711,182 +310,7 @@ atomRecord Db::getAtom(int imol, int iatom) {
 //    return residue;
 //  }
 
-QSqlQuery Db::iterBonds(int imol, int resnum, char chain, int filter, int hydrogens) {
-#ifdef DEBUG
-    qDebug() << "Db::iterBonds";
-#endif
-    //QString sql = "Select atom.x,atom.y,atom.z,atom.atnum,atom.resnum,atom.chain,atom.hetatm, b.x,b.y,b.z,b.atnum,b.resnum,b.chain,b.hetatm From main.bond Join main.atom a On (atom.atid=aid And atom.molid=bond.molid) Join main.atom b On (b.atid=bid And b.molid=bond.molid) Where bond.molid=(Select ifnull(model, molid) From main.molecule Where molid=?) And atom.atnum>? And b.atnum>?";
-    //QString sql = "Select atom.x,atom.y,atom.z,atom.atnum,atom.resnum,atom.chain,atom.pcharge,atom.hetatm, b.x,b.y,b.z,b.atnum,b.resnum,b.chain,b.pcharge,b.hetatm From (Select aid,bid From main.bond Where bond.molid=(Select Case When type='pdb' Then model Else molid End From main.molecule Where molid=?)) as bond Join main.atom a On atom.atid=aid Join main.atom b On b.atid=bid And atom.molid=b.molid And atom.molid=? And atom.atnum>? And b.atnum>?";
-    QString sql = "Select a.x,a.y,a.z,a.atnum,a.resnum,a.chain,a.pcharge,a.hetatm, \
-            b.x,b.y,b.z,b.atnum,b.resnum,b.chain,b.pcharge,b.hetatm \
-            From atom a Join atom b On (aid=a.atid And bid=b.atid And a.molid=b.molid) \
-            Join (Select Distinct atom.molid,aid,bid From \
-                  (Select molid,aid,bid From bond \
-                   Where molid=(Select Case When type='pdb' Then model Else molid End From molecule Where molid=?)) bond \
-                  Join atom Using(molid) Where (atid=aid Or atid=bid)";
-                  if (chain != NOCHAIN) sql += " And atom.chain='" + QString(chain) + "'";
-            if (resnum) sql += " And atom.resnum=" + QString::number(resnum);
-    if (filter) {
-        QString filterClause = getFilter(filter).sql;
-        //qDebug() << filterClause;
-        sql += " And (" + filterClause + ")";
-    }
-    sql += ") Where a.molid=b.molid And a.molid=" + QString::number(imol);
-    if (hydrogens == HYDROGEN_HIDE) sql += " And a.atnum>1 And b.atnum>1";
 
-    QSqlQuery query;
-    if (!query.prepare(sql)) {
-        //qDebug() << sql;
-        tellError(query, sql);
-    }
-    query.bindValue(0,imol);
-    if (!query.exec()) tellError(query, sql);
-    return query;
-}
-bondRecord Db::nextBond(QSqlQuery qbond) {
-    bondRecord bond;
-    if (qbond.next()) {
-        bond.ax     = qbond.value(0).toDouble();
-        bond.ay     = qbond.value(1).toDouble();
-        bond.az     = qbond.value(2).toDouble();
-        bond.anum   = qbond.value(3).toInt();
-        bond.ares   = qbond.value(4).toInt();
-        bond.achain = qbond.value(5).toString().toLocal8Bit().data()[0];
-        bond.acharge =qbond.value(6).toDouble();
-        bond.ahetatm = qbond.value(7).toInt();
-        bond.bx     = qbond.value(8).toDouble();
-        bond.by     = qbond.value(9).toDouble();
-        bond.bz     = qbond.value(10).toDouble();
-        bond.bnum   = qbond.value(11).toInt();
-        bond.bres   = qbond.value(12).toInt();
-        bond.bchain = qbond.value(13).toString().toLocal8Bit().data()[0];
-        bond.bcharge= qbond.value(14).toDouble();
-        bond.bhetatm= qbond.value(15).toInt();
-        bond.valid = true;
-    } else {
-        bond.valid = false;
-    }
-    return bond;
-}
-
-QSqlQuery Db::iterChainCoords(int imol, char chain, int filter) {
-#ifdef DEBUG
-    qDebug() << "Db::iterChainCoords";
-#endif
-    QSqlQuery query;
-    QString sql = "Select x,y,z,resnum,name From main.atom Where molid=? And chain=? And atom.hetatm=0";
-    if (filter) {
-        QString filterClause = getFilter(filter).sql;
-        //qDebug() << filterClause;
-        sql += " And " + filterClause;
-    }
-    sql += " Order By resnum";
-    if (!query.prepare(sql)) {
-        tellError(query);
-    } else {
-        query.addBindValue(imol);
-        query.addBindValue(QString(chain));
-        if (!query.exec()) tellError(query);
-    }
-    return query;
-}
-chainCoordRecord Db::nextChainCoord(QSqlQuery qchain) {
-    chainCoordRecord chainCoord;
-    if (qchain.next()) {
-        chainCoord.x      = qchain.value(0).toDouble();
-        chainCoord.y      = qchain.value(1).toDouble();
-        chainCoord.z      = qchain.value(2).toDouble();
-        chainCoord.resnum = qchain.value(3).toInt();
-        chainCoord.name   = qchain.value(4).toString();
-        chainCoord.valid = true;
-    } else {
-        chainCoord.valid = false;
-    }
-    return chainCoord;
-}
-
-QSqlQuery Db::iterTriangles(int itemid) {
-    QSqlQuery query;
-    if (!query.prepare("Select tid,vid From triangle Where itemid=? Order By tid")) tellError(query);
-    query.addBindValue(itemid);
-    if (!query.exec()) tellError(query);
-    return query;
-}
-triRecord Db::nextTriangle(QSqlQuery qtri) {
-    triRecord tri;
-    if (qtri.next()) {
-        tri.tid  = qtri.value(0).toDouble();
-        tri.vid  = qtri.value(1).toDouble();
-        tri.valid = true;
-    } else {
-        tri.valid = false;
-    }
-    return tri;
-}
-
-int Db::countVertices(int itemid) {
-    QSqlQuery q;
-    q.prepare("Select count(*) from vertex Where itemid=?");
-    q.addBindValue(itemid);
-    if (q.exec()) {
-        q.next();
-        return q.value(0).toInt();
-    } else {
-        tellError(q);
-        return -1;
-    }
-}
-QSqlQuery Db::iterVertices(int itemid, int imol, int /*resnum*/, char /*chain*/, int /*filter*/, int /*hydrogen*/, int colorBy, float nearAtom) {
-    QSqlQuery query;
-    QSqlQuery q;
-    //if (!query.prepare("Select x,y,z,nx,ny,nz,atid,atnum From triangle Join atom On atid Where itemid=? order by tid")) tellError(query);
-    QString sql;
-    if (colorBy == COLOR_BY_CHARGE) {
-        sql.sprintf("Select vid,atnum,sum(pcharge*abs(pcharge)/(dx*dx+dy*dy+dz*dz)) e2,vx,vy,vz,nx,ny,nz From (Select pcharge, vid, 0 atnum, v.x vx, v.y vy, v.z vz, nx, ny, nz, a.x-v.x dx, a.y-v.y dy, a.z-v.z dz From atom a Join vertex v On (itemid=%d And molid=%d) ) Group By vid,atnum,vx,vy,vz,nx,ny,vz Order By vid", itemid, imol);
-    } else if (colorBy == COLOR_BY_ATOMS) {
-        sql.sprintf("Select vid,atnum,0.0,v.x,v.y,v.z,v.nx,v.ny,v.nz from main.vertex v join (select atid,atnum from main.atom where molid=%i) using (atid) where itemid=%i", imol, itemid);
-        // this will (slowly-ish) compute actual closest atom to vertex, rather than dbsurf's estimate of min(atomid) of vertex's several atom generators
-        //      q.exec("Create Index vx On vertex(itemid,x,y,z)");
-        //      if (chain == NOCHAIN) {
-        //          sql.sprintf("Select vid,atnum,(dx*dx+dy*dy+dz*dz)d2,x,y,z,nx,ny,nz From (Select v.rowid As vid,a.atnum,a.x-v.x As dx,a.y-v.y As dy,a.z-v.z As dz,v.x,v.y,v.z,nx,ny,nz From atom a,vertex v Where (itemid=%d And molid=%d And dx Between -(%3.2f) and (%3.2f) And dy Between -(%3.2f) and (%3.2f) And dz Between -(%3.2f) and (%3.2f))) Where (dx*dx+dy*dy+dz*dz) < %3.2f Order By vid,d2",itemid, imol, nearAtom, nearAtom, nearAtom, nearAtom, nearAtom, nearAtom, nearAtom*nearAtom);
-        //      } else {
-        //          sql.sprintf("Select vid,atnum,(dx*dx+dy*dy+dz*dz)d2,x,y,z,nx,ny,nz From (Select v.rowid As vid,a.atnum,a.x-v.x As dx,a.y-v.y As dy,a.z-v.z As dz,v.x,v.y,v.z,nx,ny,nz From atom a,vertex v Where (itemid=%d And molid=%d And chain='%c' And dx Between -(%3.2f) and (%3.2f) And dy Between -(%3.2f) and (%3.2f) And dz Between -(%3.2f) and (%3.2f))) Where (dx*dx+dy*dy+dz*dz) < %3.2f Order By vid,d2",itemid, imol, chain, nearAtom, nearAtom, nearAtom, nearAtom, nearAtom, nearAtom, nearAtom*nearAtom);
-        //      }
-        //      //qDebug() << sql;
-    } else {
-        sql.sprintf("Select vid,0,0.0,x,y,z,nx,ny,nz From vertex Where itemid=%d Order By vid", itemid);
-    }
-    if (!query.exec(sql)) tellError(query);
-    if (nearAtom > 0.0) q.exec("Drop Index If Exists vx");
-    return query;
-}
-vtxRecord Db::nextVertex(QSqlQuery qv) {
-    int vid;
-    if (qv.isValid()) {
-        vid = qv.value(0).toInt();
-    } else {
-        // must be on first record
-        vid = 0;
-    }
-    vtxRecord vtx;
-    while (qv.next()) {
-        vtx.vid   = qv.value(0).toInt();
-        if (vtx.vid == vid) continue;  // want next greater vertex id
-        if (vtx.vid > vid+1) qDebug() << "skipped vertex at" << vid << vtx.vid;
-        vtx.atnum = qv.value(1).toInt();
-        vtx.value = qv.value(2).toDouble();
-        vtx.x     = qv.value(3).toDouble();
-        vtx.y     = qv.value(4).toDouble();
-        vtx.z     = qv.value(5).toDouble();
-        vtx.nx    = qv.value(6).toDouble();
-        vtx.ny    = qv.value(7).toDouble();
-        vtx.nz    = qv.value(8).toDouble();
-        vtx.valid = true;
-        return vtx;
-    }
-    vtx.valid = false;
-    return vtx;
-}
 
 float Db::molCenter(int imol, unsigned int resnum, char chain, int filter, /* out */ float *center, /* out */ float *sizes) {
 #ifdef DEBUG
@@ -908,7 +332,7 @@ void Db::molBounds(int imol, unsigned int resnum, char chain, int filter, float 
 #ifdef DEBUG
     qDebug() << "Db::molBounds";
 #endif
-    QString sql = "Select max(x), min(x), max(y), min(y), max(z), min(z) From main.atom Where molid=?";
+    QString sql = "Select max(x), min(x), max(y), min(y), max(z), min(z) From atom Where molid=?";
     if (chain != NOCHAIN) sql += " And chain=?";
     if (resnum)  sql += " And resnum=?";
     //if (filter)  sql += " And flag=?";
@@ -945,42 +369,42 @@ bool Db::deleteFromTables(int imol) {
       when Cascade delete work in sqlite with foreign keys in version>3.6.19
   */
     /*
-    query.prepare("Delete From main.bond Where molid=?");
+    query.prepare("Delete From bond Where molid=?");
     query.addBindValue(imol);
     if (!query.exec()) return tellError(query);
     return true;
-    query.prepare("Delete From main.bond Where molid In (Select molid From main.molecule where model=?)");
+    query.prepare("Delete From bond Where molid In (Select molid From molecule where model=?)");
     query.addBindValue(imol);
     if (!query.exec()) tellError(query);
 
-    query.prepare("Delete From main.atom Where molid=?");
+    query.prepare("Delete From atom Where molid=?");
     query.addBindValue(imol);
     if (!query.exec()) tellError(query);
-    query.prepare("Delete From main.atom Where molid In (Select molid From main.molecule Where model=?)");
-    query.addBindValue(imol);
-    if (!query.exec()) tellError(query);
-
-    query.prepare("Delete From main.property Where molid=?");
+    query.prepare("Delete From atom Where molid In (Select molid From molecule Where model=?)");
     query.addBindValue(imol);
     if (!query.exec()) tellError(query);
 
-    query.prepare("Delete From main.secondary_structure Where molid=?");
+    query.prepare("Delete From property Where molid=?");
     query.addBindValue(imol);
     if (!query.exec()) tellError(query);
 
-    query.prepare("Delete From main.triangle Where itemid In (Select itemid From main.tree Where imol=?)");
+    query.prepare("Delete From secondary_structure Where molid=?");
     query.addBindValue(imol);
     if (!query.exec()) tellError(query);
 
-    query.prepare("Delete From main.tree Where imol=?");
+    query.prepare("Delete From triangle Where itemid In (Select itemid From tree Where imol=?)");
     query.addBindValue(imol);
     if (!query.exec()) tellError(query);
-    query.prepare("Delete From main.tree Where imol In (Select molid From main.molecule where model=?)");
+
+    query.prepare("Delete From tree Where imol=?");
+    query.addBindValue(imol);
+    if (!query.exec()) tellError(query);
+    query.prepare("Delete From tree Where imol In (Select molid From molecule where model=?)");
     query.addBindValue(imol);
     if (!query.exec()) tellError(query);
 */
 
-    query.prepare("Delete From main.molecule Where molid=? Or model=?");
+    query.prepare("Delete From molecule Where molid=? Or model=?");
     query.addBindValue(imol);
     query.addBindValue(imol);
     if (query.exec()) {
@@ -995,47 +419,13 @@ bool Db::deleteFromTables(int imol) {
     }
 }
 
-atomRecord Db::findAtomNear(int imol, char chain, float *xyzw, float range=2.5) {
-    int atomid = findAtomIdNear(imol,chain,xyzw,range);
-    return getAtom(imol,atomid);
-}
-int Db::findAtomIdNear(int imol, char chain, float *xyzw, float range=1.0) {
-
-#ifdef DEBUG
-    qDebug() << "Db::findAtomNear";
-#endif
-    if (range > 100.0) return NOATOM; // can't recurse forever!
-    int atid = 0;
-    QSqlQuery query;
-    //query.prepare("Select atid,x-? As dx,y-? As dy,z-? As dz From main.atom Where molid = ? and (chain is null Or chain = ?) And x Between ? And ? And y Between ? And ? And z Between ? And ? Order By (dx*dx+dy*dy+dz*dz) Desc");
-    query.prepare("Select atid,x-? As dx,y-? As dy,z-? As dz From main.atom Where molid = ? And x Between ? And ? And y Between ? And ? And z Between ? And ? Order By (dx*dx+dy*dy+dz*dz) Desc");
-    query.addBindValue(xyzw[0]); query.addBindValue(xyzw[1]); query.addBindValue(xyzw[2]);
-    query.addBindValue(imol);
-    //query.addBindValue((QString)chain);
-    query.addBindValue(xyzw[0] - range); query.addBindValue(xyzw[0] + range);
-    query.addBindValue(xyzw[1] - range); query.addBindValue(xyzw[1] + range);
-    query.addBindValue(xyzw[2] - range); query.addBindValue(xyzw[2] + range);
-    int nfound = 0;
-    if (query.exec()) {
-        while (query.next()) {
-            atid = query.value(0).toInt();
-            ++nfound;
-        }
-    } else {
-        tellError(query);
-    }
-    //qDebug() << nfound << " near atoms.";
-    if (nfound == 0) return findAtomIdNear(imol, chain, xyzw, range*2);
-    return atid;
-}
-
 //  QString getAtomResName(int imol, int iatom) {
 //#ifdef DEBUG
 //    qDebug() << "Db::getAtomResName" << imol << iatom;
 //#endif
 //    QString name;
 //    QSqlQuery query;
-//    query.prepare("Select resnam From main.atom Where molid=? And atid=?");
+//    query.prepare("Select resnam From atom Where molid=? And atid=?");
 //    query.addBindValue(imol);
 //    query.addBindValue(iatom);
 //    if (query.exec()) {
@@ -1046,7 +436,7 @@ int Db::findAtomIdNear(int imol, char chain, float *xyzw, float range=1.0) {
 //    }
 //    return name;
 //  }
-
+/*
 int Db::getAtomResNum(int imol, int iatom) {
 #ifdef DEBUG
     qDebug() << "Db::getAtomResNum" << imol << iatom;
@@ -1060,13 +450,13 @@ char Db::getAtomChain(int imol, int iatom) {
 #endif
     return getAtom(imol,iatom).chain;
 }
-
+*/
 //  void getAtomCoord(int imol, int iatom, float *center) {
 //#ifdef DEBUG
 //    qDebug() << "Db::getAtomCoord" << imol << iatom;
 //#endif
 //    QSqlQuery query;
-//    query.prepare("Select x,y,z From main.atom Where molid=? And atid=?");
+//    query.prepare("Select x,y,z From atom Where molid=? And atid=?");
 //    query.addBindValue(imol);
 //    query.addBindValue(iatom);
 //    if (query.exec()) {
@@ -1078,18 +468,18 @@ char Db::getAtomChain(int imol, int iatom) {
 //      tellError(query);
 //    }
 //  }
-
+/*
 QString Db::getAtomName(int imol, int iatom) {
 #ifdef DEBUG
     qDebug() << "Db::getAtomName" << imol << iatom;
 #endif
     return getAtom(imol,iatom).name;
 }
-
+*/
 int Db::getMolIdFromInchiKey(QString inchikey) {
     int id = -1;
     QSqlQuery query;
-    query.prepare("Select molid From main.molecule Where inchikey=?");
+    query.prepare("Select molid From molecule Where inchikey=?");
     query.addBindValue((QString)inchikey);
     if (query.exec()) {
         if (query.next()) {
@@ -1113,7 +503,7 @@ int Db::symbolToNumber(QString symbol) {
 }
 
 void Db::addAtom(QSqlQuery q, int molid, int aidx, int resnum, QString resnam, char altLoc, char icode, int atnum, float x, float y, float z, QString name, char chain, int hetatm) {
-    //insertAtom.prepare("Insert Into main.atom (molid, atid, resnum, resnam, atnum, x, y, z, name, chain, hetatm)) Values (?,?,?,?,?,?,?,?,?,?,?)");
+    //insertAtom.prepare("Insert Into atom (molid, atid, resnum, resnam, atnum, x, y, z, name, chain, hetatm)) Values (?,?,?,?,?,?,?,?,?,?,?)");
     q.addBindValue((int)molid);
     q.addBindValue((int)aidx);
     q.addBindValue((int)resnum);
@@ -1188,7 +578,7 @@ int Db::processHetatm(QString s, QSqlQuery q, int molid) {
   }
 */
 void Db::addBond(QSqlQuery q, int molid, int aid, int bid, int bo) {
-    // insertBond.prepare("Insert Into main.bond (molid, aid, bid, bo) Values (?,?,?,?)");
+    // insertBond.prepare("Insert Into bond (molid, aid, bid, bo) Values (?,?,?,?)");
     q.addBindValue((int)molid);
     q.addBindValue((int)aid);
     q.addBindValue((int)bid);
@@ -1263,7 +653,7 @@ int Db::readPDB(std::istream& is, QString filename, int fsize) {
     QSqlQuery query;
     QSqlQuery insertAtom;
     QSqlQuery insertBond;
-    insertAtom.prepare("Insert Into main.atom (molid, atid, resnum, resnam, altLoc, icode, atnum, x, y, z, name, chain, hetatm) Values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+    insertAtom.prepare("Insert Into atom (molid, atid, resnum, resnam, altLoc, icode, atnum, x, y, z, name, chain, hetatm) Values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
     //query.exec("Create Temporary Table tmpbond (aid integer, bid integer, bo integer)");
     query.exec("Create Table tmpbond (molid Integer, aid integer, bid integer, bo integer)");
     insertBond.prepare("Insert Into tmpbond (molid, aid, bid, bo) Values (?,?,?,?)");
@@ -1364,7 +754,7 @@ void Db::addBonds(int mol1, int molid) {
 #endif
     // add bonds as stored in residue.db, attached when db was opened
     QSqlQuery query;
-    //query.prepare("Insert Into tmpbond (molid,aid,bid,bo) Select atom.molid,atom.atid,nbr.atid,bo From main.atom Join main.atom nbr On (atom.molid=nbr.molid And atom.chain=nbr.chain And atom.resnum=nbr.resnum And atom.icode=nbr.icode) Join residue.bondname On (atom.name=atom1 And nbr.name=atom2 And atom.resnam=bondname.resnam) Where atom.molid=?");
+    //query.prepare("Insert Into tmpbond (molid,aid,bid,bo) Select atom.molid,atom.atid,nbr.atid,bo From atom Join atom nbr On (atom.molid=nbr.molid And atom.chain=nbr.chain And atom.resnum=nbr.resnum And atom.icode=nbr.icode) Join residue.bondname On (atom.name=atom1 And nbr.name=atom2 And atom.resnam=bondname.resnam) Where atom.molid=?");
     bool ok = query.prepare("Insert Into tmpbond (molid,aid,bid,bo) Select molid,aid,bid,bo From (Select atom.molid, atom.atid aid, atom.resnam, atom.name atom1, nbr.atid bid, nbr.name atom2 From atom Join atom nbr Using (molid,chain,resnum,icode,altloc)) Join bondname Using (resnam,atom1,atom2) Where molid=?");
 #ifdef DEBUG
     qDebug() << "tmpbond" << mol1 << ok;
@@ -1375,18 +765,18 @@ void Db::addBonds(int mol1, int molid) {
     query.finish();
 
     // add res(n)C-res(n+1)N residue-residue bonds
-    query.prepare("Insert Into tmpbond Select atom.molid,atom.atid,nbr.atid,1 From main.atom Join main.atom nbr On atom.molid=nbr.molid And atom.chain=nbr.chain And nbr.resnum=atom.resnum+1 Where atom.molid=? And atom.name='C' And nbr.name='N' And nbr.hetatm=0");
+    query.prepare("Insert Into tmpbond Select atom.molid,atom.atid,nbr.atid,1 From atom Join atom nbr On atom.molid=nbr.molid And atom.chain=nbr.chain And nbr.resnum=atom.resnum+1 Where atom.molid=? And atom.name='C' And nbr.name='N' And nbr.hetatm=0");
     query.addBindValue(mol1);
     if (!query.exec()) tellError(query);
     query.finish();
 
     // add res(n)O3'-res(n+1)P residue-residue bonds; account for insertion code
-    query.prepare("Insert Into tmpbond Select atom.molid,atom.atid,nbr.atid,1 From main.atom Join main.atom nbr On atom.molid=nbr.molid And atom.chain=nbr.chain And nbr.resnum=atom.resnum+1 Where atom.molid=? And atom.name='O3''' And nbr.name='P' and abs(atom.x-nbr.x) < 2 and abs(atom.y-nbr.y) < 2 and abs(atom.z-nbr.z) < 2");
+    query.prepare("Insert Into tmpbond Select atom.molid,atom.atid,nbr.atid,1 From atom Join atom nbr On atom.molid=nbr.molid And atom.chain=nbr.chain And nbr.resnum=atom.resnum+1 Where atom.molid=? And atom.name='O3''' And nbr.name='P' and abs(atom.x-nbr.x) < 2 and abs(atom.y-nbr.y) < 2 and abs(atom.z-nbr.z) < 2");
     query.addBindValue(mol1);
     if (!query.exec()) tellError(query);
     query.finish();
 
-    query.prepare("Insert Into tmpbond Select atom.molid,atom.atid,nbr.atid,1 From main.atom Join main.atom nbr On atom.molid=nbr.molid And atom.chain=nbr.chain And nbr.resnum=atom.resnum Where atom.molid=? And atom.name='O3''' And nbr.name='P' and abs(atom.x-nbr.x) < 2 and abs(atom.y-nbr.y) < 2 and abs(atom.z-nbr.z) < 2");
+    query.prepare("Insert Into tmpbond Select atom.molid,atom.atid,nbr.atid,1 From atom Join atom nbr On atom.molid=nbr.molid And atom.chain=nbr.chain And nbr.resnum=atom.resnum Where atom.molid=? And atom.name='O3''' And nbr.name='P' and abs(atom.x-nbr.x) < 2 and abs(atom.y-nbr.y) < 2 and abs(atom.z-nbr.z) < 2");
     query.addBindValue(mol1);
     if (!query.exec()) tellError(query);
     query.finish();
@@ -1406,13 +796,13 @@ void Db::addBonds(int mol1, int molid) {
     query.finish();
 
     // add bond count to molecule table
-    query.prepare("Update main.molecule Set nbonds=(Select count(rowid) from main.bond Where molid=?) Where molid=?");
+    query.prepare("Update molecule Set nbonds=(Select count(rowid) from bond Where molid=?) Where molid=?");
     query.addBindValue(mol1);
     query.addBindValue(mol1);
     query.exec();
 
     // record parent model for multi-model pdb files
-    query.prepare("Update main.molecule Set model=? Where molid>=?");
+    query.prepare("Update molecule Set model=? Where molid>=?");
     query.addBindValue(mol1);
     query.addBindValue(mol1);
     query.exec();
@@ -1423,14 +813,14 @@ void Db::addBonds(int mol1, int molid) {
 void Db::newMolecule(int molid) {
     // make dummy entry to accomodate foreign key of atoms and bonds
     QSqlQuery query;
-    query.prepare("Insert into main.molecule (molid) Values (?)");
+    query.prepare("Insert into molecule (molid) Values (?)");
     query.addBindValue((int)molid);
     query.exec();
 }
 
 void Db::updateMoleculeFile(int molid, QString file) {
     QSqlQuery query;
-    query.prepare("Update main.molecule Set file=? Where molid=?");
+    query.prepare("Update molecule Set file=? Where molid=?");
     query.addBindValue(file);
     query.addBindValue(molid);
     if (!query.exec()) tellError(query);
@@ -1439,14 +829,14 @@ void Db::updateMolecule(int molid, QString file, int natom, QString title) {
     QSqlQuery query;
     /*
     // remove dummy entry
-    query.prepare("Delete from main.molecule Where molid=?");
+    query.prepare("Delete from molecule Where molid=?");
     query.addBindValue((int)molid);
     query.exec();
 */
 #ifdef DEBUG
     qDebug() << "updateMolecule" << molid << title;
 #endif
-    //    query.prepare("Insert Into main.molecule (molid, file, type, title, natoms, nresidue, nbonds) Values (?,?,?,?,?,(Select Count(Distinct chain||resnum) From main.atom Where molid=?),(Select Count(aid) From main.bond Where molid=?))");
+    //    query.prepare("Insert Into molecule (molid, file, type, title, natoms, nresidue, nbonds) Values (?,?,?,?,?,(Select Count(Distinct chain||resnum) From atom Where molid=?),(Select Count(aid) From bond Where molid=?))");
     //    query.addBindValue((int)molid);
     //    query.addBindValue(file);
     //    query.addBindValue(QString("pdb"));
@@ -1454,7 +844,7 @@ void Db::updateMolecule(int molid, QString file, int natom, QString title) {
     //    query.addBindValue((int)natom);
     //    query.addBindValue((int)molid);
     //    query.addBindValue((int)molid);
-    query.prepare("Update main.molecule Set file=?, type=?, title=?, natoms=?, nresidue=(Select Count(Distinct chain||resnum) From main.atom Where molid=?) Where molid=? ");
+    query.prepare("Update molecule Set file=?, type=?, title=?, natoms=?, nresidue=(Select Count(Distinct chain||resnum) From atom Where molid=?) Where molid=? ");
     query.addBindValue(file);
     query.addBindValue(QString("pdb"));
     query.addBindValue((QString)title);
@@ -1487,11 +877,816 @@ bool Db::addProperty(int molid, QString name, QString value, int irecord) {
 // end PDBREADER
 void Db::checkResidues(int molid) {
     QSqlQuery query;
-    //query.prepare("Select Distinct resnam From main.atom Where molid=? Except Select Distinct res From residue.atom");
-    query.prepare("Select Distinct resnam From main.atom Where resnam Is Not Null And molid=? Except Select title From residue.molecule");
+    //query.prepare("Select Distinct resnam From atom Where molid=? Except Select Distinct res From residue.atom");
+    query.prepare("Select Distinct resnam From atom Where resnam Is Not Null And molid=? Except Select title From residue.molecule");
     query.addBindValue((int)molid);
     query.exec();
     while (query.next()) {
         qDebug() << "unknown residue" << query.value(0).toString() << " ";
     }
+}
+
+propertyQuery::propertyQuery() {}
+propertyQuery::~propertyQuery() {}
+
+bool propertyQuery::iter(int qmol) {
+    if (prepare("Select molid,name,value,record from property where molid=? order by record asc")) {
+        addBindValue(qmol);
+        if (exec()) valid = true; // don't call next() for this iter method
+    } else {
+        Db::tellError(*this);
+        valid = false;
+    }
+    return false;
+}
+bool propertyQuery::next() {
+    if(QSqlQuery::next()) {
+        imol  = value(0).toInt();
+        name  = value(1).toString();
+        text  = value(2).toString();
+        order = value(3).toInt();
+        valid = true;
+    } else {
+        valid = false;
+    }
+    return valid;
+}
+
+molQuery::molQuery() {;}
+molQuery::~molQuery() {;}
+
+bool molQuery::get(int qmol) {
+    // get record for input qmol
+    if (prepare("Select molid,file,title,type,nresidue,natoms,nbonds,model From molecule Where molid=?")) {
+        addBindValue(qmol);
+        if (exec()) {
+            valid = next();
+            this->finish();
+        }
+    } else {
+        Db::tellError(*this);
+        valid = false;
+    }
+    return valid;
+}
+
+bool molQuery::getInFile(int qmol) {
+    // get all molecules in the same file as input qmol
+    if (prepare("Select molid,file,title,type,nresidue,natoms,nbonds,model From molecule Where file=(Select file From molecule Where molid=?) Order By molid Asc")) {
+        addBindValue(qmol);
+        if (exec()) valid = true; // don't call next for this iter method
+    } else {
+        Db::tellError(*this);
+        valid = false;
+    }
+    return valid;
+}
+
+bool molQuery::getByFile() {
+    // iterate over all molecules (actually just first mol of the file), grouped by file they came from
+    if (prepare("Select min(molid),file,title,type,nresidue,natoms,nbonds,model From molecule Group By file Order By molid Asc")) {
+        if (exec()) valid = true; // don't call next for this iter method
+    } else {
+        Db::tellError(*this);
+        valid = false;
+    }
+    return valid;
+}
+
+bool molQuery::next() {
+    if (QSqlQuery::next()) {
+        imol     = value(0).toInt();
+        filename = value(1).toString();
+        title    = value(2).toString();
+        type     = value(3).toString();
+        nresidue = value(4).toInt();
+        natoms   = value(5).toInt();
+        nbonds   = value(6).toInt();
+        model    = value(7).toInt();
+        valid    = true;
+    } else {
+        valid = false;
+    }
+    return valid;
+}
+/*
+QString molQuery::molTitle(int imol) {
+    return getMol(imol).title;
+}
+
+int molQuery::molNumBonds(int imol) {
+    return getMol(imol).nbonds;
+}
+
+int molQuery::molNumAtoms(int imol) {
+    return getMol(imol).natoms;
+}
+
+QString molQuery::molFilename(int imol) {
+    return getMol(imol).filename;
+}
+
+int molQuery::molNumRes(int imol) {
+    return getMol(imol).nresidue;
+}
+*/
+
+/*
+ *  static atomRecord findAtomNear(int imol, char chain, float *xyzw, float range);
+    static atomRecord getAtom(int imol, int iatom);
+    static int getAtomResNum(int imol, int iatom);
+    static char getAtomChain(int imol, int iatom);
+    static QSqlQuery iterAtoms(int imol, int resnum, char chain, int filter, int hydrogens);
+    static atomRecord nextAtom(QSqlQuery);
+    */
+atomQuery::atomQuery() {
+    molid   = NOMOL;
+    atid    = NOATOM;
+    resnum  = NORESNUM;
+    resnam  = "";
+    altLoc  = '\0';
+    icode   = '\0';
+    atnum   = NOATOM;
+    x       = 0.0;
+    y       = 0.0;
+    z       = 0.0;
+    fcharge = 0.0;
+    pcharge = 0.0;
+    name    = "";
+    chain   = NOCHAIN;
+    hetatm  = NOATOM;
+    valid = true;
+}
+atomQuery::~atomQuery() {;}
+
+bool atomQuery::get(int qmol, int qatom) {
+    //atomRecord Db::getAtom(int imol, int iatom) {
+    QString sql = "Select molid,atid,resnum,resnam,altLoc,icode,atnum,x,y,z,fcharge,pcharge,name,chain,hetatm From atom Where molid=? And atid=?";
+    if (prepare(sql)) {
+        addBindValue(qmol);
+        addBindValue(qatom);
+        if (exec()) {
+            valid = next();
+            this->finish();
+        }
+    } else {
+        Db::tellError(*this);
+        valid = false;
+    }
+    return valid;
+}
+
+bool atomQuery::iter(int qmol, int qresnum=0, char qchain=NOCHAIN, int qfilter=0, int qhydrogens=HYDROGEN_NONE) {
+    //QSqlQuery Db::iterAtoms(int imol, int resnum, char chain, int filter, int hydrogens) {
+#ifdef DEBUG
+    qDebug() << "Db::iterAtoms";
+#endif
+    QString sql = atomSql(qmol, qresnum, qchain, qfilter, qhydrogens);
+    if (prepare(sql) && exec()) {
+        valid = true; // don't call next for this iter method
+    } else {
+        Db::tellError(*this);
+        valid = false;
+    }
+    return valid;
+}
+QString atomQuery::atomSql(int qmol, int qresnum, char qchain, int qfilter, int qhydrogens) {
+    QString sql = "Select molid,atid,resnum,resnam,altLoc,icode,atnum,x,y,z,fcharge,pcharge,name,chain,hetatm \
+            From atom Where molid=" + QString::number(qmol);
+            if (qchain != NOCHAIN) sql += " And chain='" + QString(qchain) + "'";
+    if (qresnum) sql += " And resnum=" + QString::number(qresnum);
+    if (qhydrogens == HYDROGEN_HIDE) {
+        sql += " And atnum>1";
+    } else if (qhydrogens == HYDROGEN_COUNT) {
+        // very special case used once to determine hcount
+        sql += " And atnum=1";
+    }
+    //if (filter)  sql += " And flag=" + QString::number(filter);
+    if (qfilter) {
+        QString filterClause = Db::getFilter(qfilter).sql;
+        //qDebug() << filterClause;
+        sql += " And (" + filterClause + ")";
+    }
+    return sql;
+}
+
+QString atomQuery::getResnam(int imol, int resnum, char chain) {
+#ifdef DEBUG
+    qDebug() << "Db::molResName";
+#endif
+    QString name = "";
+    if (prepare("Select Distinct resnam From atom Where molid=? And resnum=? And chain=?")) {
+        addBindValue(imol);
+        addBindValue(resnum);
+        addBindValue((QString)chain);
+        if (exec()) {
+            QSqlQuery::next();
+            name = value(0).toString();
+            this->finish();
+            return name;
+        }
+    }
+    Db::tellError(*this);
+    return name;
+}
+bool atomQuery::near(int qmol, char qchain, float *xyzw, float range=2.5) {
+    int atomid = findAtomIdNear(qmol,qchain,xyzw,range);
+    if (atomid != NOATOM) get(qmol,atomid); // will set valid
+    this->finish();
+    return valid;
+}
+
+int atomQuery::findAtomIdNear(int qmol, char qchain, float *xyzw, float range=1.0) {
+#ifdef DEBUG
+    qDebug() << "Db::findAtomNear";
+#endif
+    if (range > 50.0) return NOATOM; // can't recurse forever!
+    //QSqlQuery query;
+    //query.prepare("Select atid,x-? As dx,y-? As dy,z-? As dz From atom Where molid = ? and (chain is null Or chain = ?) And x Between ? And ? And y Between ? And ? And z Between ? And ? Order By (dx*dx+dy*dy+dz*dz) Desc");
+    QString sql = "Select atid,x-? As dx,y-? As dy,z-? As dz From atom Where molid = ? And x Between ? And ? And y Between ? And ? And z Between ? And ? Order By (dx*dx+dy*dy+dz*dz) Desc";
+    if (!prepare(sql)) return NOATOM;
+    addBindValue(xyzw[0]); addBindValue(xyzw[1]); addBindValue(xyzw[2]);
+    addBindValue(qmol);
+    //query.addBindValue((QString)chain);
+    addBindValue(xyzw[0] - range); addBindValue(xyzw[0] + range);
+    addBindValue(xyzw[1] - range); addBindValue(xyzw[1] + range);
+    addBindValue(xyzw[2] - range); addBindValue(xyzw[2] + range);
+    int nfound = 0;
+    int atomid = NOATOM;
+    if (exec()) {
+        while (QSqlQuery::next()) {
+            atomid = value(0).toInt();
+            ++nfound;
+        }
+    } else {
+        Db::tellError(*this);
+        return NOATOM;
+    }
+    //qDebug() << nfound << " near atoms.";
+    if (nfound == 0) return findAtomIdNear(qmol, qchain, xyzw, range*2);
+    return atomid;
+}
+
+int atomQuery::hcount(int qmol, int qresnum, char qchain, int qfilter) {
+    int hcount = -1;
+    QString sql = "Select count(*) From (" + atomSql(qmol, qresnum, qchain, qfilter, HYDROGEN_COUNT) + ") hcount";
+    if (exec(sql) && QSqlQuery::next()) {
+        hcount = value(0).toInt();
+    }
+    this->finish();
+    return hcount;
+}
+
+bool atomQuery::next() {
+    if (QSqlQuery::next()) {
+        molid   = value(0).toInt();
+        atid    = value(1).toInt();
+        resnum  = value(2).toInt();
+        resnam  = value(3).toString();
+        altLoc  = value(4).toString().toLocal8Bit().data()[0];
+        icode   = value(5).toString().toLocal8Bit().data()[0];
+        atnum   = value(6).toInt();
+        x       = value(7).toDouble();
+        y       = value(8).toDouble();
+        z       = value(9).toDouble();
+        fcharge = value(10).toDouble();
+        pcharge = value(11).toDouble();
+        name    = value(12).toString();
+        chain   = value(13).toString().toLocal8Bit().data()[0];
+        hetatm  = value(14).toInt();
+        valid = true;
+    } else {
+        valid = false;
+    }
+    return valid;
+}
+
+triangleQuery::triangleQuery() {}
+triangleQuery::~triangleQuery() {}
+
+bool triangleQuery::iter(int itemid) {
+    if (prepare("Select tid,vid From triangle Where itemid=? Order By tid")) {
+        addBindValue(itemid);
+        if (exec()) valid = true;
+    } else {
+        Db::tellError(*this);
+    }
+    return valid;
+}
+bool triangleQuery::next() {
+    if (QSqlQuery::next()) {
+        tid  = value(0).toDouble();
+        vid  = value(1).toDouble();
+        valid = true;
+    } else {
+        valid = false;
+    }
+    return valid;
+}
+int triangleQuery::count(int itemid) {
+    QSqlQuery q;
+    q.prepare("Select count(*) from triangle Where itemid=?");
+    q.addBindValue(itemid);
+    if (q.exec()) {
+        q.next();
+        return q.value(0).toInt();
+    } else {
+        Db::tellError(q);
+        return -1;
+    }
+}
+
+vertexQuery::vertexQuery() {}
+vertexQuery::~vertexQuery() {}
+
+bool vertexQuery::iter(int itemid, int imol, int /*resnum*/, char /*chain*/, int /*filter*/, int /*hydrogen*/, int colorBy, float /*nearAtom*/) {
+    QString sql;
+    if (colorBy == COLOR_BY_CHARGE) {
+        sql.sprintf("Select vid,atnum,sum(pcharge*abs(pcharge)/(dx*dx+dy*dy+dz*dz)) e2,vx,vy,vz,nx,ny,nz From (Select pcharge, vid, 0 atnum, v.x vx, v.y vy, v.z vz, nx, ny, nz, a.x-v.x dx, a.y-v.y dy, a.z-v.z dz From atom a Join vertex v On (itemid=%d And molid=%d) ) Group By vid,atnum,vx,vy,vz,nx,ny,vz Order By vid", itemid, imol);
+    } else if (colorBy == COLOR_BY_ATOMS) {
+        sql.sprintf("Select vid,atnum,0.0,v.x,v.y,v.z,v.nx,v.ny,v.nz from vertex v join (select atid,atnum from atom where molid=%i) using (atid) where itemid=%i", imol, itemid);
+        // this will (slowly-ish) compute actual closest atom to vertex, rather than dbsurf's estimate of min(atomid) of vertex's several atom generators
+        //      q.exec("Create Index vx On vertex(itemid,x,y,z)");
+        //      if (chain == NOCHAIN) {
+        //          sql.sprintf("Select vid,atnum,(dx*dx+dy*dy+dz*dz)d2,x,y,z,nx,ny,nz From (Select v.rowid As vid,a.atnum,a.x-v.x As dx,a.y-v.y As dy,a.z-v.z As dz,v.x,v.y,v.z,nx,ny,nz From atom a,vertex v Where (itemid=%d And molid=%d And dx Between -(%3.2f) and (%3.2f) And dy Between -(%3.2f) and (%3.2f) And dz Between -(%3.2f) and (%3.2f))) Where (dx*dx+dy*dy+dz*dz) < %3.2f Order By vid,d2",itemid, imol, nearAtom, nearAtom, nearAtom, nearAtom, nearAtom, nearAtom, nearAtom*nearAtom);
+        //      } else {
+        //          sql.sprintf("Select vid,atnum,(dx*dx+dy*dy+dz*dz)d2,x,y,z,nx,ny,nz From (Select v.rowid As vid,a.atnum,a.x-v.x As dx,a.y-v.y As dy,a.z-v.z As dz,v.x,v.y,v.z,nx,ny,nz From atom a,vertex v Where (itemid=%d And molid=%d And chain='%c' And dx Between -(%3.2f) and (%3.2f) And dy Between -(%3.2f) and (%3.2f) And dz Between -(%3.2f) and (%3.2f))) Where (dx*dx+dy*dy+dz*dz) < %3.2f Order By vid,d2",itemid, imol, chain, nearAtom, nearAtom, nearAtom, nearAtom, nearAtom, nearAtom, nearAtom*nearAtom);
+        //      }
+        //      //qDebug() << sql;
+        //if (nearAtom > 0.0) exec("Drop Index If Exists vx");
+    } else {
+        sql.sprintf("Select vid,0,0.0,x,y,z,nx,ny,nz From vertex Where itemid=%d Order By vid", itemid);
+    }
+    if (exec(sql)) {
+        valid = true;
+    } else {
+        Db::tellError(*this);
+    }
+    qDebug() << sql;
+    return valid;
+}
+
+bool vertexQuery::next() {
+    if (QSqlQuery::next()) {
+        valid = get();
+    } else {
+        valid = false;
+    }
+    return valid;
+}
+bool vertexQuery::get() {
+    if (isActive()) {
+        vid   = value(0).toInt();
+        atnum = value(1).toInt();
+        vprop = value(2).toDouble();
+        x     = value(3).toDouble();
+        y     = value(4).toDouble();
+        z     = value(5).toDouble();
+        nx    = value(6).toDouble();
+        ny    = value(7).toDouble();
+        nz    = value(8).toDouble();
+        valid = true;
+    } else {
+        valid = false;
+    }
+    return valid;
+}
+int vertexQuery::count() {
+    return Db::numRows(*this);
+}
+bool vertexQuery::first() {
+    QSqlQuery::first();
+    return get();
+}
+/*
+int vertexQuery::count(int itemid) {
+    QSqlQuery q;
+    q.prepare("Select count(*) from vertex Where itemid=?");
+    q.addBindValue(itemid);
+    if (q.exec()) {
+        q.next();
+        int n = q.value(0).toInt();
+        return n;
+    } else {
+        Db::tellError(q);
+        return -1;
+    }
+}
+*/
+bondQuery::bondQuery() {}
+bondQuery::~bondQuery() {}
+
+bool bondQuery::iter(int imol, unsigned int resnum, char chain, int filter, int hydrogens) {
+
+    //QSqlQuery Db::iterBonds(int imol, int resnum, char chain, int filter, int hydrogens) {
+    QString sql = bondSql(imol, resnum, chain, filter, hydrogens);
+    //qDebug() << sql;
+    if (prepare(sql)) {
+        addBindValue(imol);
+        addBindValue(imol);
+        if (exec()) valid = true;
+    } else {
+        //qDebug() << sql;
+        valid = false;
+        Db::tellError(*this, sql);
+    }
+    return valid;
+}
+
+QString bondQuery::bondSql(int /*imol*/, unsigned int resnum, char chain, int filter, int hydrogens) {
+#ifdef DEBUG
+    qDebug() << "Db::iterBonds";
+#endif
+
+    QString bonds = "With bonds As (Select molid,aid,bid From bond \
+       Where molid=(Select Case When type='pdb' Then model Else molid End From molecule Where molid=?))";
+
+    QString atomBonds = ", atomBonds As (Select Distinct atom.molid,aid,bid From atom Join bonds \
+       Using(molid) Where (atid=aid Or atid=bid)";
+    if (chain != NOCHAIN) atomBonds += " And atom.chain='" + QString(chain) + "'";
+    if (resnum)           atomBonds += " And atom.resnum=" + QString::number(resnum);
+    if (filter) {
+        atomBonds += " And (" + Db::getFilter(filter).sql + ")";
+    }
+    atomBonds += ")";
+
+    QString heart = " Select a.x,a.y,a.z,a.atnum,a.resnum,a.chain,a.pcharge,a.hetatm, \
+                             b.x,b.y,b.z,b.atnum,b.resnum,b.chain,b.pcharge,b.hetatm \
+          From atom a Join atom b On (aid=a.atid And bid=b.atid And a.molid=b.molid) Join atomBonds";
+
+    QString sql = bonds + atomBonds + heart + " Where a.molid=b.molid And a.molid=?";
+
+/*
+    QString sql = "Select a.x,a.y,a.z,a.atnum,a.resnum,a.chain,a.pcharge,a.hetatm, \
+            b.x,b.y,b.z,b.atnum,b.resnum,b.chain,b.pcharge,b.hetatm \
+            From atom a Join atom b On (aid=a.atid And bid=b.atid And a.molid=b.molid) \
+            Join (Select Distinct atom.molid,aid,bid From \
+                  (Select molid,aid,bid From bond \
+                   Where molid=(Select Case When type='pdb' Then model Else molid End From molecule Where molid=?)) bond \
+                  Join atom Using(molid) Where (atid=aid Or atid=bid)";
+    if (chain != NOCHAIN) sql += " And atom.chain='" + QString(chain) + "'";
+    if (resnum) sql += " And atom.resnum=" + QString::number(resnum);
+    if (filter) {
+        sql += " And (" + Db::getFilter(filter).sql + ")";
+    }
+    sql += ") Where a.molid=b.molid And a.molid=?";
+    */
+
+    if (hydrogens == HYDROGEN_HIDE) sql += " And a.atnum>1 And b.atnum>1";
+    return sql;
+}
+bool bondQuery::next() {
+    if (QSqlQuery::next()) {
+        valid = get();
+    } else {
+        valid = false;
+    }
+    return valid;
+}
+bool bondQuery::first() {
+    QSqlQuery::first();
+    return get();
+}
+bool bondQuery::get() {
+    if (isActive()) {
+        ax      = value(0).toDouble();
+        ay      = value(1).toDouble();
+        az      = value(2).toDouble();
+        anum    = value(3).toInt();
+        ares    = value(4).toInt();
+        achain  = value(5).toString().toLocal8Bit().data()[0];
+        acharge = value(6).toDouble();
+        ahetatm = value(7).toInt();
+        bx      = value(8).toDouble();
+        by      = value(9).toDouble();
+        bz      = value(10).toDouble();
+        bnum    = value(11).toInt();
+        bres    = value(12).toInt();
+        bchain  = value(13).toString().toLocal8Bit().data()[0];
+        bcharge = value(14).toDouble();
+        bhetatm = value(15).toInt();
+        valid = true;
+    } else {
+        valid = false;
+    }
+    return valid;
+}
+
+int bondQuery::count() {
+    return Db::numRows(*this);
+}
+/*
+int bondQuery::count(int imol, unsigned int resnum, char chain, int filter, int hydrogens) {
+    QString sql = "Select count(*) From (" + bondSql(imol, resnum, chain, filter, hydrogens) + ") bcount";
+    QSqlQuery q;
+    int nbond = -1;
+    if (q.prepare(sql)) {
+        q.addBindValue(imol);
+        q.addBindValue(imol);
+        if (q.exec()) {
+            q.next();
+            nbond = q.value(0).toInt();
+        } else {
+            Db::tellError(q);
+        }
+    } else {
+        Db::tellError(q);
+    }
+    return nbond;
+}
+*/
+chainQuery::chainQuery() {}
+chainQuery::~chainQuery() {}
+
+bool chainQuery::iter(int imol, char chain, int filter) {
+    //QSqlQuery Db::iterChainCoords(int imol, char chain, int filter) {
+#ifdef DEBUG
+    qDebug() << "Db::iterChainCoords";
+#endif
+    QString sql = "Select x,y,z,resnum,name From atom Where molid=? And chain=? And atom.hetatm=0";
+    if (filter) {
+        QString filterClause = Db::getFilter(filter).sql;
+        //qDebug() << filterClause;
+        sql += " And " + filterClause;
+    }
+    sql += " Order By resnum";
+    if (prepare(sql)) {
+        addBindValue(imol);
+        addBindValue(QString(chain));
+        if (exec()) valid = true;
+    } else {
+        Db::tellError(*this);
+        valid = false;
+    }
+    return valid;
+}
+
+bool chainQuery::next() {
+    //chainCoordRecord Db::nextChainCoord(QSqlQuery qchain) {
+    if (QSqlQuery::next()) {
+        x      = value(0).toDouble();
+        y      = value(1).toDouble();
+        z      = value(2).toDouble();
+        resnum = value(3).toInt();
+        name   = value(4).toString();
+        valid = true;
+    } else {
+        valid = false;
+    }
+    return valid;
+}
+
+int chainQuery::numRes(int imol, char chain) {
+    //int Db::chainNumRes(int imol, char chain) {
+    int nres = -1;
+#ifdef DEBUG
+    qDebug() << "Db::chainNumRes";
+#endif
+    QSqlQuery query;
+    query.prepare("Select max(resnum) From atom Where molid=? And chain=?");
+    query.addBindValue((int)imol);
+    query.addBindValue((QString)chain);
+    if (query.exec() && query.next()) {
+        nres = query.value(0).toInt();
+    } else {
+        Db::tellError(query);
+    }
+    return nres;
+}
+
+treeQuery::treeQuery() {}
+treeQuery::~treeQuery() {}
+
+bool treeQuery::createTable() {
+    QSqlQuery query;
+    if (query.exec("Create Table tree (itemid Integer Primary Key, parentid Integer, imol Integer, iatom Integer, grampsname Text, rowname Text, resnum integer, chain Char(1), ignore Integer, style Integer, colorBy Integer, filter Integer, hue Integer, saturation Integer, value Integer, alpha Integer, hydrogens Integer, mainSide Integer, checked Integer, Foreign key (imol) References molecule (molid) On Delete Cascade)")) {
+        return true;
+    } else {
+        return Db::tellError(query);
+    }
+}
+//  int getTreeRowId(int molid) {
+//    int itemid = 0;
+//    QSqlQuery query;
+//    query.prepare("Select itemid From tree Where imol=? And parentid > 0");
+//    query.addBindValue((int)molid);
+//    if (!query.exec()) tellError(query);
+//    query.next();
+//    itemid = query.value(0).toInt();
+//    return itemid;
+//  }
+
+bool treeQuery::iter() {
+    if (prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From tree Order by itemid")
+            && exec()) {
+        valid = true;
+    } else {
+        Db::tellError(*this);
+        valid = false;
+    }
+    return valid;
+}
+bool treeQuery::iterRestore() {
+    // find items needing to be drawn on restore
+    if (prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From tree Where style != 0 Order by itemid")
+            && exec()) {
+        valid = true;
+    } else {
+        valid = Db::tellError(*this);
+    }
+    return valid;
+}
+bool treeQuery::next() {
+    if (QSqlQuery::next()) {
+        itemId      = value(ITEM_ID).toInt();
+        parentId    = value(ITEM_PARENTID).toInt();
+        imol        = value(ITEM_IMOL).toInt();
+        iatom       = value(ITEM_IATOM).toInt();
+        grampsName  = value(ITEM_GRAMPSNAME).toString();
+        rowname     = value(ITEM_ROWNAME).toString();
+        resnum      = value(ITEM_RESNUM).toInt();
+        chain       = value(ITEM_CHAIN).toString().toLocal8Bit().data()[0];
+        ignore      = value(ITEM_IGNORE).toInt();
+        style       = value(ITEM_STYLE).toInt();
+        colorBy     = value(ITEM_COLORBY).toInt();
+        filter      = value(ITEM_FILTER).toInt();
+        int hue   = value(ITEM_HUE).toInt();
+        int sat   = value(ITEM_SATURATION).toInt();
+        int val   = value(ITEM_VALUE).toInt();
+        int alpha = value(ITEM_ALPHA).toInt();
+        if (hue == 0.0 && sat == 0.0 && val == 0.0) {
+            color   = QColor();
+        } else {
+            color   = QColor::fromHsv(hue,sat,val,alpha);
+            //qDebug() << "current alpha " << itemId << rowname << alpha << color;
+        }
+        hydrogens = value(ITEM_HYDROGENS).toInt();
+        mainSide  = value(ITEM_MAINSIDE).toInt();
+        checked   = value(ITEM_CHECKED).toInt();
+        valid = true;
+    } else {
+        valid = false;
+    }
+    return valid;
+}
+
+bool treeQuery::getRow(int itemid) {
+    if (prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From tree Where itemid=?")) {
+        addBindValue((int)itemid);
+        if (exec()) {
+            next();
+            this->finish();
+            return true;
+        }
+    }
+    valid = Db::tellError(*this);
+    return valid;
+}
+bool treeQuery::getRow(QString grampsName) {
+    if (prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From tree Where grampsname=?")) {
+        addBindValue((QString)grampsName);
+        if (exec()) {
+            next();
+            this->finish();
+            return true;
+        }
+    }
+    valid = Db::tellError(*this);
+    return valid;
+}
+bool treeQuery::getSibling(int parentid, char sibchain) {
+    if (prepare("Select itemid, parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked From tree Where parentid=? and chain=?")) {
+        addBindValue(parentid);
+        addBindValue((QString)sibchain);
+        if (exec()) {
+            next();
+            this->finish();
+            return true;
+        }
+    }
+    valid = Db::tellError(*this);
+    return valid;
+}
+
+bool treeQuery::newRow(int parentid, int imol, int iatom, QString grampsname, QString rowname,
+                      int resnum, char chain, int ignore, int style, int colorBy, int filter,
+                      int hue, int saturation, int cvalue, int alpha, int hydrogens, int mainSide, bool checked) {
+    QSqlQuery query;
+    if (query.prepare("Insert Into tree (parentid, imol, iatom, grampsname, rowname, resnum, chain, ignore, style, colorBy, filter, hue, saturation, value, alpha, hydrogens, mainSide, checked) Values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+        query.addBindValue((int)parentid);
+        query.addBindValue((int)imol);
+        query.addBindValue((int)iatom);
+        query.addBindValue((QString)grampsname);
+        query.addBindValue((QString)rowname);
+        query.addBindValue((int)resnum);
+        query.addBindValue((QString)chain);
+        query.addBindValue((int)ignore);
+        query.addBindValue((int)style);
+        query.addBindValue((int)colorBy);
+        query.addBindValue((int)filter);
+        query.addBindValue((int)hue);
+        query.addBindValue((int)saturation);
+        query.addBindValue((int)cvalue);
+        query.addBindValue((int)alpha);
+        query.addBindValue((int)hydrogens);
+        query.addBindValue((int)mainSide);
+        query.addBindValue((int)checked);
+        if (query.exec()) {
+            query.exec("Select last_insert_rowid()");
+            query.next();
+            int rowid = query.value(0).toInt();
+            return getRow(rowid);
+        }
+    }
+    return Db::tellError(query);
+}
+
+bool treeQuery::isRow(int imol, char chain, QString rowname) {
+    QSqlQuery query;
+    if (query.prepare("Select itemid From tree Where imol=? And chain=? And rowname=?")) {
+        query.addBindValue((int)imol);
+        query.addBindValue((QString)chain);
+        query.addBindValue((QString)rowname);
+        if (query.exec()) return query.next();
+    }
+    return Db::tellError(query);
+}
+
+bool treeQuery::isRow(int imol, char chain, int iatom) {
+    QSqlQuery query;
+    if (query.prepare("Select itemid From tree Where imol=? And chain=? And iatom=?")) {
+        query.addBindValue((int)imol);
+        query.addBindValue((QString)chain);
+        query.addBindValue((int)iatom);
+        if (query.exec()) return query.next();
+    }
+    return Db::tellError(query);
+}
+
+bool treeQuery::updateColor(int itemid, QColor color) {
+    QSqlQuery query;
+    if (query.prepare("Update tree Set hue=?, saturation=?, value=?, alpha=? Where itemid=?")) {
+        query.addBindValue((int)color.hue());
+        query.addBindValue((int)color.saturation());
+        query.addBindValue((int)color.value());
+        query.addBindValue((int)color.alpha());
+        query.addBindValue((int)itemid);
+        if (query.exec()) return true;
+    }
+    return Db::tellError(query);
+}
+bool treeQuery::updateColorBy(int itemid, int colorBy) {
+    QSqlQuery query;
+    if (query.prepare("Update tree Set colorBy=? Where itemid=?")) {
+        query.addBindValue((int)colorBy);
+        query.addBindValue((int)itemid);
+        if (query.exec()) return true;
+    }
+    return Db::tellError(query);
+}
+bool treeQuery::updateIgnore(int itemid, int ignore) {
+    QSqlQuery query;
+    if (query.prepare("Update tree Set ignore=? Where itemid=?")) {
+        query.addBindValue((int)ignore);
+        query.addBindValue((int)itemid);
+        if (query.exec()) return true;
+    }
+    return Db::tellError(query);
+}
+bool treeQuery::updateChecked(int itemid, int checked) {
+    QSqlQuery query;
+    if (query.prepare("Update tree Set checked=? Where itemid=?")) {
+        query.addBindValue(checked);
+        query.addBindValue((int)itemid);
+        if (query.exec()) return true;
+    }
+    return Db::tellError(query);
+}
+bool treeQuery::updateStyle(int itemid, int style) {
+    QSqlQuery query;
+    if (query.prepare("Update tree Set style=? Where itemid=?")) {
+        query.addBindValue((int)style);
+        query.addBindValue((int)itemid);
+        if (query.exec()) return true;
+    }
+    return Db::tellError(query);
+}
+bool treeQuery::updateHydrogens(int itemid, int hydrogens) {
+    QSqlQuery query;
+    if (query.prepare("Update tree Set hydrogens=? Where itemid=?")) {
+        query.addBindValue((int)hydrogens);
+        query.addBindValue((int)itemid);
+        if (query.exec()) return true;
+    }
+    return Db::tellError(query);
+}
+bool treeQuery::updateMainSide(int itemid, int mainSide, int filter) {
+    QSqlQuery query;
+    if (query.prepare("Update tree Set mainSide=?, filter=? Where itemid=?")) {
+        query.addBindValue((int)mainSide);
+        query.addBindValue((int)filter);
+        query.addBindValue((int)itemid);
+        if (query.exec()) return true;
+    }
+    return Db::tellError(query);
 }

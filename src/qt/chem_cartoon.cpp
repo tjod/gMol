@@ -11,7 +11,7 @@ int ChemWidget::drawCartoon(int imol, QString molnam, char chain, int mode, floa
   if (err) return err;
 
   // draw ribbon for this chain.
-  int numres =  Db::chainNumRes(imol, chain);
+  int numres = chainQuery::numRes(imol, chain);
   float A[3], B[3], C[3], D[3], P[3], Dp[3];
   float (*CA)[3]          = new float[numres+1][3];
   float (*O)[3]           = new float[numres+1][3];
@@ -26,18 +26,19 @@ int ChemWidget::drawCartoon(int imol, QString molnam, char chain, int mode, floa
   int hires=0;
   int lores=0;
   int mres=0; // previous residue number
-  QSqlQuery qchain = Db::iterChainCoords(imol, chain, FILTER_CARTOON);
-  for (chainCoordRecord cc = Db::nextChainCoord(qchain); cc.valid; cc = Db::nextChainCoord(qchain)) {
-    int ires = cc.resnum;
+  //QSqlQuery qchain = Db::iterChainCoords(imol, chain, FILTER_CARTOON);
+  chainQuery cq;
+  for (cq.iter(imol, chain, FILTER_CARTOON); cq.next(); ) {
+    int ires = cq.resnum;
     int njump = ires - mres;
-    if (cc.name == "CA") {
-      CA[ires][0] = cc.x; CA[ires][1] = cc.y; CA[ires][2] = cc.z;
+    if (cq.name == "CA") {
+      CA[ires][0] = cq.x; CA[ires][1] = cq.y; CA[ires][2] = cq.z;
       hires = ires;
       if (sstype[ires] == '\0') {
         sstype[ires] = 'U';
       }
-    } else if (cc.name == "O") {
-      O[ires][0] = cc.x; O[ires][1] = cc.y; O[ires][2] = cc.z;
+    } else if (cq.name == "O") {
+      O[ires][0] = cq.x; O[ires][1] = cq.y; O[ires][2] = cq.z;
       if (njump > 1 && mres > 0) {
         // interpolate missing coords
         float xinc = (CA[ires][0] - CA[mres][0])/njump;

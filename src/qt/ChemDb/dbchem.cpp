@@ -98,6 +98,7 @@ bool ChemDb::createTables() {
  
 bool ChemDb::createBondIndexes() {
 // helps to speed up searches
+    //qDebug() << "createBondIndexes";
   QSqlQuery query;
   if (!query.exec("Create Index main.bond_molid On bond (molid)")) return reportError(query);
   if (!query.exec("Create Index main.bond_aid On bond (aid)"))     return reportError(query);
@@ -105,6 +106,7 @@ bool ChemDb::createBondIndexes() {
   return true;
 }
 bool ChemDb::createAtomIndexes() {
+    //qDebug() << "createAtomIndexes";
   QSqlQuery query;
   if (!query.exec("Create Index main.atom_id On atom (molid,atid)")) return reportError(query);
   if (!query.exec("Create Index main.atom_res On atom (molid,chain,resnum,icode,altLoc)")) return reportError(query);
@@ -118,6 +120,7 @@ bool ChemDb::createAtomIndexes() {
  
 bool ChemDb::dropIndexes() {
 // helps to speed up inserts
+    //qDebug() << "dropIndexes";
   QSqlQuery query;
   if (!query.exec("Drop Index If Exists main.bond_molid"))  return reportError(query);
   if (!query.exec("Drop Index If Exists main.bond_aid"))    return reportError(query);

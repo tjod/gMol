@@ -182,6 +182,7 @@ void MainWindow::createDockWindows() {
     chemDock = NULL;
     chemWidget = NULL;
 #ifdef CHEM
+    Db::open();
     chemDock = new QDockWidget(tr("gMol"), this);
     chemWidget = new ChemWidget(chemDock);
     chemDock->setWidget(chemWidget);
