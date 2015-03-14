@@ -842,16 +842,14 @@ float ChemWidget::centerMol(int filter) {
 }
 
 void ChemWidget::highlightMol() {
-    //int filter = static_cast<QAction *>(QObject::sender())->data().toInt();
-    //QString gramps = currentRow.grampsName;
-    if (Gramps::idFromName(currentRow.grampsName) == 0) return;
+    int filter = static_cast<QAction *>(QObject::sender())->data().toInt();
+    QString gramps = currentRow.grampsName;
+    if (filter == FILTER_RESIDUE) {
+        gramps = encodeMolName(pickedAtom.molid, pickedAtom.chain, pickedAtom.resnum,"");
+    }
+    if (Gramps::idFromName(gramps) == 0) return;
     QString cmd;
-    //float center[3];
-    //float sizes[3];
-    //molCenter(filter,  center,  sizes);
-    //QTextStream(&cmd) << "translate LW p," << -center[0] << ":s20 q," << -center[1] << ":s20 r," << -center[2] << ":s20";
-    //QTextStream(&cmd) << "boxit " << center[0] << "," << center[1] << "," << center[2] << "," << sizes[0] << "," << sizes[1] << "," << sizes[2];
-    QTextStream(&cmd) << "highlight " << currentRow.grampsName;
+    QTextStream(&cmd) << "highlight " << gramps;
     emit cmdReady(cmd);
 }
 
@@ -1051,7 +1049,7 @@ void ChemWidget::styleMol(int drawstyle) {
         QString pname;
         if (!molnam.isNull()) {
             //treeRow parentRow = Db::getTreeRow(item->parent()->type());
-            treeQuery parentRow;
+            treeQuery parentRow = treeQuery();
             parentRow.getRow(currentRow.parentId);
 #ifdef DEBUG
             qDebug() << item->type() << currentRow.itemId << currentRow.grampsName << molnam << parentRow.grampsName << Gramps::idFromName(parentRow.grampsName);
@@ -1072,7 +1070,7 @@ void ChemWidget::insertOrGroup(QString molnam, treeQuery parentRow) {
     if (Gramps::idFromName(parentRow.grampsName) == 0) {
         cmd = "group " + molnam + "," + molnam + " " + parentRow.grampsName;
         emit cmdReady(cmd);
-        treeQuery grandParent;
+        treeQuery grandParent = treeQuery();
         grandParent.getRow(parentRow.parentId);
         cmd = "insert " + parentRow.grampsName + " " + grandParent.grampsName;
         emit cmdReady(cmd);
