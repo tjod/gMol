@@ -15,8 +15,8 @@ isEqual(QT_MAJOR_VERSION, 5): {
 } else {
    QT += webkit
 }
-CONFIG += glu \
-    debug
+CONFIG += glu
+    #debug
 HEADERS = glwidget.h \
     controls.h \
     web.h \

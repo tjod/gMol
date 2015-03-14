@@ -78,7 +78,7 @@ int ChemWidget::drawSurface(int itemid) {
   return err;
 }
 
-void ChemWidget::surfReady(int exitcode) {
+void ChemWidget::surfReady(int /*exitcode*/) {
   QString errout = QString(surfproc->readAllStandardError());
   QStringList msg = errout.split('\n');
   //if (exitcode) qDebug() << errout;

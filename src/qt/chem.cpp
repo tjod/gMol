@@ -360,6 +360,7 @@ void ChemWidget::addCartoonStyleMenu(QMenu *styleMenu, int current_style, const 
 void ChemWidget::createContextMenu(QTreeWidgetItem *item, int filter, QMenu *menu, const char *slot, bool highlight) {
   int imol = currentRow.imol;
   int grampsID = Gramps::idFromName(currentRow.grampsName);
+  //qDebug() << currentRow.rowname << grampsID << item->childCount() << filter;
 
   QAction *zoomAction = menu->addAction(tr("Zoom"), this, SLOT(zoomMol()));
   zoomAction->setData(filter);
@@ -557,63 +558,66 @@ void ChemWidget::showContextMenu(const QPoint &pos) {
 }
 
 void ChemWidget::showPickMenu(const QPoint &p, QTreeWidgetItem *item, QString root) {
-  // when an object is picked in the gramps gl window
-  if (!item) return;
-  //QMenu menu(tr("Pick"), this);
-  pickMenu.reset(new QMenu(tr("Pick"), this));
-  QString label;
-  if (currentRow.chain != NOCHAIN) {
-    QTextStream(&label) << root << ":" << currentRow.chain;
-  } else {
-    QTextStream(&label) << (mol_query.get(currentRow.imol) ? mol_query.title : ""); // mol_query.title;// Db::molTitle(currentRow.imol);
-  }
-  pickMenu->addAction(label, this, SLOT(infoMol()));
-  pickMenu->addSeparator();
+    // when an object is picked in the gramps gl window
+    if (!item) return;
+    //QMenu menu(tr("Pick"), this);
+    pickMenu.reset(new QMenu(tr("Pick"), this));
+    QString label;
+    if (currentRow.chain != NOCHAIN) {
+        QTextStream(&label) << root << ":" << currentRow.chain;
+    } else {
+        QString mtitle = currentRow.rowname + ":" + (mol_query.get(currentRow.imol) ? mol_query.title : "");
+        if (mtitle.size() > 20) mtitle = mtitle.left(20) + "...";
+        //QString mtitle = currentRow.rowname;
+        QTextStream(&label) << mtitle;
+    }
+    pickMenu->addAction(label, this, SLOT(infoMol()));
+    pickMenu->addSeparator();
 
-  QString itemLabel;
-  itemLabel = item->text(0);
-  QMenu *itemMenu = pickMenu->addMenu(itemLabel);
-  int filter = (currentRow.iatom == NOATOM) ? currentRow.filter : FILTER_ATOM;
-  createContextMenu(item, filter, itemMenu, SLOT(styleMol()), true);
+    QString itemLabel;
+    itemLabel = item->text(0);
+    QMenu *itemMenu = pickMenu->addMenu(itemLabel);
+    int filter = (currentRow.iatom == NOATOM) ? currentRow.filter : FILTER_ATOM;
+    createContextMenu(item, filter, itemMenu, SLOT(styleMol()), true);
 
-  if (currentRow.iatom == NOATOM && pickedAtom.valid) {
-      // let's add more menu items to allow for more graphics objects to be
-      // created that might apply to this pick, e.g. a residue, an atom,
-      // or any of the defined selections (not yet implemented).
-      int resnum = pickedAtom.resnum;
-      QString spacer = "  ";
-      QString indent = spacer + QChar(0x2514) + QChar(0x2500);
-      //if (currentRow.resnum == 0 && resnum) {
-      if (resnum > 0 && currentRow.resnum != resnum) {
-          // no residue for this item, could want to add the atom's residue, or water.
-          QString resLabel;
-          //QTextStream(&resLabel) << Db::getAtomResName(currentRow.imol, pickedAtom.atid) << resnum;
-          QTextStream(&resLabel) << pickedAtom.resnam << resnum;
-          if (treeQuery::isRow(currentRow.imol, currentRow.chain, resLabel)) {
-              QMenu *resMenu = pickMenu->addMenu(indent + resLabel);
-              createContextMenu(item, FILTER_RESIDUE, resMenu, NULL, true);
-          } else {
-              QMenu *resMenu = pickMenu->addMenu(indent + resLabel);
-              createContextMenu(item, FILTER_RESIDUE, resMenu, SLOT(addResidue()), false);
-          }
-          indent = spacer + indent;
-      }
-      const char* slot;
-      if (treeQuery::isRow(currentRow.imol, currentRow.chain, pickedAtom.atid)) {
-          // atom row exists
-          slot = NULL;  // just allow Zoom, Center
-      } else {
-          // atom row could be added
-          slot = SLOT(addAtom());
-      }
-      //QMenu *atomMenu = menu.addMenu(indent + "Atom " + Db::getAtomName(currentRow.imol, pickedAtom.atid));
-      QString aname = makePickedAtomName(false);
-      //if (pickedAtom.resnum == 0) QTextStream(&aname) << "#" << pickedAtom.atid;
-      QMenu *atomMenu = pickMenu->addMenu(indent + tr("Atom ") + aname);
-      createContextMenu(item, FILTER_ATOM, atomMenu, slot, false);
-  }
+    if (currentRow.iatom == NOATOM && pickedAtom.valid) {
+        // let's add more menu items to allow for more graphics objects to be
+        // created that might apply to this pick, e.g. a residue, an atom,
+        // or any of the defined selections (not yet implemented).
+        int resnum = pickedAtom.resnum;
+        QString spacer = "  ";
+        QString indent = spacer + QChar(0x2514) + QChar(0x2500);
+        //if (currentRow.resnum == 0 && resnum) {
+        if (resnum > 0 && currentRow.resnum != resnum) {
+            // no residue for this item, could want to add the atom's residue, or water.
+            QString resLabel;
+            //QTextStream(&resLabel) << Db::getAtomResName(currentRow.imol, pickedAtom.atid) << resnum;
+            QTextStream(&resLabel) << pickedAtom.resnam << resnum;
+            if (currentRow.chain == NOCHAIN || treeQuery::isRow(currentRow.imol, currentRow.chain, resLabel)) {
+                QMenu *resMenu = pickMenu->addMenu(indent + resLabel);
+                createContextMenu(item, FILTER_RESIDUE, resMenu, NULL, true);
+            } else {
+                QMenu *resMenu = pickMenu->addMenu(indent + resLabel);
+                createContextMenu(item, FILTER_RESIDUE, resMenu, SLOT(addResidue()), false);
+            }
+            indent = spacer + indent;
+        }
+        const char* slot;
+        if (currentRow.chain == NOCHAIN || treeQuery::isRow(currentRow.imol, currentRow.chain, pickedAtom.atid)) {
+            // atom row exists
+            slot = NULL;  // just allow Zoom, Center
+        } else {
+            // atom row could be added
+            slot = SLOT(addAtom());
+        }
+        //QMenu *atomMenu = menu.addMenu(indent + "Atom " + Db::getAtomName(currentRow.imol, pickedAtom.atid));
+        QString aname = makePickedAtomName(false);
+        //if (pickedAtom.resnum == 0) QTextStream(&aname) << "#" << pickedAtom.atid;
+        QMenu *atomMenu = pickMenu->addMenu(indent + tr("Atom ") + aname);
+        createContextMenu(item, FILTER_ATOM, atomMenu, slot, false);
+    }
 
-  pickMenu->exec(p);
+    pickMenu->exec(p);
 }
 
 void ChemWidget::updateColorIcon(QTreeWidgetItem *item, QColor color, int colorBy) {
@@ -967,11 +971,17 @@ void ChemWidget::addResidue(int drawstyle) {
     if (chain == pickedAtom.chain) {
         parentItem = item->parent(); // the chain
     } else {
+        int parentid;
+        if (chain == NOCHAIN) {
+            // picked via non-chain item, like surface of entire mol
+            parentItem = item->parent(); // the molecule
+            parentid = parentItem->type();
+        } else {
+            parentItem = item->parent(); // the chain
+            parentid = parentItem->parent()->type(); // the molecule
+        }
         chain = pickedAtom.chain; // allow drawing of atoms in "other" chain to this item
-        parentItem = item->parent(); // the chain
-        //int chainid = parentItem->type();
-        int parentid = parentItem->parent()->type(); // the molecule
-        treeQuery sibling;
+        treeQuery sibling = treeQuery();
         sibling.getSibling(parentid, chain);  // the other chain
         parentItem = getGrampsItem(sibling.grampsName); // parent item of other chain
     }

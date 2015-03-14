@@ -1560,7 +1560,7 @@ bool treeQuery::getSibling(int parentid, char sibchain) {
         addBindValue((QString)sibchain);
         if (exec()) {
             next();
-            this->finish();
+            //this->finish();
             return true;
         }
     }
