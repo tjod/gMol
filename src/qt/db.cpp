@@ -1235,7 +1235,7 @@ bool vertexQuery::next() {
     return valid;
 }
 bool vertexQuery::get() {
-    if (isActive()) {
+    if (isActive() && isValid()) {
         vid   = value(0).toInt();
         atnum = value(1).toInt();
         vprop = value(2).toDouble();
@@ -1280,7 +1280,7 @@ bool bondQuery::iter(int imol, unsigned int resnum, char chain, int filter, int 
 
     //QSqlQuery Db::iterBonds(int imol, int resnum, char chain, int filter, int hydrogens) {
     QString sql = bondSql(imol, resnum, chain, filter, hydrogens);
-    //qDebug() << sql;
+    qDebug() << sql;
     if (prepare(sql)) {
         addBindValue(imol);
         addBindValue(imol);
@@ -1348,7 +1348,7 @@ bool bondQuery::first() {
     return get();
 }
 bool bondQuery::get() {
-    if (isActive()) {
+    if (isActive() && isValid()) {
         ax      = value(0).toDouble();
         ay      = value(1).toDouble();
         az      = value(2).toDouble();
