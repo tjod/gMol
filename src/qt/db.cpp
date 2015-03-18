@@ -1280,7 +1280,7 @@ bool bondQuery::iter(int imol, unsigned int resnum, char chain, int filter, int 
 
     //QSqlQuery Db::iterBonds(int imol, int resnum, char chain, int filter, int hydrogens) {
     QString sql = bondSql(imol, resnum, chain, filter, hydrogens);
-    qDebug() << sql;
+    //qDebug() << sql;
     if (prepare(sql)) {
         addBindValue(imol);
         addBindValue(imol);
@@ -1297,7 +1297,7 @@ QString bondQuery::bondSql(int /*imol*/, unsigned int resnum, char chain, int fi
 #ifdef DEBUG
     qDebug() << "Db::iterBonds";
 #endif
-
+/*
     QString bonds = "With bonds As (Select molid,aid,bid From bond \
        Where molid=(Select Case When type='pdb' Then model Else molid End From molecule Where molid=?))";
 
@@ -1315,8 +1315,8 @@ QString bondQuery::bondSql(int /*imol*/, unsigned int resnum, char chain, int fi
           From atom a Join atom b On (aid=a.atid And bid=b.atid And a.molid=b.molid) Join atomBonds";
 
     QString sql = bonds + atomBonds + heart + " Where a.molid=b.molid And a.molid=?";
+*/
 
-/*
     QString sql = "Select a.x,a.y,a.z,a.atnum,a.resnum,a.chain,a.pcharge,a.hetatm, \
             b.x,b.y,b.z,b.atnum,b.resnum,b.chain,b.pcharge,b.hetatm \
             From atom a Join atom b On (aid=a.atid And bid=b.atid And a.molid=b.molid) \
@@ -1330,7 +1330,6 @@ QString bondQuery::bondSql(int /*imol*/, unsigned int resnum, char chain, int fi
         sql += " And (" + Db::getFilter(filter).sql + ")";
     }
     sql += ") Where a.molid=b.molid And a.molid=?";
-    */
 
     if (hydrogens == HYDROGEN_HIDE) sql += " And a.atnum>1 And b.atnum>1";
     return sql;
