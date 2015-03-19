@@ -1282,7 +1282,7 @@ bool bondQuery::iter(int imol, unsigned int resnum, char chain, int filter, int 
     QString sql = bondSql(imol, resnum, chain, filter, hydrogens);
     qDebug() << sql;
     if (prepare(sql)) {
-        addBindValue(imol);
+        //addBindValue(imol);
         addBindValue(imol);
         if (exec()) valid = true;
     } else {
@@ -1297,7 +1297,7 @@ QString bondQuery::bondSql(int /*imol*/, unsigned int resnum, char chain, int fi
 #ifdef DEBUG
     qDebug() << "Db::iterBonds";
 #endif
-
+/*
     QString bonds = "With bonds As (Select molid,aid,bid From bond \
        Where molid=(Select Case When type='pdb' Then model Else molid End From molecule Where molid=?))";
 
@@ -1315,7 +1315,20 @@ QString bondQuery::bondSql(int /*imol*/, unsigned int resnum, char chain, int fi
           From atom a Join atom b On (aid=a.atid And bid=b.atid And a.molid=b.molid) Join atomBonds";
 
     QString sql = bonds + atomBonds + heart + " Where a.molid=b.molid And a.molid=?";
+*/
 
+    QString sql = "With mol As (Select molid, Case When type='pdb' Then model Else molid End As bondmol From molecule Where molid=?)"; 
+    sql += ", atoms As (Select * From atom Join mol Using (molid)";
+    QStringList atom_clauses = QStringList();
+    if (chain != NOCHAIN) atom_clauses << "atom.chain='" + QString(chain) + "'";
+    if (resnum)           atom_clauses << "atom.resnum=" + QString::number(resnum);
+    if (filter)           atom_clauses << "(" + Db::getFilter(filter).sql + ")";
+    if (atom_clauses.size() > 0) sql += " Where " + atom_clauses.join(" And ");
+    sql += ") ";
+    sql += "Select Distinct a.x,a.y,a.z,a.atnum,a.resnum,a.chain,a.pcharge,a.hetatm, \
+            b.x,b.y,b.z,b.atnum,b.resnum,b.chain,b.pcharge,b.hetatm \
+            From atom a Join atoms b Using (molid) Join bond On (bond.molid=bondmol) \
+            Where aid=a.atid And bid=b.atid";
 /*
     QString sql = "Select a.x,a.y,a.z,a.atnum,a.resnum,a.chain,a.pcharge,a.hetatm, \
             b.x,b.y,b.z,b.atnum,b.resnum,b.chain,b.pcharge,b.hetatm \
