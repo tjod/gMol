@@ -185,21 +185,6 @@ int Db::numRows(QSqlQuery query) {
     }
 }
 
-/* These iter* methods prepare a SQL statement for use in a while (query->next()) type loop
-     in the manner of an iterator
-  */
-
-
-/*
-  QSqlQuery iterChains(int imol) {
-    QSqlQuery query;
-    query.prepare("Select Distinct chain From atom Where molid=?");
-    query.addBindValue(imol);
-    if (!query.exec()) tellError(query);
-    return query;
-  }
-*/
-
 QList<selectionFilter> Db::getFilters() {
     QList<selectionFilter> flist;
     QSqlQuery query;
@@ -279,39 +264,6 @@ QHash<QString, int> Db::nextChainCounts(QSqlQuery qchain) {
     return chainCounts;
 }
 
-//  QSqlQuery Db::iterResidues(int imol, int resnum, char chain, int filter) {
-//#ifdef DEBUG
-//    qDebug() << "Db::iterResidues";
-//#endif
-//    QString sql = "Select resnum,resnam From atom Where molid=?";
-//    if (chain != NOCHAIN) sql += " And chain=?";
-//    if (resnum)  sql += " And resnum=?";
-//    if (filter)  sql += " And flag=?";
-//    QSqlQuery query;
-//    query.prepare(sql);
-//    query.addBindValue(imol);
-//    if (chain != NOCHAIN) query.addBindValue(QString(chain));
-//    if (resnum)  query.addBindValue(resnum);
-//    if (filter)  {
-//      query.addBindValue(filter);
-//    }
-//    if (!query.exec()) tellError(query);
-//    return query;
-//  }
-//  residueRecord Db::nextResidue(QSqlQuery qres) {
-//    residueRecord residue;
-//    if (qres.next()) {
-//      residue.number = qres.value(0).toInt();
-//      residue.name   = qres.value(1).toString();
-//      residue.valid = true;
-//    } else {
-//      residue.valid = false;
-//    }
-//    return residue;
-//  }
-
-
-
 float Db::molCenter(int imol, unsigned int resnum, char chain, int filter, /* out */ float *center, /* out */ float *sizes) {
 #ifdef DEBUG
     qDebug() << "Db::molCenter";
@@ -335,10 +287,8 @@ void Db::molBounds(int imol, unsigned int resnum, char chain, int filter, float 
     QString sql = "Select max(x), min(x), max(y), min(y), max(z), min(z) From atom Where molid=?";
     if (chain != NOCHAIN) sql += " And chain=?";
     if (resnum)  sql += " And resnum=?";
-    //if (filter)  sql += " And flag=?";
     if (filter) {
         QString filterClause = getFilter(filter).sql;
-        //qDebug() << filterClause;
         sql += " And " + filterClause;
     }
     QSqlQuery query;
@@ -346,10 +296,7 @@ void Db::molBounds(int imol, unsigned int resnum, char chain, int filter, float 
     query.addBindValue(imol);
     if (chain != NOCHAIN) query.addBindValue(QString(chain));
     if (resnum)  query.addBindValue(resnum);
-//    if (filter)  {
-//        //query.addBindValue(filter);
-//        query.addBindValue(filter);
-//    }
+
     if (!query.exec()) tellError(query);
     query.next();
     max[0] = query.value(0).toDouble(); min[0] = query.value(1).toDouble();
@@ -419,63 +366,6 @@ bool Db::deleteFromTables(int imol) {
     }
 }
 
-//  QString getAtomResName(int imol, int iatom) {
-//#ifdef DEBUG
-//    qDebug() << "Db::getAtomResName" << imol << iatom;
-//#endif
-//    QString name;
-//    QSqlQuery query;
-//    query.prepare("Select resnam From atom Where molid=? And atid=?");
-//    query.addBindValue(imol);
-//    query.addBindValue(iatom);
-//    if (query.exec()) {
-//      query.next();
-//      name = query.value(0).toString();
-//    } else {
-//      tellError(query);
-//    }
-//    return name;
-//  }
-/*
-int Db::getAtomResNum(int imol, int iatom) {
-#ifdef DEBUG
-    qDebug() << "Db::getAtomResNum" << imol << iatom;
-#endif
-    return getAtom(imol,iatom).resnum;
-}
-
-char Db::getAtomChain(int imol, int iatom) {
-#ifdef DEBUG
-    qDebug() << "Db::getAtomChain" << imol << iatom;
-#endif
-    return getAtom(imol,iatom).chain;
-}
-*/
-//  void getAtomCoord(int imol, int iatom, float *center) {
-//#ifdef DEBUG
-//    qDebug() << "Db::getAtomCoord" << imol << iatom;
-//#endif
-//    QSqlQuery query;
-//    query.prepare("Select x,y,z From atom Where molid=? And atid=?");
-//    query.addBindValue(imol);
-//    query.addBindValue(iatom);
-//    if (query.exec()) {
-//      query.next();
-//      center[0] = query.value(0).toDouble();
-//      center[1] = query.value(1).toDouble();
-//      center[2] = query.value(2).toDouble();
-//    } else {
-//      tellError(query);
-//    }
-//  }
-/*
-QString Db::getAtomName(int imol, int iatom) {
-#ifdef DEBUG
-    qDebug() << "Db::getAtomName" << imol << iatom;
-#endif
-    return getAtom(imol,iatom).name;
-}
-*/
 int Db::getMolIdFromInchiKey(QString inchikey) {
     int id = -1;
     QSqlQuery query;
@@ -559,20 +449,7 @@ int Db::processAtom(QString s, QSqlQuery q, int molid) {
 int Db::processHetatm(QString s, QSqlQuery q, int molid) {
     return processAtom(s,q,molid);
 }
-/*
-    int aidx = 0;
-    char name[5];
-    char resnam[4];
-    char symbol[3];
-    char chain;
-    int resnum = 0;
-    float x,y,z;
-    sscanf(s.toLocal8Bit().data(), "HETATM%5d %4s %3s %1c%4d   %8f%8f%8f%*6s%*6s%2s", &aidx, name, resnam, &chain, &resnum, &x, &y, &z, symbol);
-    int atnum = symbolToNumber(symbol);
-    addAtom(q, molid, atid+aidx, resnum, resnam, atnum, x, y, z, name, chain);
-    //qDebug() << "HETATM " << aidx << name << resnam << chain << resnum << x << y << z;
-  }
-*/
+
 /*
   void processTer(QString s) {
   }
@@ -654,7 +531,6 @@ int Db::readPDB(std::istream& is, QString filename, int fsize) {
     QSqlQuery insertAtom;
     QSqlQuery insertBond;
     insertAtom.prepare("Insert Into atom (molid, atid, resnum, resnam, altLoc, icode, atnum, x, y, z, name, chain, hetatm) Values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
-    //query.exec("Create Temporary Table tmpbond (aid integer, bid integer, bo integer)");
     query.exec("Create Table tmpbond (molid Integer, aid integer, bid integer, bo integer)");
     insertBond.prepare("Insert Into tmpbond (molid, aid, bid, bo) Values (?,?,?,?)");
     QSqlDatabase db = QSqlDatabase::database();
@@ -827,23 +703,9 @@ void Db::updateMoleculeFile(int molid, QString file) {
 }
 void Db::updateMolecule(int molid, QString file, int natom, QString title) {
     QSqlQuery query;
-    /*
-    // remove dummy entry
-    query.prepare("Delete from molecule Where molid=?");
-    query.addBindValue((int)molid);
-    query.exec();
-*/
 #ifdef DEBUG
     qDebug() << "updateMolecule" << molid << title;
 #endif
-    //    query.prepare("Insert Into molecule (molid, file, type, title, natoms, nresidue, nbonds) Values (?,?,?,?,?,(Select Count(Distinct chain||resnum) From atom Where molid=?),(Select Count(aid) From bond Where molid=?))");
-    //    query.addBindValue((int)molid);
-    //    query.addBindValue(file);
-    //    query.addBindValue(QString("pdb"));
-    //    query.addBindValue((QString)title);
-    //    query.addBindValue((int)natom);
-    //    query.addBindValue((int)molid);
-    //    query.addBindValue((int)molid);
     query.prepare("Update molecule Set file=?, type=?, title=?, natoms=?, nresidue=(Select Count(Distinct chain||resnum) From atom Where molid=?) Where molid=? ");
     query.addBindValue(file);
     query.addBindValue(QString("pdb"));
@@ -852,18 +714,15 @@ void Db::updateMolecule(int molid, QString file, int natom, QString title) {
     query.addBindValue((int)molid);
     query.addBindValue((int)molid);
     if (!query.exec()) tellError(query);
-    //qDebug() << query.boundValues();
 #ifdef DEBUG
     qDebug() << "addFlags";
 #endif
-    //ChemDb::addFlags(molid);
 #ifdef DEBUG
     qDebug() << natom << " atoms.";
 #endif
 }
 
 bool Db::addProperty(int molid, QString name, QString value, int irecord) {
-    //qDebug() << "Properties: " << property.keys();
     QSqlQuery query;
     query.prepare("Insert Into property (molid, name, value, record) Values (?,?,?,?)");
     query.addBindValue((int)molid);
@@ -969,36 +828,7 @@ bool molQuery::next() {
     }
     return valid;
 }
-/*
-QString molQuery::molTitle(int imol) {
-    return getMol(imol).title;
-}
 
-int molQuery::molNumBonds(int imol) {
-    return getMol(imol).nbonds;
-}
-
-int molQuery::molNumAtoms(int imol) {
-    return getMol(imol).natoms;
-}
-
-QString molQuery::molFilename(int imol) {
-    return getMol(imol).filename;
-}
-
-int molQuery::molNumRes(int imol) {
-    return getMol(imol).nresidue;
-}
-*/
-
-/*
- *  static atomRecord findAtomNear(int imol, char chain, float *xyzw, float range);
-    static atomRecord getAtom(int imol, int iatom);
-    static int getAtomResNum(int imol, int iatom);
-    static char getAtomChain(int imol, int iatom);
-    static QSqlQuery iterAtoms(int imol, int resnum, char chain, int filter, int hydrogens);
-    static atomRecord nextAtom(QSqlQuery);
-    */
 atomQuery::atomQuery() {
     molid   = NOMOL;
     atid    = NOATOM;
@@ -1053,7 +883,7 @@ bool atomQuery::iter(int qmol, int qresnum=0, char qchain=NOCHAIN, int qfilter=0
 QString atomQuery::atomSql(int qmol, int qresnum, char qchain, int qfilter, int qhydrogens) {
     QString sql = "Select molid,atid,resnum,resnam,altLoc,icode,atnum,x,y,z,fcharge,pcharge,name,chain,hetatm \
             From atom Where molid=" + QString::number(qmol);
-            if (qchain != NOCHAIN) sql += " And chain='" + QString(qchain) + "'";
+    if (qchain != NOCHAIN) sql += " And chain='" + QString(qchain) + "'";
     if (qresnum) sql += " And resnum=" + QString::number(qresnum);
     if (qhydrogens == HYDROGEN_HIDE) {
         sql += " And atnum>1";
@@ -1061,10 +891,8 @@ QString atomQuery::atomSql(int qmol, int qresnum, char qchain, int qfilter, int 
         // very special case used once to determine hcount
         sql += " And atnum=1";
     }
-    //if (filter)  sql += " And flag=" + QString::number(filter);
     if (qfilter) {
         QString filterClause = Db::getFilter(qfilter).sql;
-        //qDebug() << filterClause;
         sql += " And (" + filterClause + ")";
     }
     return sql;
@@ -1280,7 +1108,7 @@ bool bondQuery::iter(int imol, unsigned int resnum, char chain, int filter, int 
 
     //QSqlQuery Db::iterBonds(int imol, int resnum, char chain, int filter, int hydrogens) {
     QString sql = bondSql(imol, resnum, chain, filter, hydrogens);
-    qDebug() << sql;
+    //qDebug() << sql;
     if (prepare(sql)) {
         //addBindValue(imol);
         addBindValue(imol);
