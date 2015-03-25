@@ -27,7 +27,6 @@ HEADERS = glwidget.h \
     gramps.h \
     gmol.h \
     cpk.xpm \
-    chem_cartoon.cpp \
     chem_chain.cpp \
     chem_surface.cpp \
     mainwindow.h \
@@ -39,6 +38,7 @@ SOURCES = glwidget.cpp \
     gmol.cpp \
     gdial.cpp \
     chem.cpp \
+    chem_cartoon.cpp \
     ./ChemDb/dbchem.cpp \
     spline.cpp \
     mainwindow.cpp \

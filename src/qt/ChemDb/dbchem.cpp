@@ -396,7 +396,7 @@ bool ChemDb::addAtoms(OBMol &mol) {
     //++atid;
     query.addBindValue((int)molid);
     query.addBindValue((int)atom->GetIdx());
-    int resnum = 0;
+    int resnum = NORESNUM;
     QString resnam;
     QString atomnam;
     QString chain;

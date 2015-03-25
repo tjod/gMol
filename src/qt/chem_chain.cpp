@@ -116,7 +116,7 @@ QList<QString> ChemWidget::addChainsRow(QTreeWidgetItem *root, int imol) {
       //int nres = chainCount["nres"];
       QTextStream(&text) << tr("Chain") + " " << chain << "(" << (chainCount["nres"]-chainCount["Water"]) << ")";
       Qt::CheckState drawChecked = (nchain < chainsToDraw) ? Qt::Checked : Qt::Unchecked;
-      chainRow = addMolRow(root, text, 0, drawChecked, imol, NOATOM, chain, "Chain", STYLE_NONE, COLOR_BY_SOLID, chainColor, FILTER_NONE);
+      chainRow = addMolRow(root, text, NORESNUM, drawChecked, imol, NOATOM, chain, "Chain", STYLE_NONE, COLOR_BY_SOLID, chainColor, FILTER_NONE);
       //updateColorIcon(chainRow, chainColor, COLOR_BY_SOLID);
       //if (drawChecked == Qt::Checked) expandItem(chainRow);
       if (nchain == 1) expandItem(chainRow);
@@ -148,7 +148,7 @@ QList<QString> ChemWidget::addChainsRow(QTreeWidgetItem *root, int imol) {
               color = COLOR_WATER;
               QTextStream(&text) << " (" << nres << ")";
           }
-          QTreeWidgetItem *newRow = addMolRow(chainRow, text, 0, drawChecked, imol, NOATOM, chain, name, style, colorby, color, filterid);
+          QTreeWidgetItem *newRow = addMolRow(chainRow, text, NORESNUM, drawChecked, imol, NOATOM, chain, name, style, colorby, color, filterid);
           if (ndrawn == 0 && nchain < chainsToDraw) {
               mname = drawMol(newRow);
               ++ndrawn;
@@ -159,7 +159,7 @@ QList<QString> ChemWidget::addChainsRow(QTreeWidgetItem *root, int imol) {
     bool dummy = false;
     if (mname.isEmpty()) {
       // dummy placeholder to create group for later objects
-      mname = encodeMolName(imol, chain, 0, "dummy");
+      mname = encodeMolName(imol, chain, NORESNUM, "dummy");
       drawDummy(mname);
       dummy = true;
     }

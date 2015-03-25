@@ -15,7 +15,5 @@ gmol.app
 dbchem
 dbsurf
 build-gmol-Qt_5_3_2_clang_64-Debug/
-gmol.pro.user.*
-dbchem.pro.user.*
-dbsurf.pro.user.*
+*.pro.user*
 .DS_Store

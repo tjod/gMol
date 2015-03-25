@@ -139,27 +139,6 @@ bool Db::attachResidue() {
     }
 }
 
-
-std::string Db::getChainSS(int molid, char chain, int numres) {
-    QSqlQuery query;
-    query.prepare("Select resnum, type From secondary_structure Where molid=? And chain=? Order by resnum");
-    query.addBindValue((int)molid);
-    query.addBindValue((QString)chain);
-    if (query.exec()) {
-        std::string sstype = std::string(numres+1, '\0');
-        sstype.insert(0, numres+1, '\0');
-        while (query.next()) {
-            int resnum = query.value(0).toInt();
-            char type  = query.value(1).toString().toLocal8Bit().data()[0];
-            sstype[resnum] = type;
-        }
-        return sstype;
-    } else {
-        tellError(query);
-        return NULL;
-    }
-}
-
 int Db::maxItemId() {
     int itemid = 0;
     QSqlQuery query;
@@ -213,12 +192,12 @@ QList<selectionFilter> Db::getFilters() {
  }
 
 QSqlQuery Db::iterChainCounts(int imol) {
-    return iterChainCounts(imol, '\0');
+    return iterChainCounts(imol, NOCHAIN);
 }
 
 QSqlQuery Db::iterChainCounts(int imol, char chain) {
     QString pattern = "Select chain, '%1' name, Count(Distinct(resnum)) From atom Where molid=" + QString::number(imol) + " %2";
-    if (chain != '\0') {
+    if (chain != NOCHAIN) {
         pattern += " And chain='" + QString(chain) + "'";
     } else {
         pattern += " Group by chain";
@@ -245,12 +224,12 @@ QSqlQuery Db::iterChainCounts(int imol, char chain) {
 QHash<QString, int> Db::nextChainCounts(QSqlQuery qchain) {
     QHash<QString, int> chainCounts;
     //int nfilters = filters.count();
-    char lastChain = '\0';
+    char lastChain = NOCHAIN;
 //    for (int i=0; i < filters.count(); ++i) {
 //        if (!qchain.next()) break;
     while (qchain.next()) {
         char chain = qchain.value(0).toString().toLocal8Bit().data()[0];
-        if (lastChain == '\0') {
+        if (lastChain == NOCHAIN) {
             chainCounts.insert("chain", chain); // char to int - careful
             lastChain = chain;
         } else if (chain != lastChain) {
@@ -286,7 +265,7 @@ void Db::molBounds(int imol, unsigned int resnum, char chain, int filter, float 
 #endif
     QString sql = "Select max(x), min(x), max(y), min(y), max(z), min(z) From atom Where molid=?";
     if (chain != NOCHAIN) sql += " And chain=?";
-    if (resnum)  sql += " And resnum=?";
+    if (resnum != NORESNUM)  sql += " And resnum=?";
     if (filter) {
         QString filterClause = getFilter(filter).sql;
         sql += " And " + filterClause;
@@ -294,8 +273,8 @@ void Db::molBounds(int imol, unsigned int resnum, char chain, int filter, float 
     QSqlQuery query;
     query.prepare(sql);
     query.addBindValue(imol);
-    if (chain != NOCHAIN) query.addBindValue(QString(chain));
-    if (resnum)  query.addBindValue(resnum);
+    if (chain != NOCHAIN)   query.addBindValue(QString(chain));
+    if (resnum != NORESNUM) query.addBindValue(resnum);
 
     if (!query.exec()) tellError(query);
     query.next();
@@ -419,9 +398,9 @@ int Db::processAtom(QString s, QSqlQuery q, int molid) {
     //float occupancy;
     //float tempFactor;
     char icode = '\0';
-    char chain = '\0';
+    char chain = NOCHAIN;
     char altLoc = '\0';
-    int resnum = 0;
+    int resnum = NORESNUM;
     float x,y,z;
     //sscanf(s.toLocal8Bit().data(), "ATOM  %5d %4s %3s %1c%4d   %8f%8f%8f%*6s%*6s%2s", &aidx, name, resnam, &chain, &resnum, &x, &y, &z, symbol);
     //sscanf(s.toLocal8Bit().data(), "ATOM  %5d %4c%c%3c %c%4d%c   %8f%8f%8f%6f%6f          %2c%2c", &aidx, name, &altLoc, resnam, &chain, &resnum, &icode, &x, &y, &z, &occupancy, &tempFactor, symbol, charge);
@@ -514,7 +493,7 @@ int Db::readPDB(QString filename) {
     return readPDB(is, filename, fsize);
 }
 
-int Db::readPDB(std::istream& is, QString filename, int fsize) {
+int Db::readPDB(std::istream& is, QString filename, int /*fsize*/) {
     // read from stream
 #ifdef DEBUG
     printf ("Reading 0 at 1 of %d\n", fsize);
@@ -573,8 +552,8 @@ int Db::readPDB(std::istream& is, QString filename, int fsize) {
             if (imodel > 0) newMolecule(molid);
         } else if (s.startsWith("ENDMDL")) {
             ++imodel;
-            int atloc = is.tellg()*0.5;
-            printf("Model %d at %d of %d\n", imodel, atloc, fsize); fflush(stdout);
+            //int atloc = is.tellg()*0.5;
+            //printf("Model %d at %d of %d\n", imodel, atloc, fsize); fflush(stdout);
             if (imodel == 1) {
                 mol1 = molid;
             } else {
@@ -866,7 +845,7 @@ bool atomQuery::get(int qmol, int qatom) {
     return valid;
 }
 
-bool atomQuery::iter(int qmol, int qresnum=0, char qchain=NOCHAIN, int qfilter=0, int qhydrogens=HYDROGEN_NONE) {
+bool atomQuery::iter(int qmol, int qresnum=NORESNUM, char qchain=NOCHAIN, int qfilter=0, int qhydrogens=HYDROGEN_NONE) {
     //QSqlQuery Db::iterAtoms(int imol, int resnum, char chain, int filter, int hydrogens) {
 #ifdef DEBUG
     qDebug() << "Db::iterAtoms";
@@ -883,8 +862,8 @@ bool atomQuery::iter(int qmol, int qresnum=0, char qchain=NOCHAIN, int qfilter=0
 QString atomQuery::atomSql(int qmol, int qresnum, char qchain, int qfilter, int qhydrogens) {
     QString sql = "Select molid,atid,resnum,resnam,altLoc,icode,atnum,x,y,z,fcharge,pcharge,name,chain,hetatm \
             From atom Where molid=" + QString::number(qmol);
-    if (qchain != NOCHAIN) sql += " And chain='" + QString(qchain) + "'";
-    if (qresnum) sql += " And resnum=" + QString::number(qresnum);
+    if (qchain != NOCHAIN)   sql += " And chain='" + QString(qchain) + "'";
+    if (qresnum != NORESNUM) sql += " And resnum=" + QString::number(qresnum);
     if (qhydrogens == HYDROGEN_HIDE) {
         sql += " And atnum>1";
     } else if (qhydrogens == HYDROGEN_COUNT) {
@@ -969,7 +948,8 @@ bool atomQuery::next() {
     if (QSqlQuery::next()) {
         molid   = value(0).toInt();
         atid    = value(1).toInt();
-        resnum  = value(2).toInt();
+        QVariant restmp = value(2);
+        resnum  = (restmp.isNull()) ? NORESNUM : restmp.toInt();
         resnam  = value(3).toString();
         altLoc  = value(4).toString().toLocal8Bit().data()[0];
         icode   = value(5).toString().toLocal8Bit().data()[0];
@@ -1104,7 +1084,7 @@ int vertexQuery::count(int itemid) {
 bondQuery::bondQuery() {}
 bondQuery::~bondQuery() {}
 
-bool bondQuery::iter(int imol, unsigned int resnum, char chain, int filter, int hydrogens) {
+bool bondQuery::iter(int imol, int resnum, char chain, int filter, int hydrogens) {
 
     //QSqlQuery Db::iterBonds(int imol, int resnum, char chain, int filter, int hydrogens) {
     QString sql = bondSql(imol, resnum, chain, filter, hydrogens);
@@ -1121,7 +1101,7 @@ bool bondQuery::iter(int imol, unsigned int resnum, char chain, int filter, int 
     return valid;
 }
 
-QString bondQuery::bondSql(int /*imol*/, unsigned int resnum, char chain, int filter, int hydrogens) {
+QString bondQuery::bondSql(int /*imol*/, int resnum, char chain, int filter, int hydrogens) {
 #ifdef DEBUG
     qDebug() << "Db::iterBonds";
 #endif
@@ -1132,7 +1112,7 @@ QString bondQuery::bondSql(int /*imol*/, unsigned int resnum, char chain, int fi
     QString atomBonds = ", atomBonds As (Select Distinct atom.molid,aid,bid From atom Join bonds \
        Using(molid) Where (atid=aid Or atid=bid)";
     if (chain != NOCHAIN) atomBonds += " And atom.chain='" + QString(chain) + "'";
-    if (resnum)           atomBonds += " And atom.resnum=" + QString::number(resnum);
+    if (resnum != NORESNUM)           atomBonds += " And atom.resnum=" + QString::number(resnum);
     if (filter) {
         atomBonds += " And (" + Db::getFilter(filter).sql + ")";
     }
@@ -1149,7 +1129,7 @@ QString bondQuery::bondSql(int /*imol*/, unsigned int resnum, char chain, int fi
     sql += ", atoms As (Select * From atom Join mol Using (molid)";
     QStringList atom_clauses = QStringList();
     if (chain != NOCHAIN) atom_clauses << "atom.chain='" + QString(chain) + "'";
-    if (resnum)           atom_clauses << "atom.resnum=" + QString::number(resnum);
+    if (resnum!= NORESNUM)atom_clauses << "atom.resnum=" + QString::number(resnum);
     if (filter)           atom_clauses << "(" + Db::getFilter(filter).sql + ")";
     if (atom_clauses.size() > 0) sql += " Where " + atom_clauses.join(" And ");
     sql += ") ";
@@ -1166,7 +1146,7 @@ QString bondQuery::bondSql(int /*imol*/, unsigned int resnum, char chain, int fi
                    Where molid=(Select Case When type='pdb' Then model Else molid End From molecule Where molid=?)) bond \
                   Join atom Using(molid) Where (atid=aid Or atid=bid)";
     if (chain != NOCHAIN) sql += " And atom.chain='" + QString(chain) + "'";
-    if (resnum) sql += " And atom.resnum=" + QString::number(resnum);
+    if (resnum != NORESNUM) sql += " And atom.resnum=" + QString::number(resnum);
     if (filter) {
         sql += " And (" + Db::getFilter(filter).sql + ")";
     }
@@ -1244,13 +1224,13 @@ bool chainQuery::iter(int imol, char chain, int filter) {
 #ifdef DEBUG
     qDebug() << "Db::iterChainCoords";
 #endif
-    QString sql = "Select x,y,z,resnum,name From atom Where molid=? And chain=? And atom.hetatm=0";
+    QString sql = "Select x,y,z,resnum,name,coalesce(type,'?') From atom Left Join secondary_structure Using (molid,chain,resnum) Where molid=? And chain=?";
     if (filter) {
         QString filterClause = Db::getFilter(filter).sql;
         //qDebug() << filterClause;
         sql += " And " + filterClause;
     }
-    sql += " Order By resnum";
+    sql += " Order By resnum,name"; // make 'O' come last per residue
     if (prepare(sql)) {
         addBindValue(imol);
         addBindValue(QString(chain));
@@ -1261,15 +1241,19 @@ bool chainQuery::iter(int imol, char chain, int filter) {
     }
     return valid;
 }
-
+int chainQuery::count() {
+    return Db::numRows(*this);
+}
 bool chainQuery::next() {
     //chainCoordRecord Db::nextChainCoord(QSqlQuery qchain) {
     if (QSqlQuery::next()) {
         x      = value(0).toDouble();
         y      = value(1).toDouble();
         z      = value(2).toDouble();
-        resnum = value(3).toInt();
+        QVariant restmp = value(3);
+        resnum = (restmp.isNull()) ? NORESNUM : restmp.toInt();
         name   = value(4).toString();
+        sstype = value(5).toString().toLocal8Bit().data()[0];
         valid = true;
     } else {
         valid = false;
@@ -1284,7 +1268,9 @@ int chainQuery::numRes(int imol, char chain) {
     qDebug() << "Db::chainNumRes";
 #endif
     QSqlQuery query;
-    query.prepare("Select max(resnum) From atom Where molid=? And chain=?");
+    //query.prepare("Select max(resnum) From atom Where molid=? And chain=?");
+    //query.prepare("Select max(resnum)-min(resnum)+1 From atom Where molid=? And chain=?");   
+    query.prepare("Select count(distinct(resnum)) From atom Where molid=? And chain=?");    
     query.addBindValue((int)imol);
     query.addBindValue((QString)chain);
     if (query.exec() && query.next()) {
@@ -1293,6 +1279,26 @@ int chainQuery::numRes(int imol, char chain) {
         Db::tellError(query);
     }
     return nres;
+}
+std::string chainQuery::getChainSS(int molid, char chain, int numres) {
+    QSqlQuery query;
+    query.prepare("Select resnum, type From secondary_structure Where molid=? And chain=? Order by resnum");
+    query.addBindValue((int)molid);
+    query.addBindValue((QString)chain);
+    if (query.exec()) {
+        std::string sstype = std::string(numres+1, '?');
+        //sstype.insert(0, numres+1, '?');
+        while (query.next()) {
+            QVariant restmp = query.value(0);
+            int resnum = (restmp.isNull()) ? NORESNUM : restmp.toInt();
+            char type  = query.value(1).toString().toLocal8Bit().data()[0];
+            if (resnum != NORESNUM) sstype[resnum] = type;
+        }
+        return sstype;
+    } else {
+        Db::tellError(query);
+        return NULL;
+    }
 }
 
 treeQuery::treeQuery() {}
@@ -1345,7 +1351,8 @@ bool treeQuery::next() {
         iatom       = value(ITEM_IATOM).toInt();
         grampsName  = value(ITEM_GRAMPSNAME).toString();
         rowname     = value(ITEM_ROWNAME).toString();
-        resnum      = value(ITEM_RESNUM).toInt();
+        QVariant restmp = value(ITEM_RESNUM);
+        resnum      = (restmp.isNull()) ? NORESNUM : restmp.toInt();
         chain       = value(ITEM_CHAIN).toString().toLocal8Bit().data()[0];
         ignore      = value(ITEM_IGNORE).toInt();
         style       = value(ITEM_STYLE).toInt();
@@ -1419,7 +1426,11 @@ bool treeQuery::newRow(int parentid, int imol, int iatom, QString grampsname, QS
         query.addBindValue((int)iatom);
         query.addBindValue((QString)grampsname);
         query.addBindValue((QString)rowname);
-        query.addBindValue((int)resnum);
+        if (resnum == NORESNUM) {
+            query.addBindValue(QVariant::Int);
+        } else {
+            query.addBindValue((int)resnum);
+        }
         query.addBindValue((QString)chain);
         query.addBindValue((int)ignore);
         query.addBindValue((int)style);

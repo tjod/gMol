@@ -159,7 +159,7 @@ private:
     QString drawOneAtom(QTreeWidgetItem *);
     int drawDummy(const QString mname);
     int lines(int imol, const QString mname, unsigned int rindex, char chain, int colorBy, bool cyl, int balls, int filter, int hydrogens);
-    int spheres(int imol, int iatom, const QString molnam, unsigned int resnum, char chain, int colorBy, int hetero,
+    int spheres(int imol, int iatom, const QString molnam, int resnum, char chain, int colorBy, int hetero,
       int filter, int hydrogens, float radius, float Hradius);
     void normal(float[3], float[3], float[3], float[3]);
     int drawBond(bondQuery bond, bool pairs, int colorBy, float *spec);
@@ -167,7 +167,7 @@ private:
     int drawAtom(atomQuery atom, int colorBy, float radius, float Hradius, int hetero);
     int sendChain(int nca, float *coord, float cradius, float radius, int spline);
     int drawRibbon(int imol, QString molnam, char cname, int mode, float sradius, float cradius);
-    int makeRibbon(int nguide, float *guide_minus, float *guide_plus, float *guide_zero, std::string sstype, int lores, int hires, float radius, float width, bool endcaps, bool showUnknown);
+    int makeRibbon(int nguide, float *guide_minus, float *guide_plus, float *guide_zero, std::string sstype, int hires, float radius, float width, bool endcaps, bool showUnknown);
     int sendRibbon(float spline_minus[][3], float spline_plus[][3], int slength, float thick, float width, int ntaper, int edges);
     int sendArrow(float spline_minus[][3],  float spline_plus[][3], int slength, float width);
     int sendBase(float spline_minus[][3],  float spline_plus[][3], float width);
@@ -176,7 +176,7 @@ private:
     int drawCartoon(int imol, QString molnam, char cname, int mode, float sradius, float cradius);
     int drawSurface(int itemid);
     QString grampsSafe(QString name);
-    QString encodeMolName(int imol, char chain, unsigned int rindex, QString suffix);
+    QString encodeMolName(int imol, char chain, int rindex, QString suffix);
     void createContextMenu(QTreeWidgetItem *, int, QMenu *, const char* slot, bool highlight);
     void showPickMenu(const QPoint &, QTreeWidgetItem *, QString name);
     void addColorMenu(QMenu *, int colorBy);
@@ -199,11 +199,11 @@ private:
     void colorMol(QTreeWidgetItem *item, QColor color);
     int resCount(int imol, char cname, int *ntrace, int *nwater, int *nhet, int *nmain, int *nside);
     QList<QString> addChainsRow(QTreeWidgetItem *root, int imol);
-    void makeNewCurrentRow(QString rowname, int rootType, QString grampsName, unsigned int resnum,
+    void makeNewCurrentRow(QString rowname, int rootType, QString grampsName, int resnum,
                            Qt::CheckState state, int imol, int iatom, char chain, int drawstyle,
                            int colorBy, QColor color, int filter, int hydrogens);
     QTreeWidgetItem * addMolRow(QTreeWidgetItem *root, QString rowname,
-     unsigned int rindex, Qt::CheckState state, int imol, int iatom, char chain, QString suffix, int style, int colorBy, QColor color, int filter);
+     int rindex, Qt::CheckState state, int imol, int iatom, char chain, QString suffix, int style, int colorBy, QColor color, int filter);
     QTreeWidgetItem * makeMolRow(QTreeWidgetItem *root, QString grampsName, QString rowname, Qt::CheckState state);
     //QTreeWidgetItem *addWaterRow(QTreeWidgetItem *root, int imol, unsigned int rindex, char cname, int nwaters);
 

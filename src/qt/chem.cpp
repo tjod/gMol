@@ -170,7 +170,7 @@ void ChemWidget::gotDoubleClick(const QPoint & /*globalP*/, grampsPick gp) {
 QString ChemWidget::makePickedAtomName(bool withRes) {
     QString aname = "";
     if (pickedAtom.valid) {
-        if (pickedAtom.resnum > 0) {
+        if (pickedAtom.resnum != NORESNUM) {
             if (withRes) {
                 QTextStream(&aname) << pickedAtom.resnam << pickedAtom.resnum << ":";
             }
@@ -413,7 +413,7 @@ void ChemWidget::createContextMenu(QTreeWidgetItem *item, int filter, QMenu *men
           styleMenu->addSeparator();
       }
       //if (currentRow.resnum > 0 || Db::filters[filter].appearance == "T") {
-      if (currentRow.resnum > 0) {
+      if (currentRow.resnum != NORESNUM) {
           addMainSideMenu(styleMenu, currentRow.mainSide);
           styleMenu->addSeparator();
       }
@@ -588,7 +588,7 @@ void ChemWidget::showPickMenu(const QPoint &p, QTreeWidgetItem *item, QString ro
         QString spacer = "  ";
         QString indent = spacer + QChar(0x2514) + QChar(0x2500);
         //if (currentRow.resnum == 0 && resnum) {
-        if (resnum > 0 && currentRow.resnum != resnum) {
+        if (resnum != NORESNUM && currentRow.resnum != resnum) {
             // no residue for this item, could want to add the atom's residue, or water.
             QString resLabel;
             //QTextStream(&resLabel) << Db::getAtomResName(currentRow.imol, pickedAtom.atid) << resnum;
@@ -924,7 +924,7 @@ void ChemWidget::addAtom(int drawstyle) {
     QString suffix;
     //QString atomname = pickedAtom.name; //Db::getAtomName(imol, iatom);
     //QTextStream(&text) << Db::getAtomResName(imol, iatom) << resnum << ":" << atomname;
-    if (pickedAtom.resnum > 0) {
+    if (pickedAtom.resnum != NORESNUM) {
         suffix = pickedAtom.name;
     } else {
         suffix = text;
@@ -1406,7 +1406,7 @@ void ChemWidget::molReady(int imol) {
   }
 }
 
-#include "chem_cartoon.cpp"
+//#include "chem_cartoon.cpp"
 #include "chem_chain.cpp"
 #include "chem_surface.cpp"
 
@@ -1529,18 +1529,18 @@ int ChemWidget::open(int molid) {
     bool pdb = (mol_query.type.compare("pdb", Qt::CaseInsensitive) == 0);
     if (amol == 0) {
       // first mol
-      size = Db::molCenter(mol_query.imol, 0, NOCHAIN, FILTER_NONE, center, sizes);
+      size = Db::molCenter(mol_query.imol, NORESNUM, NOCHAIN, FILTER_NONE, center, sizes);
       char chain = NOCHAIN;
       if (pdb && mol_query.nresidue == 1) {
           //atomRecord a = Db::getAtom(mol.imol, 1);
           atom_query.get(mol_query.imol, 1);
           if (atom_query.valid) chain = atom_query.chain;
       }
-      parentItem = addMolRow(rootMol, fshort, 0, Qt::Checked, mol_query.imol, NOATOM, chain, fparts[0], STYLE_NONE, COLOR_BY_NONE, COLOR_DEFAULT, FILTER_NONE);
+      parentItem = addMolRow(rootMol, fshort, NORESNUM, Qt::Checked, mol_query.imol, NOATOM, chain, fparts[0], STYLE_NONE, COLOR_BY_NONE, COLOR_DEFAULT, FILTER_NONE);
       QString MOLname = currentRow.grampsName;
       if (mol_query.nresidue > 1) {
         QList<QString>gnames = addChainsRow(parentItem, mol_query.imol);
-        //addMolRow(parentItem, "Surface", 0, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_MAIN+FILTER_SIDE);
+        //addMolRow(parentItem, "Surface", NORESNUM, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_MAIN+FILTER_SIDE);
         //QTextStream(&cmd) << "," << MOLname; // finish off command with group name
         if (gnames.count() > 0) {
             QTextStream(&cmd) << "group " << gnames.first() << "," << gnames.last() << "," << MOLname;
@@ -1552,11 +1552,11 @@ int ChemWidget::open(int molid) {
         //if (Db::molNumAtoms(mol.imol) > 200) style = STYLE_LINES;
         if (mol_query.natoms > 200) style = STYLE_LINES;
         // STYLE_NONE for this group parent row
-        QTreeWidgetItem *molRow = addMolRow(parentItem, rownam, 0, Qt::Checked, mol_query.imol, NOATOM, NOCHAIN, "", STYLE_NONE, COLOR_BY_NONE, color, FILTER_NONE);
+        QTreeWidgetItem *molRow = addMolRow(parentItem, rownam, NORESNUM, Qt::Checked, mol_query.imol, NOATOM, NOCHAIN, "", STYLE_NONE, COLOR_BY_NONE, color, FILTER_NONE);
         QString molnam = currentRow.grampsName;
-        QTreeWidgetItem *modelRow = addMolRow(molRow, "Model", 0, Qt::Checked, mol_query.imol, NOATOM, NOCHAIN, "model", style, COLOR_BY_ATOMS, color, FILTER_NONE);
+        QTreeWidgetItem *modelRow = addMolRow(molRow, "Model", NORESNUM, Qt::Checked, mol_query.imol, NOATOM, NOCHAIN, "model", style, COLOR_BY_ATOMS, color, FILTER_NONE);
         QString modelnam = drawMol(modelRow);
-        //addMolRow(molRow, "Surface", 0, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_NONE);
+        //addMolRow(molRow, "Surface", NORESNUM, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_NONE);
         QTextStream(&cmd) << "group " << modelnam << "," << modelnam << "," << molnam;
         emit cmdReady(cmd);
         emit cmdReady("rebuild " + modelnam);  // workaround for odd bug that prevents first obj from being shown
@@ -1570,9 +1570,9 @@ int ChemWidget::open(int molid) {
       //if (Db::molNumAtoms(mol.imol) > 100) style = STYLE_LINES;
       if (mol_query.natoms > 100) style = STYLE_LINES;
       color.setHsv(color.hue() + 30, color.saturation(), color.value());
-      QTreeWidgetItem *molRow = addMolRow(parentItem, rownam, 0, Qt::Unchecked, mol_query.imol, NOATOM, NOCHAIN, "", STYLE_NONE, COLOR_BY_NONE, color, FILTER_NONE); // the group for this  mol
-      addMolRow(molRow, "Model",   0, Qt::Unchecked, mol_query.imol, NOATOM, NOCHAIN, "model", style, COLOR_BY_ATOMS, color, FILTER_NONE);
-      //addMolRow(molRow, "Surface", 0, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_NONE);
+      QTreeWidgetItem *molRow = addMolRow(parentItem, rownam, NORESNUM, Qt::Unchecked, mol_query.imol, NOATOM, NOCHAIN, "", STYLE_NONE, COLOR_BY_NONE, color, FILTER_NONE); // the group for this  mol
+      addMolRow(molRow, "Model", NORESNUM, Qt::Unchecked, mol_query.imol, NOATOM, NOCHAIN, "model", style, COLOR_BY_ATOMS, color, FILTER_NONE);
+      //addMolRow(molRow, "Surface", NORESNUM, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_NONE);
     }
     ++amol;
   }
@@ -1609,7 +1609,7 @@ QString ChemWidget::grampsSafe(QString name) {
   return name;
 }
 
-QString ChemWidget::encodeMolName(int imol, char chain, unsigned int resnum, QString suffix) {
+QString ChemWidget::encodeMolName(int imol, char chain, int resnum, QString suffix) {
 //  construct a unique, yet informative name to be used for gramps object
   QString mname;
   QTextStream(&mname) << "mol" << imol;
@@ -1617,7 +1617,7 @@ QString ChemWidget::encodeMolName(int imol, char chain, unsigned int resnum, QSt
   // a chain
     QTextStream(&mname) << "." << chain;
   }
-  if (resnum) {
+  if (resnum != NORESNUM) {
     // a residue in that chain 
     QString resnam  = atom_query.getResnam(imol, resnum, chain);
     QTextStream(&mname) << "." << resnam;
@@ -1690,7 +1690,7 @@ int ChemWidget::drawBond(bondQuery bond, bool pairs, int colorBy, float *spec) {
 
 QString ChemWidget::drawOneAtom(QTreeWidgetItem *item) {
     QString grampsName  = currentRow.grampsName;
-    unsigned int resnum = currentRow.resnum;
+    int resnum     = currentRow.resnum;
     char chain     = currentRow.chain;
     int imol       = currentRow.imol;
     int style      = currentRow.style;
@@ -1727,7 +1727,7 @@ QString ChemWidget::drawOneAtom(QTreeWidgetItem *item) {
 
 QString ChemWidget::drawMol(QTreeWidgetItem *item) {
   QString grampsName  = currentRow.grampsName;
-  unsigned int resnum = currentRow.resnum;
+  int resnum     = currentRow.resnum;
   char chain     = currentRow.chain;
   int imol       = currentRow.imol;
   int style      = currentRow.style;
@@ -1745,7 +1745,7 @@ QString ChemWidget::drawMol(QTreeWidgetItem *item) {
   if (filter == FILTER_TRACE || filter == FILTER_CARTOON) {
     switch (style) {
     case (STYLE_LINES):
-      err = drawChain(imol, grampsName, chain, DRAW_OPEN+DRAW_DRAW+DRAW_CLOSE,0, 0, false);
+      err = drawChain(imol, grampsName, chain, DRAW_OPEN+DRAW_DRAW+DRAW_CLOSE, 0, 0, false);
       break;
     case (STYLE_VDW):
       err = drawChain(imol, grampsName, chain, DRAW_OPEN+DRAW_DRAW+DRAW_CLOSE,Atom::radius[6], 0, false);
@@ -1754,11 +1754,11 @@ QString ChemWidget::drawMol(QTreeWidgetItem *item) {
       err = drawChain(imol, grampsName, chain, DRAW_OPEN+DRAW_DRAW+DRAW_CLOSE,CA_RADIUS, 0, false);
       break;
     case (STYLE_BALLANDSTICK):
-      err  = drawChain(imol, grampsName, chain, DRAW_OPEN+DRAW_DRAW,0, 3*BOND_RADIUS, false);
+      err  = drawChain(imol, grampsName, chain, DRAW_OPEN+DRAW_DRAW, 0, 3*BOND_RADIUS, false);
       err += drawChain(imol, grampsName, chain,           DRAW_DRAW+DRAW_CLOSE,CA_RADIUS, 0, false);
       break;
     case (STYLE_STICKSANDCOLOREDHET):
-      err  = drawChain(imol, grampsName, chain, DRAW_OPEN+DRAW_DRAW,0, 3*BOND_RADIUS, false);
+      err  = drawChain(imol, grampsName, chain, DRAW_OPEN+DRAW_DRAW, 0, 3*BOND_RADIUS, false);
       err += drawChain(imol, grampsName, chain,           DRAW_DRAW+DRAW_CLOSE,CA_RADIUS, 0, false);
       break;
     case (STYLE_CARTOON_THIN):
@@ -1769,7 +1769,7 @@ QString ChemWidget::drawMol(QTreeWidgetItem *item) {
       break;
     default:
       // cylinders, but include sphere caps
-      err  = drawChain(imol, grampsName, chain, DRAW_OPEN+DRAW_DRAW,0, 3*BOND_RADIUS, false);
+      err  = drawChain(imol, grampsName, chain, DRAW_OPEN+DRAW_DRAW, 0, 3*BOND_RADIUS, false);
       err += drawChain(imol, grampsName, chain,           DRAW_DRAW+DRAW_CLOSE,3*BOND_RADIUS, 0, true);
       break;
     }
@@ -1847,7 +1847,7 @@ int ChemWidget::lines(int imol, const QString molnam, unsigned int resnum, char 
 
     //  draw bonds as lines or cylinders for selected atoms in mol.
     //   make new gramps object named molnam, unless molnam is empty
-    //   limit to residue resnum, unless resnum > 0
+    //   limit to residue resnum, unless resnum != NORESNUM
     //   include all residues in chain if chain not blank or null
     //   color half-bonds by atom/cpk color if colored
     //   use cylinders if cyl
@@ -1880,7 +1880,7 @@ int ChemWidget::lines(int imol, const QString molnam, unsigned int resnum, char 
     spec[1] = 0; // alternating lines: move-draw-move-draw-...
     spec[2] = 3;
     if (cyl) spec[1] = 1; // alternating lines as cylinders
-    if (colorBy != COLOR_BY_SOLID || chaintest || resnum) {
+    if (colorBy != COLOR_BY_SOLID || chaintest || resnum != NORESNUM) {
         pairs = true;
         spec[0] = 2; // will draw bond pairs explicitly
     } else {
@@ -1993,12 +1993,12 @@ int ChemWidget::drawAtom(atomQuery atom, int colorBy, float radius, float Hradiu
   return getMemMore("", spdata, size, 0);
 }
 
-int ChemWidget::spheres(int imol, int iatom, const QString molnam, unsigned int resnum, char chain, int colorBy,
+int ChemWidget::spheres(int imol, int iatom, const QString molnam, int resnum, char chain, int colorBy,
   int hetero, int filter, int hydrogens, float radius = ATOM_VDW_RADIUS, float Hradius = ATOM_VDW_RADIUS) {
 
 //   draw spheres for atoms in mol
 //   make new gramps object named molnam, unless molnam is empty
-//   limit to residue resnum, unless resnum == 0
+//   limit to residue resnum, unless resnum  == NORESNUM
 //   include all residues in chain if chain not null and not blank
 //   color sphere by atom/cpk color if colored
 //   use radius supplied, or vdw radii if ATOM_VDW_RADIUS (==0.0)
@@ -2041,7 +2041,7 @@ int ChemWidget::spheres(int imol, int iatom, const QString molnam, unsigned int 
 //  return 0;
 //}
 
-void ChemWidget::makeNewCurrentRow(QString rowname, int rootType, QString grampsName, unsigned int resnum,
+void ChemWidget::makeNewCurrentRow(QString rowname, int rootType, QString grampsName, int resnum,
                                    Qt::CheckState state, int imol, int iatom, char chain, int drawstyle,
                                    int colorBy, QColor color, int filter, int hydrogens) {
 
@@ -2086,7 +2086,7 @@ void ChemWidget::makeNewCurrentRow(QString rowname, int rootType, QString gramps
     color.hue(), color.saturation(), color.value(), color.alpha(), hydrogens, mainSide, state);
 }
 
-QTreeWidgetItem * ChemWidget::addMolRow(QTreeWidgetItem *root, QString rowname, unsigned int resnum,
+QTreeWidgetItem * ChemWidget::addMolRow(QTreeWidgetItem *root, QString rowname, int resnum,
                                         Qt::CheckState state, int imol, int iatom, char chain,
                                         QString suffix, int drawstyle, int colorBy, QColor color, int filter)
 {

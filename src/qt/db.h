@@ -54,7 +54,7 @@ C *************************************************************
 #define NOCHAIN '\0'
 #define NOATOM -1
 #define NOMOL -1
-#define NORESNUM -1
+#define NORESNUM INT_MAX // need to allow "any" integer value, including negative, according to PDB; but we'll disallow this one value
 
 #define HYDROGEN_NONE -1
 #define HYDROGEN_HIDE 0
@@ -115,7 +115,6 @@ public:
     static treeRow nextTreeRow(QSqlQuery query);
 */
     static int chainNumRes(int imol, char chain);
-    static std::string getChainSS(int molid, char chain, int resnum);
     static QSqlQuery iterChainCounts(int imol, char chain);
     static QSqlQuery iterChainCounts(int imol);
     static QHash<QString, int> nextChainCounts(QSqlQuery);
@@ -286,7 +285,7 @@ public:
       float bcharge;
       int bhetatm;
 
-      bool iter(int, unsigned int, char, int, int);
+      bool iter(int, int, char, int, int);
       bool next();
       bool first();
       bool get();
@@ -294,7 +293,7 @@ public:
       int count();
 
 private:
-      static QString bondSql(int imol, unsigned int resnum, char chain, int filter, int hydrogens);
+      static QString bondSql(int imol, int resnum, char chain, int filter, int hydrogens);
 };
 
 class chainQuery : public QSqlQuery {
@@ -313,6 +312,8 @@ public:
       bool iter(int, char, int);
       bool next();
       static int numRes(int, char);
+      static std::string getChainSS(int molid, char chain, int resnum);  
+      int count();
 };
 
 class treeQuery : public QSqlQuery {

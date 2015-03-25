@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     mainWindow->show();
     mainWindow->activateWindow();
     mainWindow->raise(); // wasn't always being raised on osx
-    mainWindow->setWindowTitle("gMol v1.74");
+    mainWindow->setWindowTitle("gMol v1.8");
     if (argc > 0) {
         mainWindow->openFile(argv[1]);
     }
