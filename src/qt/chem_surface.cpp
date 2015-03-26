@@ -1,5 +1,6 @@
 #include <math.h>
 #include "chem.h"
+#include "atom_properties.h"
 int ChemWidget::drawSurface(int itemid) {
   float CoulombK = 10;
   treeQuery treeRow = treeQuery();

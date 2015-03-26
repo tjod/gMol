@@ -444,8 +444,8 @@ int ChemWidget::makeRibbon(int nguide, float *guide_minus, float *guide_plus, fl
     float *spline_minus = makeSpline(guide_minus, nguide, nspline, Bspline, true);
     float *spline_plus  = makeSpline(guide_plus,  nguide, nspline, Bspline, true);
     float *spline_zero  = makeSpline(guide_zero,  nguide, nspline, Bspline, true);
-    int begin = 0, b=0;    
-    int spline_len = spline_zero[b]; //makeSpline returns n,ldm1,ldm1 in first 3 elements
+    int begin = 0, b=0;
+    int spline_len = spline_zero[0]; //makeSpline returns n,ldm1,ldm1 in first 3 elements
     ++begin; // start of spline data
     b=begin*3; // *3 because 3D xyz coords
     
@@ -453,9 +453,6 @@ int ChemWidget::makeRibbon(int nguide, float *guide_minus, float *guide_plus, fl
     int ires=1;
     int nspan;
     float thickness = coil_radius;
-    for (int i=0; i<sstype.length(); ++i) {
-        fprintf (stderr, "%c", sstype[i]);
-    }
     while (ires <= hires) {
 
         // span residues of same secondary-structure type

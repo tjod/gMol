@@ -256,7 +256,7 @@ void MainWindow::createMenus()
     fileMenu->addAction(snapAct);
     fileMenu->addAction(resetAct);
     fileMenu->addAction(restartAct);
-    fileMenu->addSeparator();
+    //fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
     tabMenu = menuBar()->addMenu(tr("View"));
@@ -348,6 +348,8 @@ QString MainWindow::saveas(QString fileName) {
         file.remove();
         if (Db::save(fileName)) {
             showStatus("saved " + this->saveFile);
+            QString fname = QFileInfo(fileName).fileName();
+            this->setWindowTitle(fname);
         } else {
             return "";
         }
@@ -366,6 +368,8 @@ void MainWindow::openFile(QString fileName) {
     } else if (ext == "gdb3") {
         if (Db::openExisting(fileName)) {
             this->saveFile = fileName;
+            QString fname = QFileInfo(fileName).fileName();
+            this->setWindowTitle(fname);
             emit restore(); // calls ChemWidget::restore
         }
 #ifdef CHEM

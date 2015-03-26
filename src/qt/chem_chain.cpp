@@ -1,4 +1,5 @@
 #include "chem.h"
+#include "spline.h"
 
 int ChemWidget::sendChain(int ntrace, float *coord, float cradius, float sradius, int spline) {
   float spec[3];

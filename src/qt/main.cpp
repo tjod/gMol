@@ -9,6 +9,7 @@ C *************************************************************
 */
 #include <QApplication>
 #include "mainwindow.h"
+#include "atom_properties.h"
 #include "gmolApp.h"
 
 MainWindow * mainWindow; // others need this and its widgets

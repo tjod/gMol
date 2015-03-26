@@ -7,8 +7,9 @@
 //C *************************************************************
 
 #include "chem.h"
-#include "mainwindow.h"
 #include "atom_properties.h"
+#include "atom_values.h" // only once per app
+#include "mainwindow.h"
 #include <QObject>
 #include <QDebug>
 #include <QMenu>
@@ -17,50 +18,50 @@
 #endif
 #include "cpk.xpm"
 #include "charge.xpm"
-#include "spline.h"
 
 #include <string>
 #include <ios>
 #include <ctime>
 
 extern QString gmolLib;
+
 ChemWidget::ChemWidget(QDockWidget *parent)
     : QTreeWidget(parent)
-{
-  hydrogenDefault = HYDROGEN_HIDE;
-  //pickedAtom.valid = false;
-  setAnimated(true);
-  //molMenu.reset(new QMenu(this));
-  //pickMenu = new QMenu(tr("Pick"), this);
-  srand (time(NULL));
-
-  QStringList header;
-  setColumnCount(3);
-  header << tr("Molecule") << tr("Color") << tr("Name");
-  setHeaderLabels(header);
-  //setColumnHidden(2,true);
-  //hideColumn(2);
-  //setSortingEnabled(true);
-  //sortByColumn(1, Qt::AscendingOrder);
-  rootMol = invisibleRootItem();
-  connect(this, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(clicked(QTreeWidgetItem *, int)));
-  connect(this, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(changed(QTreeWidgetItem *, int)));
-  connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(doubleClicked(QTreeWidgetItem*,int)));
- //connect(this, SIGNAL(itemPressed(QTreeWidgetItem *, int)), this, SLOT(pressed(QTreeWidgetItem *, int)));
-  setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(showContextMenu(const QPoint &)));
-
-  //Db::open();
-  //pickedAtom = atomQuery::atomQuery();
-  dbproc = new QProcess();
-  connect(dbproc, SIGNAL(finished(int)), this, SLOT(molReady(int)));
-  connect(dbproc, SIGNAL(readyReadStandardOutput()), this, SLOT(readProc()));
-  surfproc = new QProcess();
-  connect(surfproc, SIGNAL(finished(int)), this, SLOT(surfReady(int)));
-  connect(surfproc, SIGNAL(readyReadStandardOutput()), this, SLOT(readProc()));
-  progress = new QProgressDialog();
-
-  treeQuery::createTable();
+{   
+    hydrogenDefault = HYDROGEN_HIDE;
+    //pickedAtom.valid = false;
+    setAnimated(true);
+    //molMenu.reset(new QMenu(this));
+    //pickMenu = new QMenu(tr("Pick"), this);
+    srand (time(NULL));
+    
+    QStringList header;
+    setColumnCount(3);
+    header << tr("Molecule") << tr("Color") << tr("Name");
+    setHeaderLabels(header);
+    //setColumnHidden(2,true);
+    //hideColumn(2);
+    //setSortingEnabled(true);
+    //sortByColumn(1, Qt::AscendingOrder);
+    rootMol = invisibleRootItem();
+    connect(this, SIGNAL(itemClicked(QTreeWidgetItem *, int)), this, SLOT(clicked(QTreeWidgetItem *, int)));
+    connect(this, SIGNAL(itemChanged(QTreeWidgetItem *, int)), this, SLOT(changed(QTreeWidgetItem *, int)));
+    connect(this, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), this, SLOT(doubleClicked(QTreeWidgetItem*,int)));
+    //connect(this, SIGNAL(itemPressed(QTreeWidgetItem *, int)), this, SLOT(pressed(QTreeWidgetItem *, int)));
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(showContextMenu(const QPoint &)));
+    
+    //Db::open();
+    //pickedAtom = atomQuery::atomQuery();
+    dbproc = new QProcess();
+    connect(dbproc, SIGNAL(finished(int)), this, SLOT(molReady(int)));
+    connect(dbproc, SIGNAL(readyReadStandardOutput()), this, SLOT(readProc()));
+    surfproc = new QProcess();
+    connect(surfproc, SIGNAL(finished(int)), this, SLOT(surfReady(int)));
+    connect(surfproc, SIGNAL(readyReadStandardOutput()), this, SLOT(readProc()));
+    progress = new QProgressDialog();
+    
+    treeQuery::createTable();
 }
 
 ChemWidget::~ChemWidget()
@@ -1407,8 +1408,8 @@ void ChemWidget::molReady(int imol) {
 }
 
 //#include "chem_cartoon.cpp"
-#include "chem_chain.cpp"
-#include "chem_surface.cpp"
+//#include "chem_chain.cpp"
+//#include "chem_surface.cpp"
 
 void ChemWidget::restore() {
     // redraw entries in the database table tree, creating TreeWidget items and gramps objects.
