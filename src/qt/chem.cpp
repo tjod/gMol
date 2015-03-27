@@ -91,8 +91,10 @@ int ChemWidget::setItemsFromPick(QTreeWidgetItem *item, grampsPick gp) {
     int itemid = item->type();
     getCurrentRow(itemid);
     if (currentRow.iatom == NOATOM) {
-        float range = 1.0;
+        float range = 1.5;
         pickedAtom.near(currentRow.imol,currentRow.chain, gp.xyzw, range);
+        //qDebug() << pickedAtom.nfound << "atoms nearby";
+        pickedAtom.finish(); // there may be more found than this near(est)
     } else {
         pickedAtom.get(currentRow.imol, currentRow.iatom); //Db::getAtom(currentRow.imol,currentRow.iatom);
     }
@@ -106,10 +108,10 @@ void ChemWidget::showPick(const QPoint & /*globalP*/, grampsPick gp) {
         setItemsFromPick(item, gp);
         //QString name = makePickedAtomName(true);
         //QStringList path = pickPath(name, item);
-        QStringList path = pickPath("", item);
+        //QStringList path = pickPath("", item);
         QString xyz;
         // let's show the gramps picked coord here instead of the picked (nearest) atom
-        QTextStream(&xyz) << gp.name << "@@" << gp.xyzw[0] << "," << gp.xyzw[1] << "," << gp.xyzw[2];
+        QTextStream(&xyz) << gp.name << "@@" << gp.xyzw[0] << "," << gp.xyzw[1] << "," << gp.xyzw[2] << "; " << pickedAtom.nfound << " atoms within " << pickedAtom.frange << QChar(0x212B);
         //emit msgReady(path.join(":")+xyz);
         emit msgReady(xyz);
     }
@@ -135,7 +137,7 @@ void ChemWidget::gotPick(const QPoint &globalP, grampsPick gp) {
         QString name = makePickedAtomName(true);
         QStringList path = pickPath(name, item);
         QString xyz;
-        QTextStream(&xyz) << "@" << pickedAtom.x << "," << pickedAtom.y << "," << pickedAtom.z;
+        QTextStream(&xyz) << "@" << pickedAtom.x << "," << pickedAtom.y << "," << pickedAtom.z << "; " << pickedAtom.nfound << " atoms within " << pickedAtom.frange << QChar(0x212B);
         emit msgReady(path.join(":")+xyz);
         showPickMenu(globalP, item, path[0]);
     }
@@ -152,7 +154,7 @@ void ChemWidget::gotDoubleClick(const QPoint & /*globalP*/, grampsPick gp) {
         QString name = makePickedAtomName(true);
         QStringList path = pickPath(name, item);
         QString xyz;
-        QTextStream(&xyz) << "@" << pickedAtom.x << "," << pickedAtom.y << "," << pickedAtom.z;
+        QTextStream(&xyz) << "@" << pickedAtom.x << "," << pickedAtom.y << "," << pickedAtom.z << "; " << pickedAtom.nfound << " atoms within " << pickedAtom.frange << QChar(0x212B);
         emit msgReady(path.join(":")+xyz);
     } else {
         // double clicked on background
@@ -639,12 +641,12 @@ void ChemWidget::updateColorIcon(QTreeWidgetItem *item, QColor color, int colorB
 void ChemWidget::setMolColor(QTreeWidgetItem *item, QColor color, int colorBy) {
     int itemid = item->type();
     if (color != COLOR_NONE) {
-        treeQuery::updateColor(itemid, color);
-        currentRow.color = color;
+        currentRow.updateColor(itemid, color);
+        //currentRow.getRow((itemid); //currentRow.color = color;
     }
     if (colorBy != COLOR_BY_NONE) {
-        treeQuery::updateColorBy(itemid, colorBy);
-        currentRow.colorBy = colorBy;
+        currentRow.updateColorBy(itemid, colorBy);
+        //currentRow.getRow(itemid); //currentRow.colorBy = colorBy;
     }
     //  treeRow arow = Db::getTreeRow(itemid);
     //  if (arow.ignore == 0) updateColorIcon(item, color, colorBy);
@@ -733,12 +735,14 @@ void ChemWidget::colorMolTransparent(bool makeTransparent) {
         transp = 0.0;
     }
     //qDebug() << currentRow.rowname << currentRow.color;
-    currentRow.color.setAlpha(alpha);
+    QColor color = currentRow.color;
+    color.setAlpha(alpha);
     //qDebug() << currentRow.rowname << currentRow.color;
     QString cmd;
     QTextStream(&cmd) << "inten " << currentRow.grampsName << " t," << transp;
     cmdReady(cmd);
-    treeQuery::updateColor(currentRow.itemId, currentRow.color);
+    currentRow.updateColor(currentRow.itemId, color);
+    //currentRow.getRow(currentRow.itemId);
 }
 int ChemWidget::cycleZoom()
 {
@@ -990,22 +994,26 @@ void ChemWidget::addResidue(int drawstyle) {
 
 void ChemWidget::showHydrogens(bool state) {
     QTreeWidgetItem *item = currentItem();
-    currentRow.hydrogens = (state == true) ? HYDROGEN_SHOW : HYDROGEN_HIDE;
     int itemid = item->type();
-    treeQuery::updateHydrogens(itemid, state);
+    int hstate = (state == true) ? HYDROGEN_SHOW : HYDROGEN_HIDE;
+    currentRow.updateHydrogens(itemid, hstate);
+    //treeQuery.getRow(itemid);
     styleMol(currentRow.style);
 }
 void ChemWidget::showMainSide(bool state) {
     QTreeWidgetItem *item = currentItem();
+    int mainSide;
+    int filter;
     if (state) {
-        currentRow.mainSide = 1;
-        currentRow.filter = FILTER_CHAIN; // all atoms, i.e. main+side
+        mainSide = 1;
+        filter = FILTER_CHAIN; // all atoms, i.e. main+side
     } else {
-        currentRow.mainSide = 0;
-        currentRow.filter = FILTER_SIDE;
+        mainSide = 0;
+        filter = FILTER_SIDE;
     }
     int itemid = item->type();
-    treeQuery::updateMainSide(itemid, currentRow.mainSide, currentRow.filter);
+    currentRow.updateMainSide(itemid, mainSide, filter);
+    //currentRow.getRow(itemid);
     styleMol(currentRow.style);
 }
 void ChemWidget::styleMol() {
@@ -1018,9 +1026,9 @@ void ChemWidget::styleMol(int drawstyle) {
     if (item == NULL) return;
     bool sameStyle = true;
     if (drawstyle != STYLE_CURRENT) {
-        currentRow.style = drawstyle;
         int itemid = item->type();
-        treeQuery::updateStyle(itemid, drawstyle);
+        currentRow.updateStyle(itemid, drawstyle);
+        //currentRow.getRow(itemid);
         sameStyle = false;
     }
     if (!item->parent()) return; // a first-level molecule (gramps group)
@@ -1092,9 +1100,9 @@ void ChemWidget::ignoreMol() {
         QString cmd = "forget " + currentRow.grampsName;
         emit cmdReady(cmd);
     }
-    currentRow.ignore = 1;
     int itemid = item->type();
-    treeQuery::updateIgnore(itemid, true);
+    currentRow.updateIgnore(itemid, true);
+    //currentRow.getRow(itemid); //currentRow.ignore = 1;
     item->setCheckState(MOL_COLUMN, Qt::Unchecked);
     blockSignals(true); // just change check boxes, don't act on children
     adjustParents(item);
@@ -1188,7 +1196,7 @@ void ChemWidget::showOneItem(QTreeWidgetItem *item) {
   // let the checked item(s) be shown - no need to interfere
   } else {
   int itemid = item->type();
-  treeQuery::updateIgnore(itemid, false);
+  currentRow.updateIgnore(itemid, false);
   // show the first item
     for (int i=0; i< item->childCount(); ++i) {
       QTreeWidgetItem *child = item->child(i);
@@ -1292,7 +1300,7 @@ void ChemWidget::updateCheckedRows() {
         int itemid = (*it)->type();
         Qt::CheckState state = (*it)->checkState(MOL_COLUMN);
         //qDebug() << itemid << state;
-        treeQuery::updateChecked(itemid, state);
+        currentRow.updateChecked(itemid, state);
         ++it;
     }
 }
@@ -1447,7 +1455,7 @@ void ChemWidget::restore() {
 #ifdef DEBUG
 					qDebug() << "item #" << item->type();
 #endif
-                    treeQuery::updateIgnore(t.itemId, 1); // else we think it's already been drawn (not ignored)
+                    currentRow.updateIgnore(t.itemId, 1); // else we think it's already been drawn (not ignored)
 					t.ignore = 1; // will get reset (in db tree, too) by styleMol
 					setCurrentItem(item);
 					currentRow = t;
@@ -1716,9 +1724,10 @@ QString ChemWidget::drawOneAtom(QTreeWidgetItem *item) {
     if (err) {
         grampsName.clear();
     } else {
-        currentRow.ignore = 0;
         int itemid = item->type();
-        treeQuery::updateIgnore(itemid, false);
+        //currentRow.updateIgnore(itemid, false);
+        currentRow.updateIgnore(itemid, false);
+        //currentRow.getRow(itemid); //currentRow.ignore = 0;         
         color = applyColor(grampsName, color);
         setMolColor(item, color, colorBy);
         //updateColorIcon(item, color, colorBy);
@@ -1815,9 +1824,10 @@ QString ChemWidget::drawMol(QTreeWidgetItem *item) {
   if (err) {
     grampsName.clear();
   } else {
-    currentRow.ignore = 0;
     int itemid = item->type();
-    treeQuery::updateIgnore(itemid, false);
+    //currentRow.updateIgnore(itemid, false);
+    currentRow.updateIgnore(itemid, false);
+    //currentRow.getRow(itemid); //currentRow.ignore = 0;
     color = applyColor(grampsName, color);
     setMolColor(item, color, colorBy);
     //updateColorIcon(item, color, colorBy);

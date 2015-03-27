@@ -96,15 +96,16 @@ void ChemWidget::surfReady(int /*exitcode*/) {
   if (err) {
   } else {
     //QString cmd;
-    treeQuery::updateIgnore(itemid, 0);
     treeQuery t = treeQuery();
-    t.getRow(itemid);
-    t.color.setAlpha(128);
-    treeQuery::updateColor(itemid, t.color);
+    t.getRow(itemid);    
+    t.updateIgnore(itemid, 0);  
+    QColor color = t.color;
+    color.setAlpha(128);
+    t.updateColor(itemid, color);
     colorMolTransparent(true);
     QTreeWidgetItem *item = currentItem();
     //QTreeWidgetItem *item = getGrampsItem(t.grampsName);
-    colorMol(item, t.color);
+    colorMol(item, color);
     if (item) item->setCheckState(MOL_COLUMN, Qt::Checked);
     treeQuery parent = treeQuery();
     parent.getRow(t.parentId);

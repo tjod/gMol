@@ -211,6 +211,8 @@ public:
     QString name;
     char chain;
     int hetatm;
+    int nfound;
+    float frange;
 
     bool next();
 
@@ -218,6 +220,7 @@ public:
     bool get(int imol, int iatom);
     bool iter(int imol, int resnum, char chain, int filter, int hydrogens);
     int  hcount(int, int, char, int);
+    int count();    
     QString getResnam(int imol, int resnum, char chain);
 
 private:
@@ -353,13 +356,13 @@ public:
                int hue, int saturation, int value, int alpha, int hydrogens, int mainSide, bool checked);
     static bool isRow(int imol, char chain, QString rowname);
     static bool isRow(int imol, char chain, int iatom);
-    static bool updateColor(int itemid, QColor color);
-    static bool updateColorBy(int itemid, int colorBy);
-    static bool updateIgnore(int itemid, int ignore);
-    static bool updateChecked(int itemid, int checked);
-    static bool updateStyle(int itemid, int style);
-    static bool updateHydrogens(int itemid, int hydrogens);
-    static bool updateMainSide(int itemid, int mainSide, int filter);
+    bool updateColor(int itemid, QColor color);
+    bool updateColorBy(int itemid, int colorBy);
+    bool updateIgnore(int itemid, int ignore);
+    bool updateChecked(int itemid, int checked);
+    bool updateStyle(int itemid, int style);
+    bool updateHydrogens(int itemid, int hydrogens);
+    bool updateMainSide(int itemid, int mainSide, int filter);
 };
 
 #endif

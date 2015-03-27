@@ -824,10 +824,15 @@ atomQuery::atomQuery() {
     name    = "";
     chain   = NOCHAIN;
     hetatm  = NOATOM;
+    nfound  = 0;
+    frange   = 0.0;
     valid = true;
 }
 atomQuery::~atomQuery() {;}
 
+int atomQuery::count() {
+    return Db::numRows(*this);
+}
 bool atomQuery::get(int qmol, int qatom) {
     //atomRecord Db::getAtom(int imol, int iatom) {
     QString sql = "Select molid,atid,resnum,resnam,altLoc,icode,atnum,x,y,z,fcharge,pcharge,name,chain,hetatm From atom Where molid=? And atid=?";
@@ -882,24 +887,25 @@ QString atomQuery::getResnam(int imol, int resnum, char chain) {
     qDebug() << "Db::molResName";
 #endif
     QString name = "";
-    if (prepare("Select Distinct resnam From atom Where molid=? And resnum=? And chain=?")) {
-        addBindValue(imol);
-        addBindValue(resnum);
-        addBindValue((QString)chain);
-        if (exec()) {
-            QSqlQuery::next();
-            name = value(0).toString();
-            this->finish();
+    QSqlQuery query;
+    if (query.prepare("Select Distinct resnam From atom Where molid=? And resnum=? And chain=?")) {
+        query.addBindValue(imol);
+        query.addBindValue(resnum);
+        query.addBindValue((QString)chain);
+        if (query.exec()) {
+            query.next();
+            name = query.value(0).toString();
+            //this->finish();
             return name;
         }
     }
-    Db::tellError(*this);
+    Db::tellError(query);
     return name;
 }
 bool atomQuery::near(int qmol, char qchain, float *xyzw, float range=2.5) {
     int atomid = findAtomIdNear(qmol,qchain,xyzw,range);
     if (atomid != NOATOM) get(qmol,atomid); // will set valid
-    this->finish();
+    //this->finish();
     return valid;
 }
 
@@ -908,25 +914,26 @@ int atomQuery::findAtomIdNear(int qmol, char qchain, float *xyzw, float range=1.
     qDebug() << "Db::findAtomNear";
 #endif
     if (range > 50.0) return NOATOM; // can't recurse forever!
-    //QSqlQuery query;
+    QSqlQuery query;
     //query.prepare("Select atid,x-? As dx,y-? As dy,z-? As dz From atom Where molid = ? and (chain is null Or chain = ?) And x Between ? And ? And y Between ? And ? And z Between ? And ? Order By (dx*dx+dy*dy+dz*dz) Desc");
     QString sql = "Select atid,x-? As dx,y-? As dy,z-? As dz From atom Where molid = ? And x Between ? And ? And y Between ? And ? And z Between ? And ? Order By (dx*dx+dy*dy+dz*dz) Desc";
-    if (!prepare(sql)) return NOATOM;
-    addBindValue(xyzw[0]); addBindValue(xyzw[1]); addBindValue(xyzw[2]);
-    addBindValue(qmol);
+    if (!query.prepare(sql)) return NOATOM;
+    query.addBindValue(xyzw[0]); query.addBindValue(xyzw[1]); query.addBindValue(xyzw[2]);
+    query.addBindValue(qmol);
     //query.addBindValue((QString)chain);
-    addBindValue(xyzw[0] - range); addBindValue(xyzw[0] + range);
-    addBindValue(xyzw[1] - range); addBindValue(xyzw[1] + range);
-    addBindValue(xyzw[2] - range); addBindValue(xyzw[2] + range);
-    int nfound = 0;
+    query.addBindValue(xyzw[0] - range); query.addBindValue(xyzw[0] + range);
+    query.addBindValue(xyzw[1] - range); query.addBindValue(xyzw[1] + range);
+    query.addBindValue(xyzw[2] - range); query.addBindValue(xyzw[2] + range);
+    nfound = 0;
+    frange = range;
     int atomid = NOATOM;
-    if (exec()) {
-        while (QSqlQuery::next()) {
-            atomid = value(0).toInt();
+    if (query.exec()) {
+        while (query.next()) {
+            atomid = query.value(0).toInt();
             ++nfound;
         }
     } else {
-        Db::tellError(*this);
+        Db::tellError(query);
         return NOATOM;
     }
     //qDebug() << nfound << " near atoms.";
@@ -936,11 +943,12 @@ int atomQuery::findAtomIdNear(int qmol, char qchain, float *xyzw, float range=1.
 
 int atomQuery::hcount(int qmol, int qresnum, char qchain, int qfilter) {
     int hcount = -1;
+    QSqlQuery query;
     QString sql = "Select count(*) From (" + atomSql(qmol, qresnum, qchain, qfilter, HYDROGEN_COUNT) + ") hcount";
-    if (exec(sql) && QSqlQuery::next()) {
-        hcount = value(0).toInt();
+    if (query.exec(sql) && query.next()) {
+        hcount = query.value(0).toInt();
     }
-    this->finish();
+    //this->finish();
     return hcount;
 }
 
@@ -1408,7 +1416,7 @@ bool treeQuery::getSibling(int parentid, char sibchain) {
         addBindValue((QString)sibchain);
         if (exec()) {
             next();
-            //this->finish();
+            this->finish();
             return true;
         }
     }
@@ -1475,70 +1483,92 @@ bool treeQuery::isRow(int imol, char chain, int iatom) {
     return Db::tellError(query);
 }
 
-bool treeQuery::updateColor(int itemid, QColor color) {
+bool treeQuery::updateColor(int itemid, QColor newcolor) {
     QSqlQuery query;
     if (query.prepare("Update tree Set hue=?, saturation=?, value=?, alpha=? Where itemid=?")) {
-        query.addBindValue((int)color.hue());
-        query.addBindValue((int)color.saturation());
-        query.addBindValue((int)color.value());
-        query.addBindValue((int)color.alpha());
+        query.addBindValue((int)newcolor.hue());
+        query.addBindValue((int)newcolor.saturation());
+        query.addBindValue((int)newcolor.value());
+        query.addBindValue((int)newcolor.alpha());
         query.addBindValue((int)itemid);
-        if (query.exec()) return true;
+        if (query.exec()) {
+            color = newcolor; 
+            return true;
+        }
     }
     return Db::tellError(query);
 }
-bool treeQuery::updateColorBy(int itemid, int colorBy) {
+bool treeQuery::updateColorBy(int itemid, int newcolorBy) {
     QSqlQuery query;
     if (query.prepare("Update tree Set colorBy=? Where itemid=?")) {
-        query.addBindValue((int)colorBy);
+        query.addBindValue((int)newcolorBy);
         query.addBindValue((int)itemid);
-        if (query.exec()) return true;
+        if (query.exec()) {
+            colorBy = newcolorBy;
+            return true;
+        }
     }
     return Db::tellError(query);
 }
-bool treeQuery::updateIgnore(int itemid, int ignore) {
+bool treeQuery::updateIgnore(int itemid, int newignore) {
     QSqlQuery query;
     if (query.prepare("Update tree Set ignore=? Where itemid=?")) {
-        query.addBindValue((int)ignore);
+        query.addBindValue((int)newignore);
         query.addBindValue((int)itemid);
-        if (query.exec()) return true;
+        if (query.exec()) {
+            ignore = newignore;
+            return true;
+        }
     }
     return Db::tellError(query);
 }
-bool treeQuery::updateChecked(int itemid, int checked) {
+bool treeQuery::updateChecked(int itemid, int newchecked) {
     QSqlQuery query;
     if (query.prepare("Update tree Set checked=? Where itemid=?")) {
-        query.addBindValue(checked);
+        query.addBindValue(newchecked);
         query.addBindValue((int)itemid);
-        if (query.exec()) return true;
+        if (query.exec()) {
+            checked = newchecked;
+            return true;
+        }
     }
     return Db::tellError(query);
 }
-bool treeQuery::updateStyle(int itemid, int style) {
+bool treeQuery::updateStyle(int itemid, int newstyle) {
     QSqlQuery query;
     if (query.prepare("Update tree Set style=? Where itemid=?")) {
-        query.addBindValue((int)style);
+        query.addBindValue((int)newstyle);
         query.addBindValue((int)itemid);
-        if (query.exec()) return true;
+        if (query.exec()) {
+            style = newstyle;
+            return true;
+        }
     }
     return Db::tellError(query);
 }
-bool treeQuery::updateHydrogens(int itemid, int hydrogens) {
+bool treeQuery::updateHydrogens(int itemid, int newhydrogens) {
     QSqlQuery query;
     if (query.prepare("Update tree Set hydrogens=? Where itemid=?")) {
-        query.addBindValue((int)hydrogens);
+        query.addBindValue((int)newhydrogens);
         query.addBindValue((int)itemid);
-        if (query.exec()) return true;
+        if (query.exec()) {
+            hydrogens = newhydrogens;
+            return true;
+        }
     }
     return Db::tellError(query);
 }
-bool treeQuery::updateMainSide(int itemid, int mainSide, int filter) {
+bool treeQuery::updateMainSide(int itemid, int newmainSide, int newfilter) {
     QSqlQuery query;
     if (query.prepare("Update tree Set mainSide=?, filter=? Where itemid=?")) {
-        query.addBindValue((int)mainSide);
-        query.addBindValue((int)filter);
+        query.addBindValue((int)newmainSide);
+        query.addBindValue((int)newfilter);
         query.addBindValue((int)itemid);
-        if (query.exec()) return true;
+        if (query.exec()) {
+            mainSide = newmainSide;
+            filter = newfilter;
+            return true;
+        }
     }
     return Db::tellError(query);
 }
