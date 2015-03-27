@@ -1,0 +1,8 @@
+get $1
+translate $1 x $2 y $3 z $4
+intensity $1 t,0.5
+scale $1 xyz $5
+adv 50
+scale $1 xyz 0.2:20
+adv 20
+!blank $1

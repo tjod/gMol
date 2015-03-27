@@ -105,16 +105,17 @@ void ChemWidget::showPick(const QPoint & /*globalP*/, grampsPick gp) {
     // single click on a gramps molecule object; just show it path and coord
     QTreeWidgetItem *item = getGrampsItem(gp.name);
     if (item) {
-        setItemsFromPick(item, gp);
+        //setItemsFromPick(item, gp);
         //QString name = makePickedAtomName(true);
         //QStringList path = pickPath(name, item);
         //QStringList path = pickPath("", item);
-        QString xyz;
         // let's show the gramps picked coord here instead of the picked (nearest) atom
-        QTextStream(&xyz) << gp.name << "@@" << gp.xyzw[0] << "," << gp.xyzw[1] << "," << gp.xyzw[2] << "; " << pickedAtom.nfound << " atoms within " << pickedAtom.frange << QChar(0x212B);
         //emit msgReady(path.join(":")+xyz);
-        emit msgReady(xyz);
     }
+    if (idname_("scube",5)) emit cmdReady("forget scube");            
+    QString xyz;    
+    QTextStream(&xyz) << gp.name << "@@" << gp.xyzw[0] << "," << gp.xyzw[1] << "," << gp.xyzw[2]; // << "; " << pickedAtom.nfound << " atoms within " << pickedAtom.frange << QChar(0x212B);
+    emit msgReady(xyz);    
 }
 
 QStringList ChemWidget::pickPath(QString name, QTreeWidgetItem *item) {
@@ -128,18 +129,27 @@ QStringList ChemWidget::pickPath(QString name, QTreeWidgetItem *item) {
     return path;
 }
 
+QString ChemWidget::processPick(QTreeWidgetItem* item, grampsPick gp) {
+    QString name = makePickedAtomName(true);
+    QStringList path = pickPath(name, item);
+    QString xyz;
+    QTextStream(&xyz) << "@" << pickedAtom.x << "," << pickedAtom.y << "," << pickedAtom.z << "; " << pickedAtom.nfound << " atoms within " << pickedAtom.frange << QChar(0x212B);
+    emit msgReady(path.join(":")+xyz);
+    if (idname_("scube",5)) emit cmdReady("forget scube");
+    QString cmd;
+    QTextStream(&cmd) << "showpick scube " << gp.xyzw[0] << "," << gp.xyzw[1] << "," << gp.xyzw[2] << "," << pickedAtom.frange;
+    emit cmdReady(cmd);
+    return path[0];
+}
+
 void ChemWidget::gotPick(const QPoint &globalP, grampsPick gp) {
     // got a pick of a gramps molecule object with name and location
     QTreeWidgetItem *item = getGrampsItem(gp.name);
     if (item) {
         setCurrentItem(item);
         setItemsFromPick(item, gp);
-        QString name = makePickedAtomName(true);
-        QStringList path = pickPath(name, item);
-        QString xyz;
-        QTextStream(&xyz) << "@" << pickedAtom.x << "," << pickedAtom.y << "," << pickedAtom.z << "; " << pickedAtom.nfound << " atoms within " << pickedAtom.frange << QChar(0x212B);
-        emit msgReady(path.join(":")+xyz);
-        showPickMenu(globalP, item, path[0]);
+        QString path = processPick(item, gp);
+        showPickMenu(globalP, item, path);        
     }
 }
 
@@ -149,13 +159,8 @@ void ChemWidget::gotDoubleClick(const QPoint & /*globalP*/, grampsPick gp) {
     if (item) {
         setCurrentItem(item);
         setItemsFromPick(item, gp);
-        //centerMol(FILTER_ATOM);
-        zoomMol(FILTER_ATOM);
-        QString name = makePickedAtomName(true);
-        QStringList path = pickPath(name, item);
-        QString xyz;
-        QTextStream(&xyz) << "@" << pickedAtom.x << "," << pickedAtom.y << "," << pickedAtom.z << "; " << pickedAtom.nfound << " atoms within " << pickedAtom.frange << QChar(0x212B);
-        emit msgReady(path.join(":")+xyz);
+        zoomMol(FILTER_ATOM);                
+        processPick(item, gp);
     } else {
         // double clicked on background
         if (cycleZoom() > 0) {

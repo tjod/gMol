@@ -154,6 +154,7 @@ private:
     QString makePickedAtomName(bool withRes);
     int setItemsFromPick(QTreeWidgetItem *item, grampsPick gp);
     QStringList pickPath(QString name, QTreeWidgetItem *item);
+    QString processPick(QTreeWidgetItem* item, grampsPick gp);    
     int open(int molid);
     QString drawMol(QTreeWidgetItem *);
     QString drawOneAtom(QTreeWidgetItem *);
