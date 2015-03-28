@@ -105,7 +105,7 @@ void ChemWidget::showPick(const QPoint & /*globalP*/, grampsPick gp) {
     // single click on a gramps molecule object; just show it path and coord
     QTreeWidgetItem *item = getGrampsItem(gp.name);
     if (item) {
-        //setItemsFromPick(item, gp);
+        setItemsFromPick(item, gp);
         //QString name = makePickedAtomName(true);
         //QStringList path = pickPath(name, item);
         //QStringList path = pickPath("", item);

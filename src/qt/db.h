@@ -315,7 +315,7 @@ public:
       bool iter(int, char, int);
       bool next();
       static int numRes(int, char);
-      static std::string getChainSS(int molid, char chain, int resnum);  
+      //static std::string getChainSS(int molid, char chain, int resnum);  
       int count();
 };
 

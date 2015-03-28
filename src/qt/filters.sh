@@ -12,7 +12,7 @@ cat >/tmp/filters.tmp <<EODAT
 3|3|T|Main|atom.resnam Not In ('WAT', 'HOH') And atom.name In ('N', 'CA', 'C', 'O', 'OXT', 'H', 'HA', 'OP1', 'P', 'OP2', 'OP3', 'O5''', 'C5''', 'H5''', 'H5''''', 'H3''', 'H4''', 'C4''', 'C3''', 'O3''')|
 4|4|T|Side|atom.resnam Not In ('WAT', 'HOH', 'A', 'C', 'G', 'T', 'U') And atom.name Not In ('CA', 'N', 'C', 'O', 'OXT')|
 5|0|0|Residue|atom.resnam In ('ASP', 'ASN', 'GLU', 'GLN', 'HIS', 'LYS', 'ARG', 'GLY', 'ALA', 'VAL', 'LEU', 'ILE', 'SER', 'THR', 'TRP', 'TYR', 'PHE', 'CYS', 'PRO', 'MET')|standard 20
-6|2|T|Trace|atom.name In ('CA', 'P') And atom.hetatm=0|
+6|2|T|Trace|atom.name In ('CA', 'P')|
 7|1|T|Cartoon|atom.resnam Not In ('WAT', 'HOH') And atom.name In ('CA', 'O')|
 8|0|0|ATOM|atom.hetatm=0|
 9|5|T|HETATM|atom.hetatm=1 And atom.resnam Not In ('HOH', 'WAT')|.pdb HETATM's

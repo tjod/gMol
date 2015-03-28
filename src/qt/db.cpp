@@ -1232,13 +1232,14 @@ bool chainQuery::iter(int imol, char chain, int filter) {
 #ifdef DEBUG
     qDebug() << "Db::iterChainCoords";
 #endif
-    QString sql = "Select x,y,z,resnum,name,coalesce(type,'?') From atom Left Join secondary_structure Using (molid,chain,resnum) Where molid=? And chain=?";
+    QString sql = "Select Distinct x,y,z,resnum,name,coalesce(type,'?') From atom Left Join secondary_structure Using (molid,chain,resnum) Where molid=? And chain=?";
     if (filter) {
         QString filterClause = Db::getFilter(filter).sql;
         //qDebug() << filterClause;
         sql += " And " + filterClause;
     }
     sql += " Order By resnum,name"; // make 'O' come last per residue
+    qDebug() << sql;
     if (prepare(sql)) {
         addBindValue(imol);
         addBindValue(QString(chain));
@@ -1288,6 +1289,7 @@ int chainQuery::numRes(int imol, char chain) {
     }
     return nres;
 }
+/*
 std::string chainQuery::getChainSS(int molid, char chain, int numres) {
     QSqlQuery query;
     query.prepare("Select resnum, type From secondary_structure Where molid=? And chain=? Order by resnum");
@@ -1308,6 +1310,7 @@ std::string chainQuery::getChainSS(int molid, char chain, int numres) {
         return NULL;
     }
 }
+*/
 
 treeQuery::treeQuery() {}
 treeQuery::~treeQuery() {}
