@@ -1239,7 +1239,7 @@ bool chainQuery::iter(int imol, char chain, int filter) {
         sql += " And " + filterClause;
     }
     sql += " Order By resnum,name"; // make 'O' come last per residue
-    qDebug() << sql;
+    //qDebug() << sql;
     if (prepare(sql)) {
         addBindValue(imol);
         addBindValue(QString(chain));

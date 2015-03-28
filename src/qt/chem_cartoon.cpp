@@ -44,21 +44,29 @@ int ChemWidget::drawCartoon(int imol, QString molnam, char chain, int mode, floa
             CA[ires][0] = cq.x; CA[ires][1] = cq.y; CA[ires][2] = cq.z;
         } else if (cq.name == "O") {
             O[ires][0] = cq.x; O[ires][1] = cq.y; O[ires][2] = cq.z;
+            if (njump > 1) sstype[ires] = 'X';
+            /*
             if (njump > 1) {
-                // interpolate missing coords
-                float xinc = (CA[ires][0] - CA[mres][0])/njump;
-                float yinc = (CA[ires][1] - CA[mres][1])/njump;
-                float zinc = (CA[ires][2] - CA[mres][2])/njump;
-                for (int i=1; i<njump; ++i) {
-                    sstype[i+mres] = 'X'; // extrapolated
-                    CA[i+mres][0] = CA[mres][0] + xinc*i;
-                    CA[i+mres][1] = CA[mres][1] + yinc*i;
-                    CA[i+mres][2] = CA[mres][2] + zinc*i;
-                    O[i+mres][0] = O[mres][0] + xinc*i;
-                    O[i+mres][1] = O[mres][1] + yinc*i;
-                    O[i+mres][2] = O[mres][2] + zinc*i;
-                }
+                // extrapolate missing coords
+                float xinc = (CA[ires][0] - CA[mres][0])/njump/25.;
+                float yinc = (CA[ires][1] - CA[mres][1])/njump/25.;
+                float zinc = (CA[ires][2] - CA[mres][2])/njump/25.;
+                    sstype[mres+1] = 'X'; // extrapolated
+                    CA[mres+1][0] = CA[mres][0] + xinc;
+                    CA[mres+1][1] = CA[mres][1] + yinc;
+                    CA[mres+1][2] = CA[mres][2] + zinc;
+                    O[mres+1][0]  = O[mres][0]  + xinc;
+                    O[mres+1][1]  = O[mres][1]  + yinc;
+                    O[mres+1][2]  = O[mres][2]  + zinc;
+                    sstype[ires-1] = 'X';
+                    CA[ires-1][0] = CA[ires][0] - xinc;
+                    CA[ires-1][1] = CA[ires][1] - yinc;
+                    CA[ires-1][2] = CA[ires][2] - zinc;
+                    O[ires-1][0]  = O[ires][0]  - xinc;
+                    O[ires-1][1]  = O[ires][1]  - yinc;
+                    O[ires-1][2]  = O[ires][2]  - zinc;
             }
+            */
             mres = cq.resnum;
         }
     }
@@ -468,7 +476,8 @@ int ChemWidget::makeRibbon(int nguide, float *guide_minus, float *guide_plus, fl
             } else {
                 len = nspan * (nspline+1) + 2;
             }
-            if (len+begin > spline_len) len = spline_len - begin;            
+            if (sstype[n] == 'X') len -= (nspline+2);
+            if (len+begin > spline_len) len = spline_len - begin;         
         }
         if (sstype[ires] == 'H') {
             // helix 
@@ -502,7 +511,8 @@ int ChemWidget::makeRibbon(int nguide, float *guide_minus, float *guide_plus, fl
             // unknown is a coil/rope
             if (len > 1) sendCoil(spline_zero, spline_minus, begin, len, coil_radius, coil_radius);
         } else {
-            qDebug() << "missing secondary structure type" << ires << sstype[ires];
+            qDebug() << "extrapolated coords, secondary structure type" << sstype[ires] << ires ;
+            len += nspline;
         }
         //qDebug() << sstype[ires] << ires << n-1 << nspan << begin << len << begin+len << spline_len;
         ires += nspan;
