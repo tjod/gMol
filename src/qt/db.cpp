@@ -641,7 +641,7 @@ void Db::addBonds(int mol1, int molid) {
 #ifdef DEBUG
     qDebug() << "finalBonds for molids" << mol1 << " to " << molid-1;
 #endif
-    ok = query.prepare("Insert Into bond (molid,aid,bid,bo) Select molid,aid,bid,Max(bo) From tmpbond Where molid Between ? And ? Group By molid,aid,bid");
+    ok = query.prepare("Insert Into bond (molid,aid,bid,bo) Select Distinct molid,aid,bid,Max(bo) From tmpbond Where molid Between ? And ? Group By molid,aid,bid");
     if (ok) {
         query.addBindValue(mol1);
         query.addBindValue(molid-1);
@@ -1097,7 +1097,7 @@ bool bondQuery::iter(int imol, int resnum, char chain, int filter, int hydrogens
 
     //QSqlQuery Db::iterBonds(int imol, int resnum, char chain, int filter, int hydrogens) {
     QString sql = bondSql(imol, resnum, chain, filter, hydrogens);
-    qDebug() << sql;
+    //qDebug() << sql;
     if (prepare(sql)) {
         //addBindValue(imol);
         addBindValue(imol);
