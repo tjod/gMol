@@ -183,6 +183,7 @@ QString ChemWidget::makePickedAtomName(bool withRes) {
                 QTextStream(&aname) << pickedAtom.resnam << pickedAtom.resnum << ":";
             }
             QTextStream(&aname) << pickedAtom.name;
+            if (pickedAtom.altLoc != ' ') QTextStream(&aname) << "(" << pickedAtom.altLoc << ")";
         } else {
             QTextStream(&aname) << pickedAtom.name << "#" << pickedAtom.atid;
         }
@@ -1447,6 +1448,9 @@ void ChemWidget::restore() {
     //items.IterTreeRowsToRestore();
 	// items added during the session; surfaces, residues, atoms, cartoons, etc.
     for (t.iterRestore(); t.next(); ) {
+        if (t.checked == Qt::Unchecked) {
+            t.ignore = 1;
+        }
     //for (treeRow t = Db::nextTreeRow(items); t.valid; t = Db::nextTreeRow(items)) {
 		int id = Gramps::idFromName(t.grampsName);
 		if (id == 0) {
@@ -1476,7 +1480,8 @@ void ChemWidget::restore() {
 				QTreeWidgetItem *parentItem = getGrampsItem(parentRow.grampsName);
 				if (parentItem) {
 					currentRow = t;
-					setCurrentItem(makeMolRow(parentItem, t.grampsName, t.rowname, Qt::Checked));
+                    Qt::CheckState cstate = (Qt::CheckState) t.checked;
+					setCurrentItem(makeMolRow(parentItem, t.grampsName, t.rowname, cstate)); //Qt::Checked));
 					setMolColor(currentItem(), t.color, t.colorBy);
 #ifdef DEBUG
 					qDebug() << "parent" << parentRow.rowname << t.ignore;
@@ -1492,6 +1497,7 @@ void ChemWidget::restore() {
 							styleMol(t.style);
 						}
 					} else {
+                        currentRow.ignore = 1;
 						// objects was ignored, so don't draw it and uncheck its row
 						currentItem()->setCheckState(MOL_COLUMN, Qt::Unchecked);
 					}

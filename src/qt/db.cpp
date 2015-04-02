@@ -610,7 +610,8 @@ void Db::addBonds(int mol1, int molid) {
     // add bonds as stored in residue.db, attached when db was opened
     QSqlQuery query;
     //query.prepare("Insert Into tmpbond (molid,aid,bid,bo) Select atom.molid,atom.atid,nbr.atid,bo From atom Join atom nbr On (atom.molid=nbr.molid And atom.chain=nbr.chain And atom.resnum=nbr.resnum And atom.icode=nbr.icode) Join residue.bondname On (atom.name=atom1 And nbr.name=atom2 And atom.resnam=bondname.resnam) Where atom.molid=?");
-    bool ok = query.prepare("Insert Into tmpbond (molid,aid,bid,bo) Select molid,aid,bid,bo From (Select atom.molid, atom.atid aid, atom.resnam, atom.name atom1, nbr.atid bid, nbr.name atom2 From atom Join atom nbr Using (molid,chain,resnum,icode,altloc)) Join bondname Using (resnam,atom1,atom2) Where molid=?");
+    //bool ok = query.prepare("Insert Into tmpbond (molid,aid,bid,bo) Select molid,aid,bid,bo From (Select atom.molid, atom.atid aid, atom.resnam, atom.name atom1, nbr.atid bid, nbr.name atom2 From atom Join atom nbr Using (molid,chain,resnum,icode,altloc)) Join bondname Using (resnam,atom1,atom2) Where molid=?");
+    bool ok = query.prepare("Insert Into tmpbond (molid,aid,bid,bo) Select molid,aid,bid,bo From (Select atom.molid, atom.atid aid, atom.resnam, atom.name atom1, nbr.atid bid, nbr.name atom2 From atom Join atom nbr Using (molid,chain,resnum,icode) Where atom.altloc=nbr.altloc or atom.altloc=' ' or nbr.altloc=' ') Join bondname Using (resnam,atom1,atom2) Where molid=?");
 #ifdef DEBUG
     qDebug() << "tmpbond" << mol1 << ok;
 #endif
@@ -1096,7 +1097,7 @@ bool bondQuery::iter(int imol, int resnum, char chain, int filter, int hydrogens
 
     //QSqlQuery Db::iterBonds(int imol, int resnum, char chain, int filter, int hydrogens) {
     QString sql = bondSql(imol, resnum, chain, filter, hydrogens);
-    //qDebug() << sql;
+    qDebug() << sql;
     if (prepare(sql)) {
         //addBindValue(imol);
         addBindValue(imol);
@@ -1238,7 +1239,8 @@ bool chainQuery::iter(int imol, char chain, int filter) {
         //qDebug() << filterClause;
         sql += " And " + filterClause;
     }
-    sql += " Order By resnum,name"; // make 'O' come last per residue
+    // only one altloc allowed (group) and make 'O' come last per residue (order)
+    sql += " Group By resnum,name Order By resnum,name";
     //qDebug() << sql;
     if (prepare(sql)) {
         addBindValue(imol);
