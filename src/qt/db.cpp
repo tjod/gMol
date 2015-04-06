@@ -1233,15 +1233,21 @@ bool chainQuery::iter(int imol, char chain, int filter) {
 #ifdef DEBUG
     qDebug() << "Db::iterChainCoords";
 #endif
-    QString sql = "Select Distinct x,y,z,resnum,name,coalesce(type,'?') From atom Left Join secondary_structure Using (molid,chain,resnum) Where molid=? And chain=?";
-    if (filter) {
-        QString filterClause = Db::getFilter(filter).sql;
-        //qDebug() << filterClause;
-        sql += " And " + filterClause;
+    QString filterClause = Db::getFilter(filter).sql;
+    QString sql = "With doubles as (Select molid, chain, resnum, count(name) From atom";
+    sql += " Where " + filterClause;
+    sql += " Group By molid,resnum,chain Having count(name) "; // 2) ";
+    if (filter == FILTER_CARTOON) {
+        sql += " =2) "; // expect CA and O per residue
+    } else if (filter == FILTER_TRACE) {
+        sql += " >0) "; // CA and P per residue; allow both
     }
+    
+    sql += "Select Distinct x,y,z,resnum,name,coalesce(type,'?') From atom Left Join secondary_structure Using (molid,chain,resnum) Join doubles Using (molid,chain,resnum) Where molid=? And chain=?";
+    sql += " And " + filterClause;
     // only one altloc allowed (group) and make 'O' come last per residue (order)
     sql += " Group By resnum,name Order By resnum,name";
-    //qDebug() << sql;
+    qDebug() << sql;
     if (prepare(sql)) {
         addBindValue(imol);
         addBindValue(QString(chain));

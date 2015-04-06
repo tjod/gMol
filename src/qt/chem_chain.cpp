@@ -37,63 +37,67 @@ int ChemWidget::sendChain(int ntrace, float *coord, float cradius, float sradius
 }
 
 int ChemWidget::drawChain(int imol, QString molnam, char chain, int mode, float sradius, float cradius, bool endcaps) {
-
-  // set cylinder radius and open object
-  float spec[3] = {0,1,cradius};
-  int size = 3;
-  int  err = 0;
-  if (mode & DRAW_OPEN)  err = getMem(molnam.toLocal8Bit().data(), spec, size, molnam.length());
-  if (err) return err;
-  if (sradius > 0) {
-  // sphere radius
-    spec[1] = 9;
-    spec[2] = sradius;
-    err = getMemMore("", spec, size, 0);
+    
+    // set cylinder radius and open object
+    float spec[3] = {0,1,cradius};
+    int size = 3;
+    int  err = 0;
+    if (mode & DRAW_OPEN)  err = getMem(molnam.toLocal8Bit().data(), spec, size, molnam.length());
     if (err) return err;
-  }
-
-  // draw an alpha-carbon trace for this chain.
-  int numres = chainQuery::numRes(imol, chain);
-  float (*coord)[3] = new float[numres+1][3];
-  int ntrace = 0;
-  //qDebug() << "drawChain " << chain;
-  float ax=0, ay=0, az=0;
-  int reslast = 0;
-  //QSqlQuery qchain = Db::iterChainCoords(imol, chain, FILTER_TRACE);
-  chainQuery cq;
-  for (cq.iter(imol, chain, FILTER_TRACE); cq.next(); ) {
-    if (ntrace) {
-      if (cq.resnum-reslast > 1 ) {
-        if (!endcaps) {
-          err += sendChain(ntrace, (float *)coord, cradius, sradius, CatRom);
+    if (sradius > 0) {
+        // sphere radius
+        spec[1] = 9;
+        spec[2] = sradius;
+        err = getMemMore("", spec, size, 0);
+        if (err) return err;
+    }
+    
+    // draw an alpha-carbon trace for this chain.
+    int numres = chainQuery::numRes(imol, chain);
+    float (*coord)[3] = new float[numres+1][3];
+    int ntrace = 0;
+    //qDebug() << "drawChain " << chain;
+    float ax=0, ay=0, az=0;
+    int reslast = 0;
+    QString chainType = "";
+    //QSqlQuery qchain = Db::iterChainCoords(imol, chain, FILTER_TRACE);
+    chainQuery cq;
+    for (cq.iter(imol, chain, FILTER_TRACE); cq.next(); ) {
+        if (ntrace) {
+            if (cq.resnum-reslast > 1 ) {
+                if (!endcaps) {
+                    err += sendChain(ntrace, (float *)coord, cradius, sradius, CatRom);
+                }
+                ntrace = 0;
+            }
+            if (chainType != cq.name) continue; // don't mix CA and P
+        } else {
+            chainType = cq.name;  // CA or P trace; assume using first atom
         }
-        ntrace = 0;
-      }
+        reslast = cq.resnum;
+        if (endcaps && ntrace) { // skip all but first and last spheres
+            ax = cq.x;
+            ay = cq.y;
+            az = cq.z;
+        } else {
+            coord[ntrace][0] = ax = cq.x;
+            coord[ntrace][1] = ay = cq.y;
+            coord[ntrace][2] = az = cq.z;
+        }
+        ntrace++;
     }
-    reslast = cq.resnum;
-    if (endcaps && ntrace) { // skip all but first and last spheres
-      ax = cq.x;
-      ay = cq.y;
-      az = cq.z;
-    } else {
-      coord[ntrace][0] = ax = cq.x;
-      coord[ntrace][1] = ay = cq.y;
-      coord[ntrace][2] = az = cq.z;
+    if (endcaps) {
+        coord[1][0] = ax;
+        coord[1][1] = ay;
+        coord[1][2] = az;
+        ntrace = 2;
     }
-    ntrace++;
-  }
-  if (endcaps) {
-    coord[1][0] = ax;
-    coord[1][1] = ay;
-    coord[1][2] = az;
-    ntrace = 2;
-  }
-  if (!err) {
-    err += sendChain(ntrace, (float *)coord, cradius, sradius, CatRom);
-    if (mode & DRAW_CLOSE) err += getMemDone("", NULL, 0, 0);
-  }
-  delete [] coord;
-  return err;
+    if (!err) {
+        err += sendChain(ntrace, (float *)coord, cradius, sradius, CatRom);
+        if (mode & DRAW_CLOSE) err += getMemDone("", NULL, 0, 0);
+    }
+    delete [] coord;
+    return err;
 }
 
 QList<QString> ChemWidget::addChainsRow(QTreeWidgetItem *root, int imol) {

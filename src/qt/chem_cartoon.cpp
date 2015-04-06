@@ -40,34 +40,17 @@ int ChemWidget::drawCartoon(int imol, QString molnam, char chain, int mode, floa
         if (mres != NORESNUM) njump = cq.resnum - mres;
         if (cq.name == "CA") {
             ++ires;
-            sstype[ires] = cq.sstype;            
-            CA[ires][0] = cq.x; CA[ires][1] = cq.y; CA[ires][2] = cq.z;
-        } else if (cq.name == "O") {
-            O[ires][0] = cq.x; O[ires][1] = cq.y; O[ires][2] = cq.z;
-            if (njump > 1) sstype[ires] = 'X';
-            /*
-            if (njump > 1) {
-                // extrapolate missing coords
-                float xinc = (CA[ires][0] - CA[mres][0])/njump/25.;
-                float yinc = (CA[ires][1] - CA[mres][1])/njump/25.;
-                float zinc = (CA[ires][2] - CA[mres][2])/njump/25.;
-                    sstype[mres+1] = 'X'; // extrapolated
-                    CA[mres+1][0] = CA[mres][0] + xinc;
-                    CA[mres+1][1] = CA[mres][1] + yinc;
-                    CA[mres+1][2] = CA[mres][2] + zinc;
-                    O[mres+1][0]  = O[mres][0]  + xinc;
-                    O[mres+1][1]  = O[mres][1]  + yinc;
-                    O[mres+1][2]  = O[mres][2]  + zinc;
-                    sstype[ires-1] = 'X';
-                    CA[ires-1][0] = CA[ires][0] - xinc;
-                    CA[ires-1][1] = CA[ires][1] - yinc;
-                    CA[ires-1][2] = CA[ires][2] - zinc;
-                    O[ires-1][0]  = O[ires][0]  - xinc;
-                    O[ires-1][1]  = O[ires][1]  - yinc;
-                    O[ires-1][2]  = O[ires][2]  - zinc;
-            }
-            */
+            sstype[ires] = cq.sstype;
             mres = cq.resnum;
+            CA[ires][0] = cq.x; CA[ires][1] = cq.y; CA[ires][2] = cq.z;
+            if (njump > 1) sstype[ires] = 'X';          
+            cq.next();
+            // expect next record O atom in same residue
+            if (cq.name == "O" and cq.resnum == mres) {
+                O[ires][0] = cq.x; O[ires][1] = cq.y; O[ires][2] = cq.z;
+            } else {
+                qDebug() << "error in chain selection CA and O atoms at " << ires << "/" << mres;
+            }
         }
     }
 

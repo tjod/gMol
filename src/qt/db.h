@@ -46,7 +46,7 @@ C *************************************************************
 #define FILTER_SIDE       4  // Side chain atoms
 #define FILTER_RESIDUE    5  // One chosen residue
 #define FILTER_TRACE      6  // CA atoms
-#define FILTER_CARTOON    7  // All main chain atoms
+#define FILTER_CARTOON    7  // CA and O "guide" atoms
 #define FILTER_ATOM       8  // One chosen atom
 #define FILTER_HETATM     9  // All HETATM as in pdb file
 #define FILTER_MOLECULE  10  // Most atoms, but not waters
