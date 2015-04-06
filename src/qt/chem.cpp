@@ -1444,57 +1444,51 @@ void ChemWidget::restore() {
 		// the standard items opened when file is read
         open(mquery.imol);
 	}
-    treeQuery t = treeQuery();
-    //items.IterTreeRowsToRestore();
 	// items added during the session; surfaces, residues, atoms, cartoons, etc.
-    for (t.iterRestore(); t.next(); ) {
-        if (t.checked == Qt::Unchecked) {
-            t.ignore = 1;
+    for (currentRow.iterRestore(); currentRow.next(); ) {
+        if (currentRow.checked == Qt::Unchecked) {
+            currentRow.ignore = 1; // no need to redraw if hidden; pretend igonored.
         }
-    //for (treeRow t = Db::nextTreeRow(items); t.valid; t = Db::nextTreeRow(items)) {
-		int id = Gramps::idFromName(t.grampsName);
+		int id = Gramps::idFromName(currentRow.grampsName);
 		if (id == 0) {
 #ifdef DEBUG
-			qDebug() << "Restore #" << t.itemId << t.rowname << t.grampsName;
+			qDebug() << "Restore #" << currentRow.itemId << currentRow.rowname << currentRow.grampsName;
 #endif
-			QTreeWidgetItem *item = getGrampsItem(t.grampsName);
+			QTreeWidgetItem *item = getGrampsItem(currentRow.grampsName);
 			if (item) {
 				// has a row entry, just draw the gramps object, unless it's ignored
-				if (t.ignore == 0) {
+				if (currentRow.ignore == 0) {
 #ifdef DEBUG
 					qDebug() << "item #" << item->type();
 #endif
-                    currentRow.updateIgnore(t.itemId, 1); // else we think it's already been drawn (not ignored)
-					t.ignore = 1; // will get reset (in db tree, too) by styleMol
+                    currentRow.ignore = 1;  // else we think it's already been drawn (not ignored)                  
 					setCurrentItem(item);
-					currentRow = t;
-					styleMol(t.style);
-					setMolColor(item, t.color, t.colorBy);
+					styleMol(currentRow.style);
+					setMolColor(item, currentRow.color, currentRow.colorBy);
 				} else {
 					item->setCheckState(MOL_COLUMN, Qt::Unchecked);
 				}
 			} else {
 				// user-added items need a row entry and possibly a gramps object
                 treeQuery parentRow = treeQuery();
-                parentRow.getRow(t.parentId);
+                parentRow.getRow(currentRow.parentId);
 				QTreeWidgetItem *parentItem = getGrampsItem(parentRow.grampsName);
 				if (parentItem) {
-					currentRow = t;
-                    Qt::CheckState cstate = (Qt::CheckState) t.checked;
-					setCurrentItem(makeMolRow(parentItem, t.grampsName, t.rowname, cstate)); //Qt::Checked));
-					setMolColor(currentItem(), t.color, t.colorBy);
+					currentRow.ignore = currentRow.ignore;
+                    Qt::CheckState cstate = (Qt::CheckState) currentRow.checked;
+					setCurrentItem(makeMolRow(parentItem, currentRow.grampsName, currentRow.rowname, cstate)); //Qt::Checked));
+					setMolColor(currentItem(), currentRow.color, currentRow.colorBy);
 #ifdef DEBUG
-					qDebug() << "parent" << parentRow.rowname << t.ignore;
+					qDebug() << "parent" << parentRow.rowname << currentRow.ignore;
 #endif
-					if (t.ignore == 0) {
-						t.ignore = 1;  // so as to prevent the forget command from being issued
-						currentRow.ignore = 1;
-						if (t.style == STYLE_SURF_WATER || t.style == STYLE_SURF_MOL) {
+					if (currentRow.ignore == 0) {
+						currentRow.ignore = 1;  // so as to prevent the forget command from being issued
+						if (currentRow.style == STYLE_SURF_WATER || currentRow.style == STYLE_SURF_MOL) {
 							// no need to re-compute surface, just draw from db tables
-							drawSurface(t.itemId);
-							insertOrGroup(t.grampsName, parentRow);
+							drawSurface(currentRow.itemId);
+							insertOrGroup(currentRow.grampsName, parentRow);
 						} else {
-							styleMol(t.style);
+							styleMol(currentRow.style);
 						}
 					} else {
                         currentRow.ignore = 1;
@@ -1506,7 +1500,7 @@ void ChemWidget::restore() {
 				}
 			}
 		} // end of id=0: gramps objects that don't exist yet
-	} // end of iterTreeRowsToRestore
+	} // end of iterRestore
 	
 	// until able to restore exact rotation/zoom
 	setCurrentItem(setCheckedRows()); // will cause cycleZoom pick first molecule

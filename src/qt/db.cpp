@@ -1247,7 +1247,7 @@ bool chainQuery::iter(int imol, char chain, int filter) {
     sql += " And " + filterClause;
     // only one altloc allowed (group) and make 'O' come last per residue (order)
     sql += " Group By resnum,name Order By resnum,name";
-    qDebug() << sql;
+    //qDebug() << sql;
     if (prepare(sql)) {
         addBindValue(imol);
         addBindValue(QString(chain));
