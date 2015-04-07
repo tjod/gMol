@@ -693,7 +693,6 @@ void ChemWidget::colorMolBy(QTreeWidgetItem *item, int colorby) {
             colorMolBy(child, colorby);
         }
     }
-    //currentRow = Db::getTreeRow(item->type());
     getCurrentRow(item);
     setCurrentItem(item);
     setMolColor(item, COLOR_NONE, colorby);
@@ -706,7 +705,6 @@ void ChemWidget::colorMol(QTreeWidgetItem *item, QColor color) {
             colorMol(child, color);
         }
     }
-    //currentRow = Db::getTreeRow(item->type());
     getCurrentRow(item);
     setMolColor(item, color, COLOR_BY_NONE);
     applyColor(currentRow.grampsName, color);
@@ -1210,7 +1208,6 @@ void ChemWidget::showOneItem(QTreeWidgetItem *item) {
         child->setCheckState(MOL_COLUMN, Qt::Checked);
         setCurrentItem(child);
         int childItemId = child->type();
-        //currentRow = Db::getTreeRow(childItemId);
         getCurrentRow(childItemId);
         return;
       }
@@ -1487,6 +1484,14 @@ void ChemWidget::restore() {
 							// no need to re-compute surface, just draw from db tables
 							drawSurface(currentRow.itemId);
 							insertOrGroup(currentRow.grampsName, parentRow);
+                            //color.setAlpha(128);
+                            //setMolColor(currentItem(), currentRow.color, currentRow.colorBy);
+                            applyColor(currentRow.grampsName, currentRow.color);
+                            if (currentRow.color.alpha() == 255) {
+                                colorMolTransparent(true);
+                            } else {
+                                colorMolTransparent(false);
+                            }
 						} else {
 							styleMol(currentRow.style);
 						}
