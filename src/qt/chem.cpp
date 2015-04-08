@@ -1488,9 +1488,9 @@ void ChemWidget::restore() {
                             //setMolColor(currentItem(), currentRow.color, currentRow.colorBy);
                             applyColor(currentRow.grampsName, currentRow.color);
                             if (currentRow.color.alpha() == 255) {
-                                colorMolTransparent(true);
-                            } else {
                                 colorMolTransparent(false);
+                            } else {
+                                colorMolTransparent(true);
                             }
 						} else {
 							styleMol(currentRow.style);
