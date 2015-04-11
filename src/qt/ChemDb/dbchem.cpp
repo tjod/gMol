@@ -93,6 +93,7 @@ bool ChemDb::createTables() {
   if (!query.exec("Create Table If Not Exists secondary_structure (molid Integer, chain Char(1), resnum Integer, type Char(1), Foreign key (molid) References molecule (molid) On Delete Cascade)")) return reportError(query);
   if (!query.exec("Create Table If Not Exists atom (atid Integer Not Null, molid Integer Not Null, resnum Integer, resnam Text, altLoc Char(1), icode Char(1), atnum Integer, x Real, y Real, z Real, fcharge Integer, pcharge Real, name Text, chain Char(1), hetatm Integer, Primary Key (molid,atid), Foreign Key (molid) References molecule (molid) On Delete Cascade);")) return reportError(query);
   if (!query.exec("Create Table If Not Exists bond (molid Integer Not Null, aid Integer Not Null, bid Integer Not Null, bo Integer, Foreign key (molid,aid) References atom (molid,atid) On Delete Cascade, Foreign key (molid,bid) References atom (molid,atid) On Delete Cascade)")) return reportError(query);
+  if (!query.exec("Create Table If Not Exists gramps_save (iorder Integer Primary Key, command Text)")) return reportError(query);  
   return true;
 }
  

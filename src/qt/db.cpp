@@ -164,6 +164,27 @@ int Db::numRows(QSqlQuery query) {
     }
 }
 
+void Db::grampsSaveEmpty() {
+    QSqlQuery("Delete From gramps_save");
+}
+
+bool Db::gramspSave(QString grampsOutput) {
+    QSqlQuery query;
+    query.prepare("Insert Into gramps_save (command) Values (?)");
+    query.addBindValue(grampsOutput);
+    return query.exec();
+}
+QStringList Db::getGrampsSave() {
+    QStringList commands;
+    QSqlQuery query = QSqlQuery("Select command from gramps_save Order by iorder");
+    if (query.exec()) {
+        while (query.next()) {
+            commands << query.value(0).toString();
+        }
+    }
+    return commands;
+}
+
 QList<selectionFilter> Db::getFilters() {
     QList<selectionFilter> flist;
     QSqlQuery query;

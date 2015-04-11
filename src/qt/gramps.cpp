@@ -42,6 +42,7 @@ QString Gramps::cmd(const QString str) {
 static int chosen_cursor = 0;
 static int currx;
 static int curry;
+static bool savedb = false;
 
 grampsPick Gramps::pickProcess(const QPoint &p, Qt::MouseButton b) {
 /* Adjust curry: gl 0,0 is lower left, qt 0,0 is upper left.
@@ -129,8 +130,10 @@ void qwrite_(char * line, int llen) {
   if (qstr.startsWith("?")) {
     mainWindow->statusBar()->showMessage(qstr);
   }
+  if (qstr.startsWith("!!endsavedb")) savedb = false;
+  if (savedb) mainWindow->grampsSave(qstr);
+  if (qstr.startsWith("!!startsavedb")) savedb = true;  
   qbuffer += qstr;
-
 }
 
 void updategl_() {

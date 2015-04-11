@@ -309,8 +309,7 @@ void MainWindow::close()
 //    }
 }
 
-bool MainWindow::save()
-{
+bool MainWindow::save() {
     QString afile = "";
     if (this->saveFile.isEmpty()) {
         afile = saveas();
@@ -321,6 +320,10 @@ bool MainWindow::save()
     } else {
         afile = saveas(this->saveFile);
     }
+    Db::grampsSaveEmpty();
+    doCmd("!!startsavedb");
+    doCmd("save LWorld");
+    doCmd(("!!endsavedb"));
     return !afile.isEmpty();
 }
 
@@ -355,6 +358,9 @@ QString MainWindow::saveas(QString fileName) {
         }
     }
     return fileName;
+}
+bool MainWindow::grampsSave(QString grampsOutput) {
+    return Db::gramspSave(grampsOutput);
 }
 
 void MainWindow::openFile(QString fileName) {

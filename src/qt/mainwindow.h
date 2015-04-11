@@ -49,6 +49,8 @@ public slots:
     void gotPick       (const QPoint &, const QPoint &, const Qt::MouseButton);
     void gotDoubleClick(const QPoint &, const QPoint &, const Qt::MouseButton);
     void openFile(QString);
+    // not really a slot
+    bool grampsSave(QString);
 
 private slots:
     void fatal(const QString);

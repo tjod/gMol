@@ -1507,9 +1507,20 @@ void ChemWidget::restore() {
 		} // end of id=0: gramps objects that don't exist yet
 	} // end of iterRestore
 	
-	// until able to restore exact rotation/zoom
-	setCurrentItem(setCheckedRows()); // will cause cycleZoom pick first molecule
-	cycleZoom();
+    restoreOrientation();
+}
+void ChemWidget::restoreOrientation() {
+    QStringList commands = Db::getGrampsSave();
+    setCurrentItem(setCheckedRows());     
+    if (commands.length() > 0) {
+        emit cmdReady("pause");
+        for (int i=0; i<commands.length(); ++i) {
+            emit cmdReady(commands[i].replace("$1", "50"));
+        }
+        emit cmdReady("continue");
+    } else {
+        cycleZoom(); // will cause cycleZoom pick first molecule
+    }
 }
 
 //int ChemWidget::open(QString filename) {

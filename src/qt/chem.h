@@ -215,6 +215,7 @@ private:
     void insertOrGroup(QString molnam, treeQuery treeParent);
     QTreeWidgetItem *getGrampsItem(QString name);
 
+    void restoreOrientation();
     float centerMol(int filter);
     void zoomMol(int filter);
     int cycleZoom();

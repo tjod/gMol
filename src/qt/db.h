@@ -95,38 +95,15 @@ public:
     static int getMolIdFromInchiKey(QString);
     static float molCenter(int imol, unsigned int resnum, char chain, int filter, float *center, float *sizes);
     static void molBounds(int imol, unsigned int resnum, char chain, int filter, float *min, float *max);
-/*
-    static bool createTreeTable();
-    static int newTreeRow(treeRow &row);
-    static treeRow getTreeRow(int itemid);
-    static treeRow getTreeRow(QString grampsName);
-    static treeRow getTreeSibling(int parentid, char sibchain);
-    static bool isTreeRow(int imol, char chain, QString rowname);
-    static bool isTreeRow(int imol, char chain, int iatom);
-    static bool updateTreeColor(int itemid,  QColor color);
-    static bool updateTreeColorBy(int itemid,  int colorBy);
-    static bool updateTreeHydrogens(int itemid,  int hydrogens);
-    static bool updateTreeMainSide(int itemid, int mainSide, int filter);
-    static bool updateTreeIgnore(int itemid,  int ignore);
-    static bool updateTreeStyle(int itemid,  int style);
-    static bool updateTreeChecked(int itemid, int checked);
-    static QSqlQuery iterTreeRows();
-    static QSqlQuery IterTreeRowsToRestore();
-    static treeRow nextTreeRow(QSqlQuery query);
-*/
+
     static int chainNumRes(int imol, char chain);
     static QSqlQuery iterChainCounts(int imol, char chain);
     static QSqlQuery iterChainCounts(int imol);
     static QHash<QString, int> nextChainCounts(QSqlQuery);
 
-/*
-    static int countVertices(int itemid);
-    static QSqlQuery iterVertices(int itemid, int imol, int resnum, char chain, int filter, int hydrogen, int colorBy, float nearAtom);
-    static vtxRecord nextVertex(QSqlQuery);
-    static QSqlQuery iterTriangles(int itemid);
-    static triRecord nextTriangle(QSqlQuery);
-*/
-
+    static bool gramspSave(QString);
+    static void grampsSaveEmpty();
+    static QStringList getGrampsSave();
 private:
     static int itemId;
     static int maxItemId();
@@ -321,23 +298,6 @@ public:
 
 class treeQuery : public QSqlQuery {
 public:
-    int itemId;
-    int parentId;
-    int imol;
-    int iatom;
-    QString grampsName;
-    QString rowname;
-    int resnum;
-    char chain;
-    int ignore;
-    int style;
-    int colorBy;
-    int filter;
-    QColor color;
-    int hydrogens;
-    int mainSide;
-    int checked;
-    bool valid;
 
     treeQuery();
     ~treeQuery();
@@ -363,6 +323,25 @@ public:
     bool updateStyle(int itemid, int style);
     bool updateHydrogens(int itemid, int hydrogens);
     bool updateMainSide(int itemid, int mainSide, int filter);
+ 
+    int itemId;
+    int parentId;
+    int imol;
+    int iatom;
+    QString grampsName;
+    QString rowname;
+    int resnum;
+    char chain;
+    int ignore;
+    int style;
+    int colorBy;
+    int filter;
+    QColor color;
+    int hydrogens;
+    int mainSide;
+    int checked;
+    bool valid;
+    
 };
 
 #endif
