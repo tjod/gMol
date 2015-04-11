@@ -28,6 +28,7 @@ MainWindow::MainWindow()
     glWidget = new GLWidget;
     glWidget->resize(500,500);
     setCentralWidget(glWidget);
+    this->move(100,100);    
 /*
     connect(this, SIGNAL(visibilityChanged(QWindow::Visibility)),
             this,   SLOT(visibilityChanged(QWindow::Visibility)));
@@ -320,10 +321,15 @@ bool MainWindow::save() {
     } else {
         afile = saveas(this->saveFile);
     }
+    int width = glWidget->width();
+    int height = glWidget->height();
     Db::grampsSaveEmpty();
     doCmd("!!startsavedb");
     doCmd("save LWorld");
     doCmd(("!!endsavedb"));
+    QString cmd;
+    QTextStream(&cmd) << "set output window " << width << "x" << height;
+    Db::gramspSave(cmd);
     return !afile.isEmpty();
 }
 
