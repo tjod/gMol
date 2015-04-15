@@ -1329,7 +1329,7 @@ int ChemWidget::addMolToDb(QString filename, QString fmt) {
     QTextStream(&label) << tr("Reading...");
     progress->setLabelText(label);
     int imol = Db::readPDB(filename);
-    open(imol);
+    open(imol, true);
     emit molAdded(imol);
     progress->cancel();
   } else {
@@ -1409,7 +1409,7 @@ void ChemWidget::molReady(int imol) {
     progress->setLabelText(tr("Preparing view"));
     progress->setMaximum(100);
     progress->setValue(80);
-    open(imol);
+    open(imol, true);
     emit molAdded(imol);
     //Db::attachResidue();
     progress->cancel();
@@ -1431,6 +1431,8 @@ void ChemWidget::restore() {
 	mol_query = molQuery();
 	property_query = propertyQuery();
     currentRow = treeQuery();
+    
+    restoreOrientation();
 
     // top level molQuery for scope of this restore loop
     molQuery mquery = molQuery();
@@ -1439,7 +1441,7 @@ void ChemWidget::restore() {
         qDebug() << "Restore #" << mquery.imol << mquery.title << mquery.filename;
 #endif
 		// the standard items opened when file is read
-        open(mquery.imol);
+        open(mquery.imol, false);
 	}
 	// items added during the session; surfaces, residues, atoms, cartoons, etc.
     for (currentRow.iterRestore(); currentRow.next(); ) {
@@ -1507,127 +1509,130 @@ void ChemWidget::restore() {
 		} // end of id=0: gramps objects that don't exist yet
 	} // end of iterRestore
 	
-    restoreOrientation();
+    //restoreOrientation();
+    setCurrentItem(setCheckedRows());         
 }
 void ChemWidget::restoreOrientation() {
     QStringList commands = Db::getGrampsSave();
-    setCurrentItem(setCheckedRows());     
     if (commands.length() > 0) {
-        emit cmdReady("pause");
+        //emit cmdReady("pause");
         for (int i=0; i<commands.length(); ++i) {
-            emit cmdReady(commands[i].replace("$1", "50"));
+            emit cmdReady(commands[i]); //.replace("$1", "50"));
         }
-        emit cmdReady("continue");
+        //emit cmdReady("continue");
     } else {
         cycleZoom(); // will cause cycleZoom pick first molecule
     }
+    emit cmdReady("usemouse LWorld");
 }
 
 //int ChemWidget::open(QString filename) {
 // read db for molecular structure(s) from filename.
 
-int ChemWidget::open(int molid) {
-//   read db for molecular structure(s) for molid;
-//     create rows in the tree
-//     to represent the whole file. it's components may be separate molecules
-//     or chains/residues/LIG/HOH for proteins.
-
-  QTreeWidgetItem *parentItem = rootMol; // the invisible root of the tree where all mols are rooted
-  int err = 0;
-  float center[3] = {0,0,0};
-  float sizes[3];
-  float size = 1.0;
-  QString cmd; // gramps group command to emit when done
-  QString fname; // used outside loop to report possible error
-
-  Db::checkResidues(molid);
-
-  // file may contain multiple molecules, so iterMolsInFile/nextMol returns all mols that have same file as this molid
-  int amol=0; // count # of mols, in order to deal with first mol as a special case
-  QColor color = COLOR_DEFAULT;
-  color = nextColor(color);
-  //QSqlQuery qmol = Db::iterMolsinFile(molid);
-  //for (molRecord mol = Db::nextMol(qmol); mol.valid; mol = Db::nextMol(qmol)) {
-  for (mol_query.getInFile(molid); mol_query.next(); ) {
-    fname = mol_query.filename; // used outside loop to report possible error
-    QStringList fparts = fname.split("."); // tmpfile from web.cpp may have third part name we don't show
-    if (fparts.count() > 2) fparts.removeLast();
-    QString fshort = fparts.join(".");
-    QString rownam = mol_query.title;
-    if (rownam.isNull() || rownam.length() == 0) QTextStream(&rownam) << tr("Molecule #") << mol_query.imol;
-    //bool protein = (Db::molNumRes(mol.imol) > 1);
-    bool pdb = (mol_query.type.compare("pdb", Qt::CaseInsensitive) == 0);
-    if (amol == 0) {
-      // first mol
-      size = Db::molCenter(mol_query.imol, NORESNUM, NOCHAIN, FILTER_NONE, center, sizes);
-      char chain = NOCHAIN;
-      if (pdb && mol_query.nresidue == 1) {
-          //atomRecord a = Db::getAtom(mol.imol, 1);
-          atom_query.get(mol_query.imol, 1);
-          if (atom_query.valid) chain = atom_query.chain;
-      }
-      parentItem = addMolRow(rootMol, fshort, NORESNUM, Qt::Checked, mol_query.imol, NOATOM, chain, fparts[0], STYLE_NONE, COLOR_BY_NONE, COLOR_DEFAULT, FILTER_NONE);
-      QString MOLname = currentRow.grampsName;
-      if (mol_query.nresidue > 1) {
-        QList<QString>gnames = addChainsRow(parentItem, mol_query.imol);
-        //addMolRow(parentItem, "Surface", NORESNUM, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_MAIN+FILTER_SIDE);
-        //QTextStream(&cmd) << "," << MOLname; // finish off command with group name
-        if (gnames.count() > 0) {
-            QTextStream(&cmd) << "group " << gnames.first() << "," << gnames.last() << "," << MOLname;
+int ChemWidget::open(int molid, bool centerZoom) {
+    //   read db for molecular structure(s) for molid;
+    //     create rows in the tree
+    //     to represent the whole file. it's components may be separate molecules
+    //     or chains/residues/LIG/HOH for proteins.
+    
+    QTreeWidgetItem *parentItem = rootMol; // the invisible root of the tree where all mols are rooted
+    int err = 0;
+    float center[3] = {0,0,0};
+    float sizes[3];
+    float size = 1.0;
+    QString cmd; // gramps group command to emit when done
+    QString fname; // used outside loop to report possible error
+    
+    Db::checkResidues(molid);
+    
+    // file may contain multiple molecules, so iterMolsInFile/nextMol returns all mols that have same file as this molid
+    int amol=0; // count # of mols, in order to deal with first mol as a special case
+    QColor color = COLOR_DEFAULT;
+    color = nextColor(color);
+    //QSqlQuery qmol = Db::iterMolsinFile(molid);
+    //for (molRecord mol = Db::nextMol(qmol); mol.valid; mol = Db::nextMol(qmol)) {
+    for (mol_query.getInFile(molid); mol_query.next(); ) {
+        fname = mol_query.filename; // used outside loop to report possible error
+        QStringList fparts = fname.split("."); // tmpfile from web.cpp may have third part name we don't show
+        if (fparts.count() > 2) fparts.removeLast();
+        QString fshort = fparts.join(".");
+        QString rownam = mol_query.title;
+        if (rownam.isNull() || rownam.length() == 0) QTextStream(&rownam) << tr("Molecule #") << mol_query.imol;
+        //bool protein = (Db::molNumRes(mol.imol) > 1);
+        bool pdb = (mol_query.type.compare("pdb", Qt::CaseInsensitive) == 0);
+        if (amol == 0) {
+            // first mol
+            size = Db::molCenter(mol_query.imol, NORESNUM, NOCHAIN, FILTER_NONE, center, sizes);
+            char chain = NOCHAIN;
+            if (pdb && mol_query.nresidue == 1) {
+                //atomRecord a = Db::getAtom(mol.imol, 1);
+                atom_query.get(mol_query.imol, 1);
+                if (atom_query.valid) chain = atom_query.chain;
+            }
+            parentItem = addMolRow(rootMol, fshort, NORESNUM, Qt::Checked, mol_query.imol, NOATOM, chain, fparts[0], STYLE_NONE, COLOR_BY_NONE, COLOR_DEFAULT, FILTER_NONE);
+            QString MOLname = currentRow.grampsName;
+            if (mol_query.nresidue > 1) {
+                QList<QString>gnames = addChainsRow(parentItem, mol_query.imol);
+                //addMolRow(parentItem, "Surface", NORESNUM, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_MAIN+FILTER_SIDE);
+                //QTextStream(&cmd) << "," << MOLname; // finish off command with group name
+                if (gnames.count() > 0) {
+                    QTextStream(&cmd) << "group " << gnames.first() << "," << gnames.last() << "," << MOLname;
+                } else {
+                    err = -1;
+                }
+            } else {
+                int style = STYLE_DEFAULT;
+                //if (Db::molNumAtoms(mol.imol) > 200) style = STYLE_LINES;
+                if (mol_query.natoms > 200) style = STYLE_LINES;
+                // STYLE_NONE for this group parent row
+                QTreeWidgetItem *molRow = addMolRow(parentItem, rownam, NORESNUM, Qt::Checked, mol_query.imol, NOATOM, NOCHAIN, "", STYLE_NONE, COLOR_BY_NONE, color, FILTER_NONE);
+                QString molnam = currentRow.grampsName;
+                QTreeWidgetItem *modelRow = addMolRow(molRow, "Model", NORESNUM, Qt::Checked, mol_query.imol, NOATOM, NOCHAIN, "model", style, COLOR_BY_ATOMS, color, FILTER_NONE);
+                QString modelnam = drawMol(modelRow);
+                //addMolRow(molRow, "Surface", NORESNUM, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_NONE);
+                QTextStream(&cmd) << "group " << modelnam << "," << modelnam << "," << molnam;
+                emit cmdReady(cmd);
+                emit cmdReady("rebuild " + modelnam);  // workaround for odd bug that prevents first obj from being shown
+                cmd.clear();
+                QTextStream(&cmd) << "group " << molnam << "," << molnam << "," << MOLname;
+            }
+            
         } else {
-            err = -1;
+            // extra mols are added to tree, but not yet sent to gramps
+            int style = STYLE_DEFAULT;
+            //if (Db::molNumAtoms(mol.imol) > 100) style = STYLE_LINES;
+            if (mol_query.natoms > 100) style = STYLE_LINES;
+            color.setHsv(color.hue() + 30, color.saturation(), color.value());
+            QTreeWidgetItem *molRow = addMolRow(parentItem, rownam, NORESNUM, Qt::Unchecked, mol_query.imol, NOATOM, NOCHAIN, "", STYLE_NONE, COLOR_BY_NONE, color, FILTER_NONE); // the group for this  mol
+            addMolRow(molRow, "Model", NORESNUM, Qt::Unchecked, mol_query.imol, NOATOM, NOCHAIN, "model", style, COLOR_BY_ATOMS, color, FILTER_NONE);
+            //addMolRow(molRow, "Surface", NORESNUM, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_NONE);
         }
-      } else {
-        int style = STYLE_DEFAULT;
-        //if (Db::molNumAtoms(mol.imol) > 200) style = STYLE_LINES;
-        if (mol_query.natoms > 200) style = STYLE_LINES;
-        // STYLE_NONE for this group parent row
-        QTreeWidgetItem *molRow = addMolRow(parentItem, rownam, NORESNUM, Qt::Checked, mol_query.imol, NOATOM, NOCHAIN, "", STYLE_NONE, COLOR_BY_NONE, color, FILTER_NONE);
-        QString molnam = currentRow.grampsName;
-        QTreeWidgetItem *modelRow = addMolRow(molRow, "Model", NORESNUM, Qt::Checked, mol_query.imol, NOATOM, NOCHAIN, "model", style, COLOR_BY_ATOMS, color, FILTER_NONE);
-        QString modelnam = drawMol(modelRow);
-        //addMolRow(molRow, "Surface", NORESNUM, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_NONE);
-        QTextStream(&cmd) << "group " << modelnam << "," << modelnam << "," << molnam;
-        emit cmdReady(cmd);
-        emit cmdReady("rebuild " + modelnam);  // workaround for odd bug that prevents first obj from being shown
-        cmd.clear();
-        QTextStream(&cmd) << "group " << molnam << "," << molnam << "," << MOLname;
-      }
-
-    } else {
-     // extra mols are added to tree, but not yet sent to gramps
-      int style = STYLE_DEFAULT;
-      //if (Db::molNumAtoms(mol.imol) > 100) style = STYLE_LINES;
-      if (mol_query.natoms > 100) style = STYLE_LINES;
-      color.setHsv(color.hue() + 30, color.saturation(), color.value());
-      QTreeWidgetItem *molRow = addMolRow(parentItem, rownam, NORESNUM, Qt::Unchecked, mol_query.imol, NOATOM, NOCHAIN, "", STYLE_NONE, COLOR_BY_NONE, color, FILTER_NONE); // the group for this  mol
-      addMolRow(molRow, "Model", NORESNUM, Qt::Unchecked, mol_query.imol, NOATOM, NOCHAIN, "model", style, COLOR_BY_ATOMS, color, FILTER_NONE);
-      //addMolRow(molRow, "Surface", NORESNUM, Qt::Unchecked, mol.imol, NOCHAIN, "surface", STYLE_SURF_MOL, COLOR_NONE, FILTER_NONE);
+        ++amol;
     }
-    ++amol;
-  }
-
-  setAnimated(false); // expand generates warnings unless animation off
-  expandItem(parentItem);
-  //setFirstItemColumnSpanned(parentItem,true);
-  setAnimated(true);
-  if (err == 0) {
-     emit cmdReady(cmd);
-     cmd.clear();
-     QTextStream(&cmd) << "center " << -center[0] << "," << -center[1] << "," << -center[2];
-     emit cmdReady(cmd);
-     cmd.clear();
-     QTextStream(&cmd) << "zoom 4," << size;
-     emit cmdReady(cmd);
-  } else {
-     //qDebug() << tr("error #") << err << tr("while reading") << filename;
-     QString msg;
-     QTextStream(&msg) << tr("error #") << err << tr("while processing") << fname;
-     emit msgReady(msg);
-  }
-  resizeColumnToContents(1);
-  resizeColumnToContents(0);
-  return err;
+    
+    setAnimated(false); // expand generates warnings unless animation off
+    expandItem(parentItem);
+    //setFirstItemColumnSpanned(parentItem,true);
+    setAnimated(true);
+    if (err == 0) {
+        emit cmdReady(cmd);
+        if (centerZoom) {
+            cmd.clear();
+            QTextStream(&cmd) << "center " << -center[0] << "," << -center[1] << "," << -center[2];
+            emit cmdReady(cmd);
+            cmd.clear();
+            QTextStream(&cmd) << "zoom 4," << size;
+            emit cmdReady(cmd);
+        }
+    } else {
+        //qDebug() << tr("error #") << err << tr("while reading") << filename;
+        QString msg;
+        QTextStream(&msg) << tr("error #") << err << tr("while processing") << fname;
+        emit msgReady(msg);
+    }
+    resizeColumnToContents(1);
+    resizeColumnToContents(0);
+    return err;
 }
 
 QString ChemWidget::grampsSafe(QString name) {
