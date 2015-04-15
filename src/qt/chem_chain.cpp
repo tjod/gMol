@@ -93,7 +93,7 @@ int ChemWidget::drawChain(int imol, QString molnam, char chain, int mode, float 
         ntrace = 2;
     }
     if (!err) {
-        err += sendChain(ntrace, (float *)coord, cradius, sradius, CatRom);
+        if (ntrace > 0) err += sendChain(ntrace, (float *)coord, cradius, sradius, CatRom);
         if (mode & DRAW_CLOSE) err += getMemDone("", NULL, 0, 0);
     }
     delete [] coord;

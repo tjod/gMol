@@ -459,8 +459,8 @@ int ChemWidget::makeRibbon(int nguide, float *guide_minus, float *guide_plus, fl
             } else {
                 len = nspan * (nspline+1) + 2;
             }
-            if (sstype[n] == 'X') len -= (nspline+2);
-            if (len+begin > spline_len) len = spline_len - begin;         
+            if (sstype[n] == 'X' && nspan > 1) len -= (nspline+2);
+            if (len+begin > spline_len) len = spline_len - begin;
         }
         if (sstype[ires] == 'H') {
             // helix 

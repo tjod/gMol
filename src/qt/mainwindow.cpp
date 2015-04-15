@@ -381,7 +381,7 @@ void MainWindow::openFile(QString fileName) {
         if (Db::openExisting(fileName)) {
             this->saveFile = fileName;
             QString fname = QFileInfo(fileName).fileName();
-            qDebug() << fname << " opened";
+            //qDebug() << fname << " opened";
             setWindowTitle(fname);
             emit restore(); // calls ChemWidget::restore
         }
