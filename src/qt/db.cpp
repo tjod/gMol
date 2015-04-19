@@ -1257,11 +1257,11 @@ bool chainQuery::iter(int imol, char chain, int filter) {
     QString filterClause = Db::getFilter(filter).sql;
     QString sql = "With doubles as (Select molid, chain, resnum, count(name) From atom";
     sql += " Where " + filterClause;
-    sql += " Group By molid,resnum,chain Having count(name) "; // 2) ";
+    sql += " Group By molid,resnum,chain";
     if (filter == FILTER_CARTOON) {
-        sql += " =2) "; // expect CA and O per residue
-    } else if (filter == FILTER_TRACE) {
-        sql += " >0) "; // CA and P per residue; allow both
+        sql += " Having count(distinct name)=2) "; // expect CA and O per residue
+    } else {
+        sql += ") "; // CA and P per residue; allow both
     }
     
     sql += "Select Distinct x,y,z,resnum,name,coalesce(type,'?') From atom Left Join secondary_structure Using (molid,chain,resnum) Join doubles Using (molid,chain,resnum) Where molid=? And chain=?";
