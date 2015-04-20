@@ -1415,6 +1415,8 @@ void ChemWidget::molReady(int imol) {
     progress->cancel();
     parentWidget()->show();
     parentWidget()->raise();
+  } else {
+      emit msgReady("no molecules read from file");
   }
 }
 

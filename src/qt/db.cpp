@@ -514,7 +514,7 @@ int Db::readPDB(QString filename) {
     return readPDB(is, filename, fsize);
 }
 
-int Db::readPDB(std::istream& is, QString filename, int /*fsize*/) {
+int Db::readPDB(std::istream& is, QString filename, int fsize=0) {
     // read from stream
 #ifdef DEBUG
     printf ("Reading 0 at 1 of %d\n", fsize);

@@ -99,17 +99,22 @@ bool WebWidget::handlePDB(QNetworkReply *reply, QString header, QString path) {
     QString spdb = "";
     if (header.isEmpty() || header == "application/download") {
         spdb = QString(reply->readAll());
-        QString title =  QFileInfo(path).fileName();
-        setHtml("<header><title>"+title+"</title></header><pre>"+spdb.toHtmlEscaped());
+        //QString title =  QFileInfo(path).fileName();
+        //setHtml("<header><title>"+title+"</title></header><pre>"+spdb.toHtmlEscaped());
     } else {
         spdb = page()->mainFrame()->toPlainText();
         //page()->history()->back();
     }
-    if (spdb.length() > 0) {
-        int imol = Db::readPDB(spdb, QFileInfo(path).fileName());
-        emit molReady(imol); // signals ChemWidget molReady
-        canReload = false;  // reload causes new model of existing mol
-        return true;
+    if (reply->error()) {
+        this->page()->mainFrame()->evaluateJavaScript("document.body.innerHTML += '" + reply->errorString() + "'");        
+    } else {
+        if (spdb.length() > 0) {
+            int imol = Db::readPDB(spdb, QFileInfo(path).fileName());
+            emit molReady(imol); // signals ChemWidget molReady
+            canReload = false;  // reload causes new model of existing mol
+            deleteTab();            
+            return true;
+        }
     }
     return false;
 }
@@ -117,34 +122,41 @@ bool WebWidget::handleSDF(QNetworkReply *reply, QString header, QString path) {
     QString smol = "";
     if (header.isEmpty()) {
         smol = QString(reply->readAll());
-        QString title =  QFileInfo(path).fileName();
-        setHtml("<header><title>"+title+"</title></header><pre>"+smol);
+        //QString title =  QFileInfo(path).fileName();
+        //setHtml("<header><title>"+title+"</title></header><pre>"+smol);
     } else {
         smol = page()->mainFrame()->toPlainText();
         //page()->history()->back();
     }
-    if (smol.length() > 0) {
-        QString tmplate = QDir::tempPath() + "/" + QFileInfo(path).fileName();
-        QTemporaryFile *tmpFile = new QTemporaryFile(tmplate);
-        tmpFile->setAutoRemove(false); // needed outside this scope
-        //qDebug() << "mol/sdf file from" << path << "to" << tmpFile->fileName();
-        if ( tmpFile->open() )
-        {
-            QTextStream stream( tmpFile );
-            stream << smol;
-            tmpFile->close();
-            emit readMol(tmpFile->fileName(), "sdf"); // calls ChemWidget::addMolToDb
-            canReload = false;  // reload causes new instance of existing mol
-            return true;
-        } else {
-            qDebug() << "can't open file" << tmpFile->fileName();
+    if (reply->error()) {
+         this->page()->mainFrame()->evaluateJavaScript("document.body.innerHTML += '" + reply->errorString() + "'");
+    } else {
+        if (smol.length() > 0) {
+            QString tmplate = QDir::tempPath() + "/" + QFileInfo(path).fileName();
+            QTemporaryFile *tmpFile = new QTemporaryFile(tmplate);
+            tmpFile->setAutoRemove(false); // needed outside this scope
+            //qDebug() << "mol/sdf file from" << path << "to" << tmpFile->fileName();
+            if ( tmpFile->open() )
+            {
+                QTextStream stream( tmpFile );
+                stream << smol;
+                tmpFile->close();
+                emit readMol(tmpFile->fileName(), "sdf"); // calls ChemWidget::addMolToDb
+                canReload = false;  // reload causes new instance of existing mol
+                deleteTab();                
+                return true;
+            } else {
+                qDebug() << "can't open file" << tmpFile->fileName();
+                emit msgReady("can't open file " + tmpFile->fileName());
+            }
         }
     }
     return false;
 }
 void WebWidget::pageFinished(QNetworkReply * reply) {
   QString header = reply->header(QNetworkRequest::ContentTypeHeader).toString();
-  emit msgReady(header); // connected to mainWindow->statusBar
+  //emit msgReady(header); // connected to mainWindow->statusBar
+  if (reply->error() > 0) emit msgReady(reply->errorString());
   QString path = (reply->request()).url().path();
   if(header == "application/download" && reply->hasRawHeader("Content-Disposition") && reply->rawHeaderList().contains("Content-Disposition")) {
        QString dispo = reply->rawHeader("Content-Disposition");
