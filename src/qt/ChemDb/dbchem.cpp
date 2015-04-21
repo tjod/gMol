@@ -233,10 +233,7 @@ int ChemDb::readFile(QString file, QString type) {
 #endif
   fflush(stdout);
   while (conv.Read(&mol, &is)) {
-    if (mol.Empty()) {
-        molid = 0;
-        break;
-    }
+    if (mol.Empty()) break;
     QString title = mol.GetTitle();
     mol.SetTitle(""); // otherwise title gets into smiles
     int nres = mol.NumResidues();
@@ -301,7 +298,7 @@ int ChemDb::readFile(QString file, QString type) {
 #endif
   createIndexes();
 */
-
+  if (nmols == 0) molid = 0;
   return molid;
 }
 
