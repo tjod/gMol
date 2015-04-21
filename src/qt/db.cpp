@@ -516,6 +516,7 @@ int Db::readPDB(QString filename) {
 
 int Db::readPDB(std::istream& is, QString filename, int fsize=0) {
     // read from stream
+    if (fsize){} // get rid of warning
 #ifdef DEBUG
     printf ("Reading 0 at 1 of %d\n", fsize);
     fflush(stdout);

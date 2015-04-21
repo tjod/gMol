@@ -233,7 +233,10 @@ int ChemDb::readFile(QString file, QString type) {
 #endif
   fflush(stdout);
   while (conv.Read(&mol, &is)) {
-    if (mol.Empty()) break;
+    if (mol.Empty()) {
+        molid = 0;
+        break;
+    }
     QString title = mol.GetTitle();
     mol.SetTitle(""); // otherwise title gets into smiles
     int nres = mol.NumResidues();

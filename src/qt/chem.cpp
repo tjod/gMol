@@ -1338,6 +1338,7 @@ int ChemWidget::addMolToDb(QString filename, QString fmt) {
     QString dbfile = QSqlDatabase::database().databaseName();
     if (fmt.isNull() || fmt.size() == 0) {
       arguments << dbfile << filename;
+      emit msgReady("empty file format");
     } else {
       //QProcess dbproc;
       //while (dbproc.waitForFinished()) {}
