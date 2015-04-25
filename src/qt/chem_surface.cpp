@@ -26,7 +26,7 @@ int ChemWidget::drawSurface(int itemid) {
   vtx.iter(itemid, treeRow.imol, treeRow.resnum, treeRow.chain, treeRow.filter, treeRow.hydrogens, currentRow.colorBy, nearAtom);
   int nvtx = vtx.count(); // vertexQuery::count(itemid);
  // qDebug() << tr("drawSurface vertex count") + " = " << nvtx;
-  float buff[9] = {nvtx,ldm1,2};
+  float buff[9] = {float(nvtx),float(ldm1),2.};
   int err = getMem(name.toLocal8Bit().data(), buff, 3, name.length());
   if (err) {
     qDebug() << "can't create surface for item" << itemid;

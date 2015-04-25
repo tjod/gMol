@@ -8,6 +8,8 @@ hpmc/
 newSurf/
 misc/
 *.o
+*.so
+gmol
 moc_*
 Makefile
 gmol-*/

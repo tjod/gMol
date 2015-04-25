@@ -12,7 +12,7 @@ QT += webkit
 }
 unix:!macx {
  CONFIG += debug
- INCLUDEPATH  += /usr/local/include/openbabel-2.0 ../
+ INCLUDEPATH  += /usr/include/openbabel-2.0 ../
  #INCLUDEPATH  += /Users/tj/Documents/openbabel/include/openbabel-2.0 ../
 }
 macx {
