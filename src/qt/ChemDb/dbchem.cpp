@@ -167,8 +167,8 @@ bool ChemDb::addSecondaryStructure(int molid) {
      sstype = name.data()[0];
      QStringList items = value.split("\n");
      QChar chain;
-     int initres;
-     int endres;
+     int initres = 0;
+     int endres = 0;
      for (int i=0; i<items.size(); ++i) {
        QString rec = items.at(i);
        if (sstype == 'S') {

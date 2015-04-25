@@ -6,7 +6,7 @@ int ChemWidget::drawSurface(int itemid) {
   treeQuery treeRow = treeQuery();
   treeRow.getRow(itemid);
   QString name = treeRow.grampsName;
-  QColor color = treeRow.color;
+  //QColor color = treeRow.color;
   float nearAtom = 0;
   int ldm1 = 7;
   int size = 6;
@@ -22,7 +22,7 @@ int ChemWidget::drawSurface(int itemid) {
     ldm1 = 10; size = 9; // 3 coords, 3 normals and 3 colors
   }
 
-  vertexQuery vtx = vertexQuery::vertexQuery();
+  vertexQuery vtx = vertexQuery();
   vtx.iter(itemid, treeRow.imol, treeRow.resnum, treeRow.chain, treeRow.filter, treeRow.hydrogens, currentRow.colorBy, nearAtom);
   int nvtx = vtx.count(); // vertexQuery::count(itemid);
  // qDebug() << tr("drawSurface vertex count") + " = " << nvtx;
@@ -62,7 +62,7 @@ int ChemWidget::drawSurface(int itemid) {
     //qDebug() << tr("drawSurface triangle count") + " = " << ntri;
     err += getMemMore("", buff, 3, 0);
     ntri=0;
-    triangleQuery tri = triangleQuery::triangleQuery();
+    triangleQuery tri = triangleQuery();
     for (tri.iter(itemid); tri.next(); ) {
       buff[0] = tri.vid;
       tri.next();
