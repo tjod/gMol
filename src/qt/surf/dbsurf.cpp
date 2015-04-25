@@ -11,6 +11,7 @@ dbprobe.cpp - This program will create a grid around a molecule
               surface.  
 */
 #include "atom_properties.h"
+#include "atom_values.h"
 #include "db.h"
 #include "dbchem.h"
 #include <math.h>

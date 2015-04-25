@@ -16,7 +16,8 @@ win32 {
 }
 HEADERS       = ../db.h \
 		../ChemDb/dbchem.h \
-                ../atom_properties.h
+		../atom_properties.h \
+      ../atom_values.h
 SOURCES       = dbsurf.cpp \
                 ../db.cpp \
                 ../ChemDb/dbchem.cpp

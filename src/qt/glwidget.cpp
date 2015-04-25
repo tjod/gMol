@@ -79,6 +79,7 @@ void GLWidget::wheelEvent(QWheelEvent *event)
     g0hires_(&flag);
 #ifdef QT5
     QPoint delta = event->pixelDelta();
+    if (delta == QPoint(0,0)) delta = event->angleDelta();    
     double dx = delta.x() / 2.0;
     double dy = delta.y() / 2.0;
     if (dx) update_display += setDevice(MOUSS,   2,  dx); //x2
