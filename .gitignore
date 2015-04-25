@@ -18,4 +18,5 @@ dbchem
 dbsurf
 build-gmol-Qt_5_3_2_clang_64-Debug/
 *.pro.user*
+ui_controls.h
 .DS_Store
