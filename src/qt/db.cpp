@@ -546,7 +546,7 @@ int Db::readPDB(std::istream& is, QString filename, int fsize=0) {
     int imodel = 0;
 #define MAXLINE 120
     char line[MAXLINE];
-    int mol1;
+    int mol1 = 0;
     newMolecule(molid);
     while (is.getline(line, MAXLINE)) {
         QString s = line;

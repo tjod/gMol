@@ -1,13 +1,13 @@
-#FC = /usr/bin/gfortran
-FC = /opt/local/bin/gfortran-mp-4.5
-FFLAGS = -g -O -DGFORTRAN -DQT # -DUSE_SOCK
+FC = /usr/bin/gfortran
+#FC = /opt/local/bin/gfortran-mp-4.5
+FFLAGS = -fPIC -O -DGFORTRAN -DQT # -DUSE_SOCK
 #FFLAGS = -g -O -IMesa/include/GL
 
 #CC = /usr/bin/gcc-3.4
 #CFLAGS =  -g -IMesa/include -I/usr/X11R6/include
 #CFLAGS =  -g -I/home/tjo/Mesa-4.0.4/include
 #CFLAGS =  -g -Dlibjpeg -DGFORTRAN -DQT
-CFLAGS =  -g -DGFORTRAN -DQT
+CFLAGS =  -fPIC -DGFORTRAN -DQT
 
 #XLIBS =   -lXi -lXext -lXm -lXt -lX11 -lPW
 #XLIBS_s = -lXi -lXext -lXm_s -lXt_s -lX11_s -lPW

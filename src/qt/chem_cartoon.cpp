@@ -188,7 +188,7 @@ int ChemWidget::sendCoil(float *spline, float *guide, int offset, int slength, f
     } else {
         // lines
         int size = 3;
-        float spec[3] = {slength,2,3};
+        float spec[3] = {float(slength),2.,3.};
         err += getMemMore("", spec, size, 0);
         int nout = slength*3;
         err += getMemMore("", &spline[3+offset*3], nout, 0);
@@ -196,7 +196,7 @@ int ChemWidget::sendCoil(float *spline, float *guide, int offset, int slength, f
     return err;
 }
 int ChemWidget::sendBase(float spline_minus[][3], float spline_plus[][3], float thick) {
-    float spec[3] = {4,7,3};
+    float spec[3] = {4.,7.,3.};
     int err = getMemMore("", spec, 3, 0);
     float coord[4][3];
     float a[3] = {spline_minus[0][0], spline_minus[0][1], spline_minus[0][2]};
@@ -218,29 +218,29 @@ int ChemWidget::sendBase(float spline_minus[][3], float spline_plus[][3], float 
     coord[nout][0] = a[0] + nml[0]; coord[nout][1] = a[1] + nml[1]; coord[nout][2] = a[2] + nml[2];
     ++nout;
     err += getMemMore("", &coord[0][0], nout*3, 0);
-    float tri[][3] = { {2,8,1}, {3,1,2}, {1,3,4} };
+    float tri[][3] = { {2.,8.,1.}, {3.,1.,2.}, {1.,3.,4.} };
     err += getMemMore("", &tri[0][0], 9, 0);
     return err;
 }
 int ChemWidget::sendArrow(float spline_minus[][3], float spline_plus[][3], int span, float thick) {
     
     int np = (thick > 0) ? 6 : 3;
-    float spec[3] = {np,7,3};
+    float spec[3] = {float(np),7.,3.};
     int size = 3;
     int err = 0;
     err += getMemMore("", spec, size, 0);
     float coord[6][3];
     int nout = 0;
     int ntri = 0;
-    float a[3] = {spline_minus[0][0] - (spline_plus[0][0] - spline_minus[0][0]) * 0.25,
-                  spline_minus[0][1] - (spline_plus[0][1] - spline_minus[0][1]) * 0.25,
-                  spline_minus[0][2] - (spline_plus[0][2] - spline_minus[0][2]) * 0.25};
-    float b[3] = {spline_plus[0][0] - (spline_minus[0][0] - spline_plus[0][0]) * 0.25,
-                  spline_plus[0][1] - (spline_minus[0][1] - spline_plus[0][1]) * 0.25,
-                  spline_plus[0][2] - (spline_minus[0][2] - spline_plus[0][2]) * 0.25};
-    float c[3] = {spline_plus[span][0] + (spline_minus[span][0] - spline_plus[span][0]) * 0.5,
-                  spline_plus[span][1] + (spline_minus[span][1] - spline_plus[span][1]) * 0.5,
-                  spline_plus[span][2] + (spline_minus[span][2] - spline_plus[span][2]) * 0.5};
+    float a[3] = {spline_minus[0][0] - (spline_plus[0][0] - spline_minus[0][0]) * 0.25f,
+                  spline_minus[0][1] - (spline_plus[0][1] - spline_minus[0][1]) * 0.25f,
+                  spline_minus[0][2] - (spline_plus[0][2] - spline_minus[0][2]) * 0.25f};
+    float b[3] = {spline_plus[0][0] - (spline_minus[0][0] - spline_plus[0][0]) * 0.25f,
+                  spline_plus[0][1] - (spline_minus[0][1] - spline_plus[0][1]) * 0.25f,
+                  spline_plus[0][2] - (spline_minus[0][2] - spline_plus[0][2]) * 0.25f};
+    float c[3] = {spline_plus[span][0] + (spline_minus[span][0] - spline_plus[span][0]) * 0.5f,
+                  spline_plus[span][1] + (spline_minus[span][1] - spline_plus[span][1]) * 0.5f,
+                  spline_plus[span][2] + (spline_minus[span][2] - spline_plus[span][2]) * 0.5f};
     if (thick > 0) {
         float an[3] = {spline_minus[0][0], spline_minus[0][1], spline_minus[0][2]};
         float bn[3] = {spline_plus[0][0], spline_plus[0][1], spline_plus[0][2]};
@@ -276,7 +276,8 @@ int ChemWidget::sendArrow(float spline_minus[][3], float spline_plus[][3], int s
     }
     nout *= 3;
     err += getMemMore("", &coord[0][0], nout, 0);
-    float tri[][3] = { {ntri,8,1}, {3,2,1}, {4,5,6}, {5,2,3}, {6,5,3}, {1,2,5}, {1,5,4}, {6,3,1}, {1,4,6} };
+    float tri[][3] = {
+ {float(ntri),8.,1.}, {3.,2.,1.}, {4.,5.,6.}, {5.,2.,3.}, {6.,5.,3.}, {1.,2.,5.}, {1.,5.,4.}, {6.,3.,1.}, {1.,4.,6.} };
     nout = ntri*3 + 3;
     err += getMemMore("", &tri[0][0], nout, 0);
     return err;
@@ -315,7 +316,7 @@ int ChemWidget::sendRibbon(float spline_minus[][3], float spline_plus[][3], int 
         nout = 3 * nspline;
         ldm2 = 3;
     }
-    float spec[3] = {slength*nspline, 7, ldm2};
+    float spec[3] = {float(slength*nspline), 7., float(ldm2)};
     err += getMemMore("", spec, size, 0);
     float edges[2][slength+1][3]; // zero element is n,ldm1,ldm2 expected but unused by sendCoil
     float nml[3];
