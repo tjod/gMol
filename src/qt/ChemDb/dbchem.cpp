@@ -384,7 +384,7 @@ bool ChemDb::addAtoms(OBMol &mol) {
   QString sql;
   int nres = mol.NumResidues();
   if (nres > 1) {
-    sql = "Insert Into atom (molid, atid, atnum, x, y, z, fcharge, pcharge, name, resnum, chain, resnam, hetatm) Values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    sql = "Insert Into atom (molid, atid, atnum, x, y, z, fcharge, pcharge, name, altloc, resnum, chain, resnam, hetatm) Values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
   } else {
     sql = "Insert Into atom (molid, atid, atnum, x, y, z, fcharge, pcharge, name) Values (?,?,?,?,?,?,?,?,?)";
   }
@@ -414,6 +414,7 @@ bool ChemDb::addAtoms(OBMol &mol) {
     }
     if (nres > 1) {
       query.addBindValue(atomnam);
+      query.addBindValue(" "); // openbabel does not provide this, but filters.Side likes to have " " instead of null
       resnum = res->GetNum();
       query.addBindValue((int)resnum);
       chain = (QString)res->GetChain();
