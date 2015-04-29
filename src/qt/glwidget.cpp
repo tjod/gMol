@@ -156,8 +156,13 @@ int GLWidget::setDevice(int type, int devnum, double val) {
  
   if (type == MOUSS) {
     float mdiv;
-    if (Qt::ControlModifier == QApplication::keyboardModifiers()) {
-      mdiv = 10000;
+#ifdef __APPLE__
+    if (Qt::MetaModifier == QApplication::keyboardModifiers())
+#else
+    if (Qt::ControlModifier == QApplication::keyboardModifiers())
+#endif
+    {
+      mdiv = 10000; // finer control
     } else {
       mdiv = 1000;
     }

@@ -430,7 +430,7 @@ QDockWidget * MainWindow::openUrl(QString url, bool canDelete)
     bool allowAccess = false; // access to gramps and gmol javascript objects
     if (Url.scheme() == "file") {
       allowAccess = true;
-#ifdef WIN32
+#ifdef _WIN32
       // handle windows \ in files
       QFileInfo fileUrl = QFileInfo(Url.path().mid(1)); // all but first / in path
       //qDebug() << fileUrl.absoluteFilePath();
