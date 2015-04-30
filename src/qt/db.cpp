@@ -264,15 +264,15 @@ QHash<QString, int> Db::nextChainCounts(QSqlQuery qchain) {
     return chainCounts;
 }
 
-float Db::molCenter(int imol, unsigned int resnum, char chain, int filter, /* out */ float *center, /* out */ float *sizes) {
+float Db::molCenter(int imol, unsigned int resnum, char chain, int filter, /* out */ float *midpoint, /* out */ float *sizes, /* out */ float *avg) {
 #ifdef DEBUG
     qDebug() << "Db::molCenter";
 #endif
     float cmin[3], cmax[3];
-    molBounds(imol, resnum, chain, filter, cmin, cmax);
-    center[0] = (cmax[0] + cmin[0]) / 2.0;
-    center[1] = (cmax[1] + cmin[1]) / 2.0;
-    center[2] = (cmax[2] + cmin[2]) / 2.0;
+    molBounds(imol, resnum, chain, filter, cmin, cmax, avg);
+    midpoint[0] = (cmax[0] + cmin[0]) / 2.0;
+    midpoint[1] = (cmax[1] + cmin[1]) / 2.0;
+    midpoint[2] = (cmax[2] + cmin[2]) / 2.0;
     sizes[0]  = (cmax[0] - cmin[0]) / 2.0;
     sizes[1]  = (cmax[1] - cmin[1]) / 2.0;
     sizes[2]  = (cmax[2] - cmin[2]) / 2.0;
@@ -280,11 +280,11 @@ float Db::molCenter(int imol, unsigned int resnum, char chain, int filter, /* ou
     return size;
 }
 
-void Db::molBounds(int imol, unsigned int resnum, char chain, int filter, float min[3], float max[3]) {
+void Db::molBounds(int imol, unsigned int resnum, char chain, int filter, float min[3], float max[3], float avg[3]) {
 #ifdef DEBUG
     qDebug() << "Db::molBounds";
 #endif
-    QString sql = "Select max(x), min(x), max(y), min(y), max(z), min(z) From atom Where molid=?";
+    QString sql = "Select max(x), min(x), max(y), min(y), max(z), min(z), avg(x), avg(y), avg(z) From atom Where molid=?";
     if (chain != NOCHAIN) sql += " And chain=?";
     if (resnum != NORESNUM)  sql += " And resnum=?";
     if (filter) {
@@ -299,9 +299,12 @@ void Db::molBounds(int imol, unsigned int resnum, char chain, int filter, float 
 
     if (!query.exec()) tellError(query);
     query.next();
-    max[0] = query.value(0).toDouble(); min[0] = query.value(1).toDouble();
-    max[1] = query.value(2).toDouble(); min[1] = query.value(3).toDouble();
-    max[2] = query.value(4).toDouble(); min[2] = query.value(5).toDouble();
+    max[0] = query.value(0).toFloat(); min[0] = query.value(1).toFloat();
+    max[1] = query.value(2).toFloat(); min[1] = query.value(3).toFloat();
+    max[2] = query.value(4).toFloat(); min[2] = query.value(5).toFloat();
+    avg[0] = query.value(6).toFloat();
+    avg[1] = query.value(7).toFloat();
+    avg[2] = query.value(8).toFloat();    
 }
 
 

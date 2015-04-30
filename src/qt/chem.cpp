@@ -164,12 +164,13 @@ void ChemWidget::gotDoubleClick(const QPoint & /*globalP*/, grampsPick gp) {
     } else {
         // double clicked on background
         if (cycleZoom() > 0) {
-            float center[3];
+            float midpoint[3];
             float sizes[3];
-            molCenter(currentRow.filter, center, sizes);
+            float avg[3];
+            molCenter(currentRow.filter, midpoint, sizes, avg);
             QStringList path = pickPath(QString(""), currentItem());
             QString xyz;
-            QTextStream(&xyz) << "@" << center[0] << "," << center[1] << "," << center[2];
+            QTextStream(&xyz) << "@" << avg[0] << "," << avg[1] << "," << avg[2];
             emit msgReady(path.join(":")+xyz);
         }
     }
@@ -375,6 +376,8 @@ void ChemWidget::createContextMenu(QTreeWidgetItem *item, int filter, QMenu *men
   zoomAction->setData(filter);
   QAction *centerAction = menu->addAction(tr("Center"), this, SLOT(centerMol()));
   centerAction->setData(filter);
+  QAction *midRangeAction = menu->addAction(tr("Midrange"), this, SLOT(midRangeMol()));
+  midRangeAction->setData(filter);
 
   QAction *highlightAction = menu->addAction(tr("Highlight"), this, SLOT(highlightMol()));
   highlightAction->setData(filter);
@@ -793,21 +796,24 @@ void ChemWidget::zoomMol() {
     zoomMol(filter);
 }
 void ChemWidget::zoomMol(int filter) {
-    float size = centerMol(filter);
+    float size = centerMol(filter, false);
     QString cmd;
     QTextStream(&cmd) << "zoom 4," << size;
     emit cmdReady(cmd);
     zoomFilter = filter;
 }
 
-float ChemWidget::molCenter(int filter,  float *center,  float *sizes) {
+float ChemWidget::molCenter(int filter,  float *midpoint,  float *sizes, float *avg) {
     float size = 5;
     int afilter = filter;
     if (afilter == FILTER_ATOM)
     {
-        center[0] = pickedAtom.x;
-        center[1] = pickedAtom.y;
-        center[2] = pickedAtom.z;
+        midpoint[0] = pickedAtom.x;
+        midpoint[1] = pickedAtom.y;
+        midpoint[2] = pickedAtom.z;
+        avg[0] = pickedAtom.x;
+        avg[1] = pickedAtom.y;
+        avg[2] = pickedAtom.z;
         sizes[0] = 1.0;
         sizes[1] = 1.0;
         sizes[2] = 1.0;
@@ -829,23 +835,31 @@ float ChemWidget::molCenter(int filter,  float *center,  float *sizes) {
             resnum = currentRow.resnum;
             chain  = currentRow.chain;
         }
-        size = Db::molCenter(currentRow.imol, resnum, chain, afilter,  center,  sizes);
+        size = Db::molCenter(currentRow.imol, resnum, chain, afilter,  midpoint,  sizes, avg);
     }
     return size;
 }
 
 void ChemWidget::centerMol() {
     int filter = static_cast<QAction *>(QObject::sender())->data().toInt();
-    centerMol(filter);
+    centerMol(filter, false);
 }
-float ChemWidget::centerMol(int filter) {
+void ChemWidget::midRangeMol() {
+    int filter = static_cast<QAction *>(QObject::sender())->data().toInt();
+    centerMol(filter, true);
+}
+float ChemWidget::centerMol(int filter, bool midrange) {
     //QString gramps = currentRow.grampsName;
     QString cmd;
-    float center[3];
+    float midpoint[3];
     float sizes[3];
-    float size = molCenter(filter,  center,  sizes);
-    //QTextStream(&cmd) << "translate LW p," << -center[0] << ":s20 q," << -center[1] << ":s20 r," << -center[2] << ":s20";
-    QTextStream(&cmd) << "center " << -center[0] << "," << -center[1] << "," << -center[2];
+    float avg[3];
+    float size = molCenter(filter,  midpoint,  sizes, avg);
+    if (midrange) {
+        QTextStream(&cmd) << "center " << -midpoint[0] << "," << -midpoint[1] << "," << -midpoint[2];
+    } else {
+        QTextStream(&cmd) << "center " << -avg[0] << "," << -avg[1] << "," << -avg[2];        
+    }
     emit cmdReady(cmd);
     return std::max(size, (float)5.);
 }
@@ -1540,8 +1554,9 @@ int ChemWidget::open(int molid, bool centerZoom) {
     
     QTreeWidgetItem *parentItem = rootMol; // the invisible root of the tree where all mols are rooted
     int err = 0;
-    float center[3] = {0,0,0};
+    float midpoint[3] = {0,0,0};
     float sizes[3];
+    float avg[3];
     float size = 1.0;
     QString cmd; // gramps group command to emit when done
     QString fname; // used outside loop to report possible error
@@ -1565,7 +1580,7 @@ int ChemWidget::open(int molid, bool centerZoom) {
         bool pdb = (mol_query.type.compare("pdb", Qt::CaseInsensitive) == 0);
         if (amol == 0) {
             // first mol
-            size = Db::molCenter(mol_query.imol, NORESNUM, NOCHAIN, FILTER_NONE, center, sizes);
+            size = Db::molCenter(mol_query.imol, NORESNUM, NOCHAIN, FILTER_NONE, midpoint, sizes, avg);
             char chain = NOCHAIN;
             if (pdb && mol_query.nresidue == 1) {
                 //atomRecord a = Db::getAtom(mol.imol, 1);
@@ -1621,7 +1636,7 @@ int ChemWidget::open(int molid, bool centerZoom) {
         emit cmdReady(cmd);
         if (centerZoom) {
             cmd.clear();
-            QTextStream(&cmd) << "center " << -center[0] << "," << -center[1] << "," << -center[2];
+            QTextStream(&cmd) << "center " << -avg[0] << "," << -avg[1] << "," << -avg[2];
             emit cmdReady(cmd);
             cmd.clear();
             QTextStream(&cmd) << "zoom 4," << size;

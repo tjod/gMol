@@ -93,8 +93,8 @@ public:
     static int readPDB(QString filename);
     static void checkResidues(int molid);
     static int getMolIdFromInchiKey(QString);
-    static float molCenter(int imol, unsigned int resnum, char chain, int filter, float *center, float *sizes);
-    static void molBounds(int imol, unsigned int resnum, char chain, int filter, float *min, float *max);
+    static float molCenter(int imol, unsigned int resnum, char chain, int filter, float *midpoint, float *sizes, float *avg);
+    static void molBounds(int imol, unsigned int resnum, char chain, int filter, float *min, float *max, float *avg);
 
     static int chainNumRes(int imol, char chain);
     static QSqlQuery iterChainCounts(int imol, char chain);

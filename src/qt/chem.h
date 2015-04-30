@@ -122,6 +122,7 @@ private slots:
     void zoomMol();
     void highlightMol();
     void centerMol();
+    void midRangeMol();
     void molReady(int);
     void surfReady(int);
     void readProc();
@@ -216,10 +217,10 @@ private:
     QTreeWidgetItem *getGrampsItem(QString name);
 
     void restoreOrientation();
-    float centerMol(int filter);
+    float centerMol(int filter, bool midrange);
     void zoomMol(int filter);
     int cycleZoom();
-    float molCenter(int, float*, float *sizes);
+    float molCenter(int, float*midpoint, float *sizes, float *avg);
     void addResidue(int);
     void styleMol(int);
     void addAtom(int);
