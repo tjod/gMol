@@ -139,8 +139,9 @@ void ChemWidget::makeSurface() {
     qDebug() << tr("unknown surface style") << style;
     return;
   }
-
-  //qDebug() << prog << arguments;
+#ifdef DEBUG
+  qDebug() << prog << arguments;
+#endif
   //QSqlDatabase::database().commit();
   progress->setWindowTitle(title);
   progress->setLabelText(tr("Computing surface"));

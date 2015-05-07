@@ -105,10 +105,10 @@ bool computeGrid(float *grid, int *tags, atomQuery atom, float step, int xDim, i
 void makeGrid(int imol, float step, float padding, char chain, int resnum, int filter, int hydrogen, int outtype, float isoval) {
   float *fgrid;
   int *tags;
-  float min[3], max[3];
+  float min[3], max[3], avg[3];
   int xDim, yDim, zDim, xyzDim;
 
-  Db::molBounds(imol, resnum, chain, filter, min, max);
+  Db::molBounds(imol, resnum, chain, filter, min, max, avg);
   qDebug() << min[0] << min[1] << min[2] << max[0] << max[1] << max[2];
 
   min[0] -= padding; max[0] += padding;
