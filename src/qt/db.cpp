@@ -1007,7 +1007,7 @@ triangleQuery::triangleQuery() {}
 triangleQuery::~triangleQuery() {}
 
 bool triangleQuery::iter(int itemid) {
-    if (prepare("Select tid,vid From triangle Where itemid=? Order By tid")) {
+    if (prepare("Select tid,vid From triangle Where itemid=? Order By tid,tvid")) {
         addBindValue(itemid);
         if (exec()) valid = true;
     } else {
@@ -1017,8 +1017,8 @@ bool triangleQuery::iter(int itemid) {
 }
 bool triangleQuery::next() {
     if (QSqlQuery::next()) {
-        tid  = value(0).toDouble();
-        vid  = value(1).toDouble();
+        tid  = value(0).toInt();
+        vid  = value(1).toInt();
         valid = true;
     } else {
         valid = false;
@@ -1057,7 +1057,7 @@ bool vertexQuery::iter(int itemid, int imol, int /*resnum*/, char /*chain*/, int
         //      //qDebug() << sql;
         //if (nearAtom > 0.0) exec("Drop Index If Exists vx");
     } else {
-        sql.sprintf("Select vid,0,0.0,x,y,z,nx,ny,nz From vertex Where itemid=%d Order By vid", itemid);
+        sql.sprintf("Select vid,0,0.0,x,y,z,nx,ny,nz From vertex Where itemid=%d Order By oid", itemid);
     }
     if (exec(sql)) {
         valid = true;

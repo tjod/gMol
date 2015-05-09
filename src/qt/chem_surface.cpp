@@ -26,7 +26,7 @@ int ChemWidget::drawSurface(int itemid) {
   vtx.iter(itemid, treeRow.imol, treeRow.resnum, treeRow.chain, treeRow.filter, treeRow.hydrogens, currentRow.colorBy, nearAtom);
   int nvtx = vtx.count(); // vertexQuery::count(itemid);
  // qDebug() << tr("drawSurface vertex count") + " = " << nvtx;
-  float buff[9] = {float(nvtx),float(ldm1),2.};
+  float buff[9] = {float(nvtx),float(ldm1),1.};
   int err = getMem(name.toLocal8Bit().data(), buff, 3, name.length());
   if (err) {
     qDebug() << "can't create surface for item" << itemid;
@@ -58,7 +58,7 @@ int ChemWidget::drawSurface(int itemid) {
     //qDebug() << tr("drawSurface vertex count") + " = " << nvtx;
 
     int ntri = triangleQuery::count(itemid)/3;
-    buff[0] = ntri; buff[1] = 8; buff[2] = -1;
+    buff[0] = ntri; buff[1] = 8; buff[2] = 1;
     //qDebug() << tr("drawSurface triangle count") + " = " << ntri;
     err += getMemMore("", buff, 3, 0);
     ntri=0;
@@ -129,10 +129,10 @@ void ChemWidget::makeSurface() {
   arguments << QSqlDatabase::database().databaseName() << "-db" << "-i" << QString::number(currentRow.itemId);
   QString title;
   if (style == STYLE_SURF_MOL) {
-    arguments << "-v" << QString::number(90.) << "-s" << "0.75";  
+    arguments << "-v" << QString::number(1.0) << "-s" << "0.75";  
     title = "Molecular surface";
   } else if (style == STYLE_SURF_WATER) {
-    arguments << "-v" << QString::number(20.) << "-s" << "0.75";  
+    arguments << "-v" << QString::number(0.1) << "-s" << "0.75";  
     title = "Water-accessible surface";
   } else {
     //  try to avoid this before calling drawSurface; even avoid putting it into ContextMenu

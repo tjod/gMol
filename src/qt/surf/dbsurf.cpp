@@ -327,7 +327,7 @@ int main(int argc,char **argv)
   if (outtype == DB) {
     QSqlQuery q;
     q.exec("Create Table If Not Exists vertex (itemid Integer, vid Integer, atid Integer, x Real, y Real, z Real, nx Real, ny Real, nz Real, Unique (itemid,vid) Foreign Key (itemid) References tree (itemid) On Delete Cascade)");
-    q.exec("Create Table If Not Exists triangle (itemid Integer, atid Integer, tid Integer, vid Integer, Foreign Key (itemid) References tree (itemid) On Delete Cascade)");
+    q.exec("Create Table If Not Exists triangle (itemid Integer, atid Integer, tid Integer, tvid Integer, vid Integer, Foreign Key (itemid) References tree (itemid) On Delete Cascade)");
     q.exec("Create /*Temporary*/ Table If Not Exists new_triangle (atid Integer, tid Integer, x Real, y Real, z Real, nx Real, ny Real, nz Real)");
     q.exec("Delete From new_triangle");
 

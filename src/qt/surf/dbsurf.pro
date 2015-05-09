@@ -14,13 +14,14 @@ isEqual(QT_MAJOR_VERSION, 5): {
 win32 {
  CONFIG += console
 }
-HEADERS       = ../db.h \
-		../ChemDb/dbchem.h \
-		../atom_properties.h \
-      ../atom_values.h
-SOURCES       = dbsurf.cpp \
-                ../db.cpp \
-                ../ChemDb/dbchem.cpp
+HEADERS = \
+  ../db.h \
+  ../ChemDb/dbchem.h \
+  ../atom_properties.h \
+  ../atom_values.h
+SOURCES  = dbsurf.cpp \
+   ../db.cpp \
+   ../ChemDb/dbchem.cpp
 unix {
 LIBS         += -L/usr/local/gfortran/lib/ -lgfortran
  fortran.commands = /usr/bin/gfortran -c ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
