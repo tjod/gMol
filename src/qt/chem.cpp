@@ -349,6 +349,12 @@ void ChemWidget::addSurfStyleMenu(QMenu *styleMenu, int current_style, const cha
   if (current_style == STYLE_SURF_WATER) act->setChecked(true);
   act->setData(STYLE_SURF_WATER);
   g->addAction(act);
+  
+  act = styleMenu->addAction(tr("Custom"), this, slot);
+  act->setCheckable(true);
+  if (current_style == STYLE_SURF_CUSTOM) act->setChecked(true);
+  act->setData(STYLE_SURF_CUSTOM);
+  g->addAction(act);
 }
 
 void ChemWidget::addCartoonStyleMenu(QMenu *styleMenu, int current_style, const char *slot) {
@@ -415,7 +421,7 @@ void ChemWidget::createContextMenu(QTreeWidgetItem *item, int filter, QMenu *men
       addStyleMenu(styleMenu, currentRow.style, slot);
     } else if (filter == FILTER_RESIDUE) {
       addStyleMenu(styleMenu, STYLE_NONE, slot); // add residue option
-    } else if (currentRow.style == STYLE_SURF_MOL     || currentRow.style == STYLE_SURF_WATER) {
+    } else if (currentRow.style == STYLE_SURF_MOL || currentRow.style == STYLE_SURF_WATER || currentRow.style == STYLE_SURF_CUSTOM) {
       addSurfStyleMenu(styleMenu, currentRow.style, slot);
     } else if (currentRow.style == STYLE_CARTOON_THIN || currentRow.style == STYLE_CARTOON_THICK) {
       addCartoonStyleMenu(styleMenu, currentRow.style, slot);
@@ -440,7 +446,7 @@ void ChemWidget::createContextMenu(QTreeWidgetItem *item, int filter, QMenu *men
     }
   }
 
-  if (currentRow.style == STYLE_SURF_MOL || currentRow.style == STYLE_SURF_WATER) return;
+  if (currentRow.style == STYLE_SURF_MOL || currentRow.style == STYLE_SURF_WATER || currentRow.style == STYLE_SURF_CUSTOM) return;
   int nresidues = mol_query.nresidue;
   if (!item->parent()) {
     // root level
@@ -1061,7 +1067,7 @@ void ChemWidget::styleMol(int drawstyle) {
         QString molnam;
         if (currentRow.iatom != NOATOM && (currentRow.style == STYLE_ATOM_VDW || currentRow.style == STYLE_ATOM_SPHERE || currentRow.style == STYLE_ATOM_BALL)) {
             molnam = drawOneAtom(item);
-        } else  if (currentRow.style == STYLE_SURF_MOL || currentRow.style == STYLE_SURF_WATER) {
+        } else  if (currentRow.style == STYLE_SURF_MOL || currentRow.style == STYLE_SURF_WATER || currentRow.style == STYLE_SURF_CUSTOM) {
             if (sameStyle && currentRow.ignore == 0) {
                 drawSurface(currentRow.itemId);
                 molnam = currentRow.grampsName;
@@ -1499,7 +1505,7 @@ void ChemWidget::restore() {
 #endif
 					if (currentRow.ignore == 0) {
 						currentRow.ignore = 1;  // so as to prevent the forget command from being issued
-						if (currentRow.style == STYLE_SURF_WATER || currentRow.style == STYLE_SURF_MOL) {
+						if (currentRow.style == STYLE_SURF_WATER || currentRow.style == STYLE_SURF_MOL || currentRow.style == STYLE_SURF_CUSTOM) {
 							// no need to re-compute surface, just draw from db tables
 							drawSurface(currentRow.itemId);
 							insertOrGroup(currentRow.grampsName, parentRow);

@@ -82,17 +82,33 @@ int Nx,Ny,Nz; // number of cubes
 //Atom *atoms; // the atoms
 float rProbe;
 
-void usage();
 void vMarchingCubes(int nx, int ny, int nz, float fTargetValue);
 void vMarchCube1(int ix, int iy, int iz, float fTargetValue);
 void vMarchCube2(int ix, int iy, int iz, float fTargetValue);
-void makeSample(int nx, int ny, int nz, atomQuery atom);
+void makeSample(int nx, int ny, int nz, atomQuery atom, int ptype);
 
 #define PIX 1
 #define DB  3
+#define VDW 1
+#define GAUSS 2
+#define LJ 3
 QSqlQuery *addTriangle; // prepared in main, used in triangleOutput
 
-bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTargetValue, int *outtype, float *step, float *padding, float *rProbe) {
+void usage() {
+    std::cerr << "Usage: dbsurf <dbname> [options]" << std::endl;
+    std::cerr << "Options:          Description:" << std::endl;
+    std::cerr << "  -i              itemid in tree table" << std::endl;
+    std::cerr << "  -v              contour value" << std::endl;
+    std::cerr << "  -n              assign nearest atom (-db only)" << std::endl;
+    std::cerr << "  -db             output triangles to database" << std::endl;
+    std::cerr << "  -pix            output triangles to stdout" << std::endl;
+    std::cerr << "  -t >type>       vdW, Gauss or LJ" << std::endl;        
+    std::cerr << "  -s <stepsize>   step size" << std::endl;
+    std::cerr << "  -p <padding>    padding" << std::endl;
+    std::cerr << "  -r <radius>     probe radius" << std::endl;
+}
+
+bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTargetValue, int *outtype, int *ptype, float *step, float *padding, float *r) {
     
     if (argc < 2) return false;
     
@@ -115,12 +131,19 @@ bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTarget
 
         } else if ((option == "-s") && (argc > (i+1))) {
             *step = atof(argv[++i]);
-
+            
+        } else if ((option == "-t") && (argc > (i+1))) {
+            QString pname = QString::fromLocal8Bit(argv[++i]);
+            if      (pname.compare("vdW",   Qt::CaseInsensitive) == 0) *ptype = VDW;
+            else if (pname.compare("LJ",    Qt::CaseInsensitive) == 0) *ptype = LJ;
+            else if (pname.compare("Gauss", Qt::CaseInsensitive) == 0) *ptype = GAUSS;
+            //qDebug() << pname << *ptype;            
+            
         } else if ((option == "-p") && (argc > (i+1))) {
             *padding = atof(argv[++i]);
             
         } else if ((option == "-r") && (argc > (i+1))) {
-            *rProbe = atof(argv[++i]);
+            *r = atof(argv[++i]);
         }
     }
     return true;
@@ -134,7 +157,7 @@ int main(int argc, char **argv)
     rProbe = 0.0;
     int itemid = 0;
     QSqlDatabase db;
-    float padding = 3.0;
+    float padding = 4.0;
     QString dbname = "";
     int imol = 0;
     char chain = NOCHAIN;
@@ -143,12 +166,13 @@ int main(int argc, char **argv)
     int hydrogen = 0;
     int outtype = 0;
     float step = 0.25;
+    int ptype = VDW;
     
-    if (!getArgs(argc, argv, &dbname, &itemid, &fTargetValue, &outtype, &step, &padding, &rProbe)) {
+    if (!getArgs(argc, argv, &dbname, &itemid, &fTargetValue, &outtype, &ptype, &step, &padding, &rProbe)) {
         usage();
         exit(-1);
     }
-
+    
     if (!dbname.isEmpty()) {
         db = QSqlDatabase::addDatabase("QSQLITE");
         db.setDatabaseName(dbname);
@@ -178,7 +202,7 @@ int main(int argc, char **argv)
   
       /* addTriangle will be used by addtri */
       addTriangle = new QSqlQuery();
-      qDebug() << addTriangle->prepare("Insert Into tri_vertex (tid,atid,x,y,z,nx,ny,nz) Values (?,?,?,?,?,?,?,?)");
+      addTriangle->prepare("Insert Into tri_vertex (tid,atid,x,y,z,nx,ny,nz) Values (?,?,?,?,?,?,?,?)");
       db.transaction();
     }
     
@@ -189,20 +213,19 @@ int main(int argc, char **argv)
     
     float min[3], max[3], avg[3];  
     Db::molBounds(imol, resnum, chain, filter, min, max, avg);
-    corner.x = floor(min[0] - 3.);
-    corner.y = floor(min[1] - 3.);
-    corner.z = floor(min[2] - 3.);
-    Nx = ( ceil(max[0] + 3.) - floor(min[0] - 3.) ) / incs.x;
-    Ny = ( ceil(max[1] + 3.) - floor(min[1] - 3.) ) / incs.y;
-    Nz = ( ceil(max[2] + 3.) - floor(min[2] - 3.) ) / incs.z;
+    corner.x = floor(min[0] - padding);
+    corner.y = floor(min[1] - padding);
+    corner.z = floor(min[2] - padding);
+    Nx = ( ceil(max[0] + padding) - floor(min[0] - padding) ) / incs.x;
+    Ny = ( ceil(max[1] + padding) - floor(min[1] - padding) ) / incs.y;
+    Nz = ( ceil(max[2] + padding) - floor(min[2] - padding) ) / incs.z;
     
     //int Natoms = getAtoms(); // sets Nx,Ny,Nz,corner too
     fSample = Create3D<float>(Nx, Ny, Nz);
     int natom = 0;
     atomQuery atom = atomQuery();
     for (atom.iter(imol, resnum, chain, filter, hydrogen); atom.next(); ) {  
-       //computeGrid(fgrid, tags, atom_query, step, xDim, yDim, zDim, min);
-       makeSample(Nx, Ny, Nz, atom);       
+       makeSample(Nx, Ny, Nz, atom, ptype);       
        ++natom;
     }
     qDebug() << natom << "atoms.";
@@ -219,13 +242,15 @@ int main(int argc, char **argv)
         q.exec();
         q.finish();
         
+        q.exec("Create Index tri_xyz  On tri_vertex(x,y,z)");
         QString sql = "Create Temporary Table uniq_vertex As Select ? itemid,vid,atid,x,y,z,Avg(nx)nx,Avg(ny)ny,Avg(nz)nz From tri_vertex Group By x,y,z";
-        //QString sql = "Insert into vertex (itemid,vid,atid,x,y,z,nx,ny,nz) Select ?,vid,atid,x,y,z,nx,ny,nz From tri_vertex Group By x,y,z";        
+        //QString sql = "Create Temporary Table uniq_vertex As Select ? itemid,vid,atid,x,y,z,nx,ny,nz From tri_vertex Group By x,y,z";
         if (!q.prepare(sql)) Db::tellError(q, "prepare");
         q.bindValue(0,itemid);
         if (!q.exec()) Db::tellError(q, "exec");
         q.finish();
         
+        q.exec("Create Index uniq_xyz  On uniq_vertex(x,y,z)");        
         sql = "Insert Into triangle (itemid,atid,tid,tvid,vid) Select ?,v.atid,tid,v.vid,u.oid From tri_vertex v join uniq_vertex u Using (x,y,z)";
         if (!q.prepare(sql)) Db::tellError(q, "prepare");
         q.bindValue(0,itemid);
@@ -243,17 +268,6 @@ int main(int argc, char **argv)
     Delete3D(fSample);
     fprintf (stderr, "itemid=%d\n", itemid); // communicate id back to calling proc    
     return 1;
-}
-void usage() {
-    std::cerr << "Usage: dbsurf <dbname> [options]" << std::endl;
-    std::cerr << "Options:          Description:" << std::endl;
-    std::cerr << "  -i              itemid in tree table" << std::endl;
-    std::cerr << "  -v              contour value" << std::endl;
-    std::cerr << "  -n              assign nearest atom (-db only)" << std::endl;
-    std::cerr << "  -db             output triangles to database" << std::endl;
-    std::cerr << "  -pix            output triangles to stdout" << std::endl;
-    std::cerr << "  -s <stepsize>   step size" << std::endl;
-    std::cerr << "  -p <padding>    padding" << std::endl;
 }
 
 //fGetOffset finds the approximate point of intersection of the surface
@@ -303,7 +317,7 @@ float fLJ(atomQuery atom, float fX, float fY, float fZ)
     fDx = fX - atom.x;
     fDy = fY - atom.y;
     fDz = fZ - atom.z;
-    double sigmaOverRsquared = r*r / (fDx*fDx + fDy*fDy + fDz*fDz);
+    double sigmaOverRsquared = (r+rProbe)*(r+rProbe) / (fDx*fDx + fDy*fDy + fDz*fDz);
     fResult = pow(sigmaOverRsquared,6) - pow(sigmaOverRsquared,3);
     return fResult;
 }
@@ -336,16 +350,21 @@ float fvdW(atomQuery atom, float fX, float fY, float fZ)
     return fResult;
 }
 // fill the fSample array with data to be contoured
-void makeSample(int nx, int ny, int nz, atomQuery atom) {
+void makeSample(int nx, int ny, int nz, atomQuery atom, int ptype) {
     
     float x,y,z;
     for (int i=0; i<nx; ++i) {
-        x = corner.x + i*incs.x;        
+        x = corner.x + i*incs.x;
+        if ( abs(x-atom.x) > 4.0) continue; // should be 0 by then
         for (int j=0; j<ny; ++j) {
-            y = corner.y + j*incs.y;           
+            y = corner.y + j*incs.y;
+            if ( abs(y-atom.y) > 4.0) continue;
             for (int k=0; k<nz; ++k) {
                 z = corner.z + k*incs.z;
-                fSample[i][j][k] += fvdW(atom,x,y,z);
+                if ( abs(z - atom.z) > 4.0) continue;
+                if      (ptype == VDW)   fSample[i][j][k] += fvdW(atom,x,y,z);
+                else if (ptype == LJ)    fSample[i][j][k] += fLJ(atom,x,y,z);
+                else if (ptype == GAUSS) fSample[i][j][k] += fGauss(atom,x,y,z);
             }
         }
     }

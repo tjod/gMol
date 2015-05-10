@@ -42,13 +42,18 @@ C *************************************************************
 #define STYLE_SPHERE              6
 #define STYLE_STICKSANDCOLOREDHET 7
 //#define STYLE_COLOREDSTICKSANDHET 8
+
 #define STYLE_SURF_MOL            9
 #define STYLE_SURF_WATER          10
+#define STYLE_SURF_CUSTOM         17
+
 #define STYLE_CARTOON_THIN        11
 #define STYLE_CARTOON_THICK       12
+
 #define STYLE_ATOM_VDW            13
 #define STYLE_ATOM_SPHERE         14
 #define STYLE_ATOM_BALL           15
+
 #define STYLE_DUMMY               16
 #define STYLE_DEFAULT             STYLE_STICKSANDCOLOREDHET
 
@@ -105,6 +110,7 @@ private slots:
     void showMainSide(bool);
     void addSurfRow();
     void makeSurface();
+    void addSurface(int);
     void addFilterRow();
     void styleMol();
     void addResidue();

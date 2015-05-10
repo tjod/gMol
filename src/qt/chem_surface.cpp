@@ -84,17 +84,14 @@ void ChemWidget::surfReady(int /*exitcode*/) {
   QStringList msg = errout.split('\n');
   //if (exitcode) qDebug() << errout;
   int itemid = msg[msg.size()-2].split("=")[1].toInt(); // last line itemid=%d
-  //db.open();
   progress->setMaximum(100);
   progress->setValue(50);
-  //QSqlQuery query;
-  //query.exec("Pragma foreign_keys");
-  //query.next();
-  //qDebug() << "surfaceReady: foreign keys" << query.value(0).toInt();
   int err = drawSurface(itemid);
   progress->cancel();
-  if (err) {
-  } else {
+  if (!err) addSurface(itemid);
+}
+
+void ChemWidget::addSurface(int itemid) {
     //QString cmd;
     treeQuery t = treeQuery();
     t.getRow(itemid);    
@@ -110,13 +107,16 @@ void ChemWidget::surfReady(int /*exitcode*/) {
     treeQuery parent = treeQuery();
     parent.getRow(t.parentId);
     insertOrGroup(t.grampsName, parent);
-  }
-  //currentRow.ignore = 0;
-  //Db::updateTreeIgnore(itemid, 0);
 }
 
 void ChemWidget::makeSurface() {
   int style = currentRow.style;
+  if (style == STYLE_SURF_CUSTOM) {
+      // just redraw surface from current db tables; external run of dbsurf
+      int err = drawSurface(currentRow.itemId);
+      if (!err) addSurface(currentRow.itemId);
+      return;
+  }
   //addSurfRow(STYLE_SURF_MOL);
 #ifdef __APPLE__
   //QString prog = gmolLib + "/dbsurf";
@@ -129,10 +129,10 @@ void ChemWidget::makeSurface() {
   arguments << QSqlDatabase::database().databaseName() << "-db" << "-i" << QString::number(currentRow.itemId);
   QString title;
   if (style == STYLE_SURF_MOL) {
-    arguments << "-v" << QString::number(1.0) << "-s" << "0.75";  
+    arguments << "-v" << "1.0" << "-s" << "0.75";  
     title = "Molecular surface";
   } else if (style == STYLE_SURF_WATER) {
-    arguments << "-v" << QString::number(0.1) << "-s" << "0.75";  
+    arguments << "-v" << "1.0" << "-r" << QString::number(1.2) << "-p" << "5.0" << "-s" << "0.75";  
     title = "Water-accessible surface";
   } else {
     //  try to avoid this before calling drawSurface; even avoid putting it into ContextMenu
