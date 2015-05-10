@@ -17,7 +17,9 @@ gmol-*/
 gmol.app
 dbchem
 dbsurf
+tetsurf
 build-gmol-Qt_5_3_2_clang_64-Debug/
 *.pro.user*
 ui_controls.h
+deployment.pri
 .DS_Store
