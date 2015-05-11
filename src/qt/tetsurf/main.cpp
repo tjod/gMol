@@ -1,29 +1,25 @@
-//
+// based heavily on
 // Marching Cubes Example Program 
 // by Cory Bloyd (corysama@yahoo.com)
 //
 // A simple, portable and complete implementation of the Marching Cubes
 // and Marching Tetrahedrons algorithms in a single source file.
-// There are many ways that this code could be made faster, but the 
-// intent is for the code to be easy to understand.
 //
 // For a description of the algorithm go to
 // http://astronomy.swin.edu.au/pbourke/modelling/polygonise/
-//
-// This code is public domain.
 //
 #include "atom_properties.h"
 #include "atom_values.h"
 #include "db.h"
 #include "dbchem.h"
 #include <QApplication>
+QString gmolLib;
+
 #include "stdio.h"
 #include <iostream>
 #include "math.h"
-#include "types.h"
 #include "stdlib.h"
-
-QString gmolLib;
+#include "types.h"
 
 //These tables are used so that everything can be done in little loops that you can look at all at once
 // rather than in pages and pages of unrolled code.
@@ -75,25 +71,32 @@ static const int a2iTetrahedronsInACube[6][4] =
     {0,4,5,6},
 };
 
-float ***fSample; // the data grid
+gridValue ***fSample; // the data grid
 Point corner; // the start point of the grid
 Point incs; // the increments along the grid
 int Nx,Ny,Nz; // number of cubes
-//Atom *atoms; // the atoms
 float rProbe;
 
-void vMarchingCubes(int nx, int ny, int nz, float fTargetValue);
-void vMarchCube1(int ix, int iy, int iz, float fTargetValue);
-void vMarchCube2(int ix, int iy, int iz, float fTargetValue);
-void makeSample(int nx, int ny, int nz, atomQuery atom, int ptype);
+// which algorithm to use: marching cubes or tetrahedra
+void vMarchCube1(int ix, int iy, int iz, float fTargetValue); // marching cubes
+void vMarchCube2(int ix, int iy, int iz, float fTargetValue); // marching tetrahedra
+void (*vMarchCube)(int ix, int iy, int iz, float fTargetValue) = vMarchCube1;
+void vMarch(int nx, int ny, int nz, float fTargetValue);
+
+// which potential energy function to use
+float fvdW(atomQuery atom, float fX, float fY, float fZ);
+float fLJ(atomQuery atom, float fX, float fY, float fZ);
+float fGauss(atomQuery atom, float fX, float fY, float fZ);
+float (*fMakeSample)(atomQuery atom, float fX, float fY, float fZ) = fvdW;
+void makeSample(int nx, int ny, int nz, atomQuery atom);
+
+QSqlQuery *addTriangle; // prepared in main, used in triangleOutput
 
 #define PIX 1
 #define DB  3
 #define VDW 1
 #define GAUSS 2
 #define LJ 3
-QSqlQuery *addTriangle; // prepared in main, used in triangleOutput
-
 void usage() {
     std::cerr << "Usage: dbsurf <dbname> [options]" << std::endl;
     std::cerr << "Options:          Description:" << std::endl;
@@ -102,13 +105,15 @@ void usage() {
     std::cerr << "  -n              assign nearest atom (-db only)" << std::endl;
     std::cerr << "  -db             output triangles to database" << std::endl;
     std::cerr << "  -pix            output triangles to stdout" << std::endl;
-    std::cerr << "  -t >type>       vdW, Gauss or LJ" << std::endl;        
+    std::cerr << "  -m              use marching cubes" << std::endl;
+    std::cerr << "  -t              use marching tetrahedra" << std::endl;
+    std::cerr << "  -t <type>       potential energy function: vdW, LJ or Gauss" << std::endl;    
     std::cerr << "  -s <stepsize>   step size" << std::endl;
     std::cerr << "  -p <padding>    padding" << std::endl;
     std::cerr << "  -r <radius>     probe radius" << std::endl;
 }
 
-bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTargetValue, int *outtype, int *ptype, float *step, float *padding, float *r) {
+bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTargetValue, int *outtype, float *step, float *padding, float *r) {
     
     if (argc < 2) return false;
     
@@ -132,12 +137,18 @@ bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTarget
         } else if ((option == "-s") && (argc > (i+1))) {
             *step = atof(argv[++i]);
             
-        } else if ((option == "-t") && (argc > (i+1))) {
+        } else if ((option == "-f") && (argc > (i+1))) {
             QString pname = QString::fromLocal8Bit(argv[++i]);
-            if      (pname.compare("vdW",   Qt::CaseInsensitive) == 0) *ptype = VDW;
-            else if (pname.compare("LJ",    Qt::CaseInsensitive) == 0) *ptype = LJ;
-            else if (pname.compare("Gauss", Qt::CaseInsensitive) == 0) *ptype = GAUSS;
-            //qDebug() << pname << *ptype;            
+            if      (pname.compare("vdW",   Qt::CaseInsensitive) == 0) fMakeSample = fvdW;
+            else if (pname.compare("LJ",    Qt::CaseInsensitive) == 0) fMakeSample = fLJ;
+            else if (pname.compare("Gauss", Qt::CaseInsensitive) == 0) fMakeSample = fGauss;
+            //qDebug() << pname << *ptype;
+            
+        } else if (option == "-m") {
+            vMarchCube = vMarchCube1;
+            
+        } else if (option == "-t") {
+            vMarchCube = vMarchCube2;
             
         } else if ((option == "-p") && (argc > (i+1))) {
             *padding = atof(argv[++i]);
@@ -149,30 +160,65 @@ bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTarget
     return true;
 }
 
+void dbstart() {
+    QSqlQuery q;
+    q.exec("Create Table If Not Exists vertex (itemid Integer, vid Integer, atid Integer, x Real, y Real, z Real, nx Real, ny Real, nz Real, Unique (itemid,vid) Foreign Key (itemid) References tree (itemid) On Delete Cascade)");
+    q.exec("Create Table If Not Exists triangle (itemid Integer, atid Integer, tid Integer, tvid Integer, vid Integer, Foreign Key (itemid) References tree (itemid) On Delete Cascade)");
+    q.exec("Create Temporary Table If Not Exists tri_vertex (vid Integer Primary Key, tid Integer, atid Integer, x Real, y Real, z Real, nx Real, ny Real, nz Real)");
+    //q.exec("Delete From tmp_vertex");
+
+    /* addTriangle will be used by addtri */
+    addTriangle = new QSqlQuery();
+    addTriangle->prepare("Insert Into tri_vertex (tid,atid,x,y,z,nx,ny,nz) Values (?,?,?,?,?,?,?,?)");
+}
+void dbfinish(int itemid) {
+    QSqlQuery q;
+    q.prepare("Delete From vertex Where itemid=?");
+    q.bindValue(0,itemid);
+    q.exec();
+    q.finish();
+    q.prepare("Delete From triangle Where itemid=?");
+    q.bindValue(0,itemid);
+    q.exec();
+    q.finish();
+    
+    //q.exec("Create Index tri_xyz  On tri_vertex(x,y,z)");
+    QString sql = "Create Temporary Table uniq_vertex As Select ? itemid,vid,atid,x,y,z,Avg(nx)nx,Avg(ny)ny,Avg(nz)nz From tri_vertex Group By x,y,z";
+    //QString sql = "Create Temporary Table uniq_vertex As Select ? itemid,vid,atid,x,y,z,nx,ny,nz From tri_vertex Group By x,y,z";
+    if (!q.prepare(sql)) Db::tellError(q, "prepare");
+    q.bindValue(0,itemid);
+    if (!q.exec()) Db::tellError(q, "exec");
+    q.finish();
+    
+    //q.exec("Create Index uniq_xyz  On uniq_vertex(x,y,z)");        
+    sql = "Insert Into triangle (itemid,atid,tid,tvid,vid) Select ?,v.atid,tid,v.vid,u.oid From tri_vertex v join uniq_vertex u Using (x,y,z)";
+    if (!q.prepare(sql)) Db::tellError(q, "prepare");
+    q.bindValue(0,itemid);
+    if (!q.exec()) Db::tellError(q, "exec");
+    q.finish();
+    
+    sql = "Insert into vertex (itemid,vid,atid,x,y,z,nx,ny,nz) Select itemid,vid,atid,x,y,z,nx,ny,nz From uniq_vertex";
+    if (!q.exec(sql)) Db::tellError(q, "exec");
+    q.finish();
+}
+
 int main(int argc, char **argv) 
 {
     QApplication app(argc, argv); // needed to get SQLITE plugin to work
     
-    float fTargetValue = 1.0;
-    rProbe = 0.0;
-    int itemid = 0;
-    QSqlDatabase db;
-    float padding = 4.0;
-    QString dbname = "";
-    int imol = 0;
-    char chain = NOCHAIN;
-    int resnum = NORESNUM;
-    int filter = 0;
-    int hydrogen = 0;
-    int outtype = 0;
-    float step = 0.25;
-    int ptype = VDW;
+    float fTargetValue = 1.0; // countour value
+    rProbe = 0.0; // probe radius
+    int itemid = 0; // from the gMol tree table
+    float padding = 4.0; // padding around atom extremes
+    float step = 0.75; // size of cubes
+    int outtype = 0;  // output to db, or stdout in pix file format
     
-    if (!getArgs(argc, argv, &dbname, &itemid, &fTargetValue, &outtype, &ptype, &step, &padding, &rProbe)) {
+    QSqlDatabase db;
+    QString dbname = "";
+    if (!getArgs(argc, argv, &dbname, &itemid, &fTargetValue, &outtype, &step, &padding, &rProbe)) {
         usage();
         exit(-1);
     }
-    
     if (!dbname.isEmpty()) {
         db = QSqlDatabase::addDatabase("QSQLITE");
         db.setDatabaseName(dbname);
@@ -184,6 +230,11 @@ int main(int argc, char **argv)
         q.exec("Pragma foreign_keys = ON");
     }
  
+    int imol = 0;
+    char chain = NOCHAIN;
+    int resnum = NORESNUM;
+    int filter = 0;
+    int hydrogen = 0;
     if (itemid) {
       treeQuery item;
       item.getRow(itemid);
@@ -194,17 +245,9 @@ int main(int argc, char **argv)
       hydrogen = item.hydrogens;
     }
     if (outtype == DB) {
-      QSqlQuery q;
-      q.exec("Create Table If Not Exists vertex (itemid Integer, vid Integer, atid Integer, x Real, y Real, z Real, nx Real, ny Real, nz Real, Unique (itemid,vid) Foreign Key (itemid) References tree (itemid) On Delete Cascade)");
-      q.exec("Create Table If Not Exists triangle (itemid Integer, atid Integer, tid Integer, tvid Integer, vid Integer, Foreign Key (itemid) References tree (itemid) On Delete Cascade)");
-      q.exec("Create Temporary Table If Not Exists tri_vertex (vid Integer Primary Key, tid Integer, atid Integer, x Real, y Real, z Real, nx Real, ny Real, nz Real)");
-      //q.exec("Delete From tmp_vertex");
-  
-      /* addTriangle will be used by addtri */
-      addTriangle = new QSqlQuery();
-      addTriangle->prepare("Insert Into tri_vertex (tid,atid,x,y,z,nx,ny,nz) Values (?,?,?,?,?,?,?,?)");
-      db.transaction();
-    }
+        dbstart();
+        db.transaction();
+    }        
     
     // size of each grid cube
     incs.x = step;
@@ -220,47 +263,19 @@ int main(int argc, char **argv)
     Ny = ( ceil(max[1] + padding) - floor(min[1] - padding) ) / incs.y;
     Nz = ( ceil(max[2] + padding) - floor(min[2] - padding) ) / incs.z;
     
-    //int Natoms = getAtoms(); // sets Nx,Ny,Nz,corner too
-    fSample = Create3D<float>(Nx, Ny, Nz);
+    fSample = Create3D<gridValue>(Nx, Ny, Nz);
     int natom = 0;
     atomQuery atom = atomQuery();
     for (atom.iter(imol, resnum, chain, filter, hydrogen); atom.next(); ) {  
-       makeSample(Nx, Ny, Nz, atom, ptype);       
+       makeSample(Nx, Ny, Nz, atom);       
        ++natom;
     }
     qDebug() << natom << "atoms.";
-    vMarchingCubes(Nx-1, Ny-1, Nz-1, fTargetValue);
+    
+    vMarch(Nx-1, Ny-1, Nz-1, fTargetValue);
     
     if (outtype == DB) {
-        QSqlQuery q;
-        q.prepare("Delete From vertex Where itemid=?");
-        q.bindValue(0,itemid);
-        q.exec();
-        q.finish();
-        q.prepare("Delete From triangle Where itemid=?");
-        q.bindValue(0,itemid);
-        q.exec();
-        q.finish();
-        
-        q.exec("Create Index tri_xyz  On tri_vertex(x,y,z)");
-        QString sql = "Create Temporary Table uniq_vertex As Select ? itemid,vid,atid,x,y,z,Avg(nx)nx,Avg(ny)ny,Avg(nz)nz From tri_vertex Group By x,y,z";
-        //QString sql = "Create Temporary Table uniq_vertex As Select ? itemid,vid,atid,x,y,z,nx,ny,nz From tri_vertex Group By x,y,z";
-        if (!q.prepare(sql)) Db::tellError(q, "prepare");
-        q.bindValue(0,itemid);
-        if (!q.exec()) Db::tellError(q, "exec");
-        q.finish();
-        
-        q.exec("Create Index uniq_xyz  On uniq_vertex(x,y,z)");        
-        sql = "Insert Into triangle (itemid,atid,tid,tvid,vid) Select ?,v.atid,tid,v.vid,u.oid From tri_vertex v join uniq_vertex u Using (x,y,z)";
-        if (!q.prepare(sql)) Db::tellError(q, "prepare");
-        q.bindValue(0,itemid);
-        if (!q.exec()) Db::tellError(q, "exec");
-        q.finish();
-        
-        sql = "Insert into vertex (itemid,vid,atid,x,y,z,nx,ny,nz) Select itemid,vid,atid,x,y,z,nx,ny,nz From uniq_vertex";
-        if (!q.exec(sql)) Db::tellError(q, "exec");
-        q.finish();
-                
+        dbfinish(itemid);        
         db.commit();
         db.close();
     }
@@ -350,9 +365,10 @@ float fvdW(atomQuery atom, float fX, float fY, float fZ)
     return fResult;
 }
 // fill the fSample array with data to be contoured
-void makeSample(int nx, int ny, int nz, atomQuery atom, int ptype) {
+void makeSample(int nx, int ny, int nz, atomQuery atom) {
     
     float x,y,z;
+    float fval;
     for (int i=0; i<nx; ++i) {
         x = corner.x + i*incs.x;
         if ( abs(x-atom.x) > 4.0) continue; // should be 0 by then
@@ -362,9 +378,9 @@ void makeSample(int nx, int ny, int nz, atomQuery atom, int ptype) {
             for (int k=0; k<nz; ++k) {
                 z = corner.z + k*incs.z;
                 if ( abs(z - atom.z) > 4.0) continue;
-                if      (ptype == VDW)   fSample[i][j][k] += fvdW(atom,x,y,z);
-                else if (ptype == LJ)    fSample[i][j][k] += fLJ(atom,x,y,z);
-                else if (ptype == GAUSS) fSample[i][j][k] += fGauss(atom,x,y,z);
+                fval = fMakeSample(atom,x,y,z);
+                if (fval > fSample[i][j][k].value)  fSample[i][j][k].ownAtom = atom.atid;
+                fSample[i][j][k].value += fval;
             }
         }
     }
@@ -396,9 +412,9 @@ Point vGetNormal(Point v[3]) {
 // gets the gradient of the sample data at a Point
 void vGetNormal(Point &rfNormal, int ix, int iy, int iz)
 {
-    rfNormal.x = fSample[ix-1][iy][iz] - fSample[ix+1][iy][iz]; //(fX-0.01, fY, fZ) - fSample(fX+0.01, fY, fZ);
-    rfNormal.y = fSample[ix][iy-1][iz] - fSample[ix][iy+1][iz]; //(fX, fY-0.01, fZ) - fSample(fX, fY+0.01, fZ);
-    rfNormal.z = fSample[ix][iy][iz-1] - fSample[ix][iy][iz+1]; //(fX, fY, fZ-0.01) - fSample(fX, fY, fZ+0.01);
+    rfNormal.x = fSample[ix-1][iy][iz].value - fSample[ix+1][iy][iz].value; //(fX-0.01, fY, fZ) - fSample(fX+0.01, fY, fZ);
+    rfNormal.y = fSample[ix][iy-1][iz].value - fSample[ix][iy+1][iz].value; //(fX, fY-0.01, fZ) - fSample(fX, fY+0.01, fZ);
+    rfNormal.z = fSample[ix][iy][iz-1].value - fSample[ix][iy][iz+1].value; //(fX, fY, fZ-0.01) - fSample(fX, fY, fZ+0.01);
     vNormalizeVector(rfNormal, rfNormal);
 }
 void vertexNormalOutput(Point Edge, Point Norm) {
@@ -406,14 +422,14 @@ void vertexNormalOutput(Point Edge, Point Norm) {
     //printf("%f,%f,%f\n", Edge.x, Edge.y, Edge.z);    
 }
 int Ntri = 0;
-void triangleOutput(Point v[3]) {
+void triangleOutput(Point v[3], int owner) {
     ++Ntri;
     //printf("3,6,1\n");    
     Point normal = vGetNormal(v);
     for (int i=0; i<3; ++i) {
         //printf("%f,%f,%f %f,%f,%f\n", v[i].x, v[i].y, v[i].z, normal.x, normal.y, normal.z);
         addTriangle->addBindValue(Ntri);
-        addTriangle->addBindValue(0); // atom id        
+        addTriangle->addBindValue(owner); // atom id        
         addTriangle->addBindValue(v[i].x);
         addTriangle->addBindValue(v[i].y);
         addTriangle->addBindValue(v[i].z);
@@ -435,13 +451,18 @@ void vMarchCube1(int ix, int iy, int iz, float fTargetValue)
     Point asEdgeVertex[12];
     //Point asEdgeNorm[12];
     
+    int owner = 0;
     //Make a local copy of the values at the cube's corners
     for(iVertex = 0; iVertex < 8; iVertex++)
     {
         afCubeValue[iVertex] = fSample
                 [ix+a2iVertexOffset[iVertex][0]]
                 [iy+a2iVertexOffset[iVertex][1]]
-                [iz+a2iVertexOffset[iVertex][2]];
+                [iz+a2iVertexOffset[iVertex][2]].value;
+        owner = std::max(owner, fSample
+                        [ix+a2iVertexOffset[iVertex][0]]
+                        [iy+a2iVertexOffset[iVertex][1]]
+                        [iz+a2iVertexOffset[iVertex][2]].ownAtom);
     }
     
     // the coordinates of the cube bottom corner
@@ -497,12 +518,12 @@ void vMarchCube1(int ix, int iy, int iz, float fTargetValue)
             //vertexNormalOutput(asEdgeVertex[iVertex], asEdgeNorm[iVertex]);
             tri[iCorner] = asEdgeVertex[iVertex];
         }
-        triangleOutput(tri);        
+        triangleOutput(tri, owner);        
     }
 }
 
 //vMarchTetrahedron performs the Marching Tetrahedrons algorithm on a single tetrahedron
-void vMarchTetrahedron(Point *pasTetrahedronPosition, float *pafTetrahedronValue, float fTargetValue)
+void vMarchTetrahedron(Point *pasTetrahedronPosition, float *pafTetrahedronValue, float fTargetValue, int owner)
 {
         extern int aiTetrahedronEdgeFlags[16];
         extern int a2iTetrahedronTriangles[16][7];
@@ -559,7 +580,7 @@ void vMarchTetrahedron(Point *pasTetrahedronPosition, float *pafTetrahedronValue
                         int iVertex = a2iTetrahedronTriangles[iFlagIndex][3*iTriangle+iCorner];
                         tri[iCorner] = asEdgeVertex[iVertex];     
                 }
-                triangleOutput(tri);                
+                triangleOutput(tri, owner);                
         }
 }
 
@@ -587,13 +608,18 @@ void vMarchCube2(int ix, int iy, int iz, float fTargetValue)
                 asCubePosition[iVertex].z = fZ + a2fVertexOffset[iVertex][2]*incs.z;
         }
 
+        int owner = 0;
         //Make a local copy of the cube's corner values
         for(int iVertex = 0; iVertex < 8; iVertex++)
         {
                 afCubeValue[iVertex] = fSample
                         [ix+a2iVertexOffset[iVertex][0]]
                         [iy+a2iVertexOffset[iVertex][1]]
-                        [iz+a2iVertexOffset[iVertex][2]];
+                        [iz+a2iVertexOffset[iVertex][2]].value;
+                owner = std::max(owner, fSample
+                                [ix+a2iVertexOffset[iVertex][0]]
+                                [iy+a2iVertexOffset[iVertex][1]]
+                                [iz+a2iVertexOffset[iVertex][2]].ownAtom);
         }
 
         for(iTetrahedron = 0; iTetrahedron < 6; iTetrahedron++)
@@ -606,18 +632,18 @@ void vMarchCube2(int ix, int iy, int iz, float fTargetValue)
                         asTetrahedronPosition[iVertex].z = asCubePosition[iVertexInACube].z;
                         afTetrahedronValue[iVertex] = afCubeValue[iVertexInACube];
                 }
-                vMarchTetrahedron(asTetrahedronPosition, afTetrahedronValue, fTargetValue);
+                vMarchTetrahedron(asTetrahedronPosition, afTetrahedronValue, fTargetValue, owner);
         }
 }
 
-//vMarchingCubes iterates over the entire dataset, calling vMarchCube on each cube
-void vMarchingCubes(int nx, int ny, int nz, float fTargetValue)
+//vMarch iterates over the entire dataset, calling vMarchCube on each cube
+void vMarch(int nx, int ny, int nz, float fTargetValue)
 {
     for(int iX = 1; iX < nx; iX++)
         for(int iY = 1; iY < ny; iY++)
             for(int iZ = 1; iZ < nz; iZ++)
             {
-                vMarchCube1(iX, iY, iZ, fTargetValue);
+                vMarchCube(iX, iY, iZ, fTargetValue);
             }
 }
 

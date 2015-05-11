@@ -7,6 +7,11 @@ typedef struct {
 	float z;
 } Point;
 
+typedef struct {
+    float value;
+    int ownAtom;
+} gridValue;
+
 //typedef struct {
 //    float x;
 //    float y;

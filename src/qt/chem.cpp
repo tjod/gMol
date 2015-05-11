@@ -102,7 +102,7 @@ int ChemWidget::setItemsFromPick(QTreeWidgetItem *item, grampsPick gp) {
 }
 
 void ChemWidget::showPick(const QPoint & /*globalP*/, grampsPick gp) {
-    // single click on a gramps molecule object; just show it path and coord
+    // single click on a gramps molecule object; just show its path and coord
     QTreeWidgetItem *item = getGrampsItem(gp.name);
     if (item) {
         setItemsFromPick(item, gp);
@@ -112,7 +112,7 @@ void ChemWidget::showPick(const QPoint & /*globalP*/, grampsPick gp) {
         // let's show the gramps picked coord here instead of the picked (nearest) atom
         //emit msgReady(path.join(":")+xyz);
     }
-    if (idname_("scube",5)) emit cmdReady("forget scube");            
+    //if (idname_("scube",5)) emit cmdReady("forget scube");            
     QString xyz;    
     QTextStream(&xyz) << gp.name << "@@" << gp.xyzw[0] << "," << gp.xyzw[1] << "," << gp.xyzw[2]; // << "; " << pickedAtom.nfound << " atoms within " << pickedAtom.frange << QChar(0x212B);
     emit msgReady(xyz);    
@@ -135,10 +135,10 @@ QString ChemWidget::processPick(QTreeWidgetItem* item, grampsPick gp) {
     QString xyz;
     QTextStream(&xyz) << "@" << pickedAtom.x << "," << pickedAtom.y << "," << pickedAtom.z << "; " << pickedAtom.nfound << " atoms within " << pickedAtom.frange << QChar(0x212B);
     emit msgReady(path.join(":")+xyz);
-    if (idname_("scube",5)) emit cmdReady("forget scube");
-    QString cmd;
-    QTextStream(&cmd) << "showpick scube " << gp.xyzw[0] << "," << gp.xyzw[1] << "," << gp.xyzw[2] << "," << pickedAtom.frange;
-    emit cmdReady(cmd);
+    //if (idname_("scube",5)) emit cmdReady("forget scube");
+    //QString cmd;
+    //QTextStream(&cmd) << "showpick scube " << gp.xyzw[0] << "," << gp.xyzw[1] << "," << gp.xyzw[2] << "," << pickedAtom.frange;
+    //emit cmdReady(cmd);
     return path[0];
 }
 
