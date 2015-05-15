@@ -78,25 +78,28 @@ int Nx,Ny,Nz; // number of cubes
 float rProbe;
 
 // which algorithm to use: marching cubes or tetrahedra
-void vMarchCube1(int ix, int iy, int iz, float fTargetValue); // marching cubes
-void vMarchCube2(int ix, int iy, int iz, float fTargetValue); // marching tetrahedra
-void (*vMarchCube)(int ix, int iy, int iz, float fTargetValue) = vMarchCube1;
-void vMarch(int nx, int ny, int nz, float fTargetValue);
+void vMarchCube1(int ix, int iy, int iz, float fTargetValue, bool gradients); // marching cubes
+void vMarchCube2(int ix, int iy, int iz, float fTargetValue, bool gradients); // marching tetrahedra
+void (*vMarchCube)(int ix, int iy, int iz, float fTargetValue, bool gradients) = vMarchCube1;
+void vMarch(int nx, int ny, int nz, float fTargetValue, bool gradients);
 
 // which potential energy function to use
 float fvdW(atomQuery atom, float fX, float fY, float fZ);
 float fLJ(atomQuery atom, float fX, float fY, float fZ);
 float fGauss(atomQuery atom, float fX, float fY, float fZ);
-float (*fMakeSample)(atomQuery atom, float fX, float fY, float fZ) = fvdW;
-void makeSample(int nx, int ny, int nz, atomQuery atom);
+float (*fSampleValue)(atomQuery atom, float fX, float fY, float fZ) = fvdW;
+void makeSample(atomQuery atom, int nx, int ny, int nz);
 
 QSqlQuery *addTriangle; // prepared in main, used in triangleOutput
+atomQuery *atom; // prepared in main, used in triangleOutput
 
 #define PIX 1
 #define DB  3
 #define VDW 1
 #define GAUSS 2
 #define LJ 3
+#define MINDIST 4.0 // greater than this, assume no energy contribution from atom
+
 void usage() {
     std::cerr << "Usage: dbsurf <dbname> [options]" << std::endl;
     std::cerr << "Options:          Description:" << std::endl;
@@ -107,13 +110,15 @@ void usage() {
     std::cerr << "  -pix            output triangles to stdout" << std::endl;
     std::cerr << "  -m              use marching cubes" << std::endl;
     std::cerr << "  -t              use marching tetrahedra" << std::endl;
-    std::cerr << "  -t <type>       potential energy function: vdW, LJ or Gauss" << std::endl;    
+    std::cerr << "  -g              use gradient normals (slower); no effect with -t" << std::endl;
+    std::cerr << "  -f <type>       potential energy function: vdW, LJ or Gauss" << std::endl;    
     std::cerr << "  -s <stepsize>   step size" << std::endl;
     std::cerr << "  -p <padding>    padding" << std::endl;
     std::cerr << "  -r <radius>     probe radius" << std::endl;
 }
 
-bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTargetValue, int *outtype, float *step, float *padding, float *r) {
+bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTargetValue, int *outtype,
+             float *step, float *padding, float *r, bool *gradients) {
     
     if (argc < 2) return false;
     
@@ -139,9 +144,9 @@ bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTarget
             
         } else if ((option == "-f") && (argc > (i+1))) {
             QString pname = QString::fromLocal8Bit(argv[++i]);
-            if      (pname.compare("vdW",   Qt::CaseInsensitive) == 0) fMakeSample = fvdW;
-            else if (pname.compare("LJ",    Qt::CaseInsensitive) == 0) fMakeSample = fLJ;
-            else if (pname.compare("Gauss", Qt::CaseInsensitive) == 0) fMakeSample = fGauss;
+            if      (pname.compare("vdW",   Qt::CaseInsensitive) == 0) fSampleValue = fvdW;
+            else if (pname.compare("LJ",    Qt::CaseInsensitive) == 0) fSampleValue = fLJ;
+            else if (pname.compare("Gauss", Qt::CaseInsensitive) == 0) fSampleValue = fGauss;
             //qDebug() << pname << *ptype;
             
         } else if (option == "-m") {
@@ -149,6 +154,9 @@ bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTarget
             
         } else if (option == "-t") {
             vMarchCube = vMarchCube2;
+            
+        } else if (option == "-g") {
+            *gradients = true;
             
         } else if ((option == "-p") && (argc > (i+1))) {
             *padding = atof(argv[++i]);
@@ -212,10 +220,11 @@ int main(int argc, char **argv)
     float padding = 4.0; // padding around atom extremes
     float step = 0.75; // size of cubes
     int outtype = 0;  // output to db, or stdout in pix file format
+    bool gradients = false;
     
     QSqlDatabase db;
     QString dbname = "";
-    if (!getArgs(argc, argv, &dbname, &itemid, &fTargetValue, &outtype, &step, &padding, &rProbe)) {
+    if (!getArgs(argc, argv, &dbname, &itemid, &fTargetValue, &outtype, &step, &padding, &rProbe, &gradients)) {
         usage();
         exit(-1);
     }
@@ -265,23 +274,24 @@ int main(int argc, char **argv)
     
     fSample = Create3D<gridValue>(Nx, Ny, Nz);
     int natom = 0;
-    atomQuery atom = atomQuery();
-    for (atom.iter(imol, resnum, chain, filter, hydrogen); atom.next(); ) {  
-       makeSample(Nx, Ny, Nz, atom);       
+    atom = new atomQuery();
+    atom->iter(imol, resnum, chain, filter, hydrogen);
+    for (; atom->next() ; ) {  
+       makeSample(*atom, Nx, Ny, Nz);       
        ++natom;
     }
     qDebug() << natom << "atoms.";
     
-    vMarch(Nx-1, Ny-1, Nz-1, fTargetValue);
+    vMarch(Nx-1, Ny-1, Nz-1, fTargetValue, gradients);
     
     if (outtype == DB) {
-        dbfinish(itemid);        
+        dbfinish(itemid);
         db.commit();
         db.close();
     }
   
     Delete3D(fSample);
-    fprintf (stderr, "itemid=%d\n", itemid); // communicate id back to calling proc    
+    fprintf (stderr, "itemid=%d\n", itemid); // communicate id back to calling proc
     return 1;
 }
 
@@ -327,12 +337,12 @@ float fLJ(atomQuery atom, float fX, float fY, float fZ)
 {
     // suggested contour 0.0
     double fResult = 0.0;
-    float r = Atom::radius[atom.atnum];
+    float r = Atom::radius[atom.atnum] + rProbe;
     double fDx, fDy, fDz;
     fDx = fX - atom.x;
     fDy = fY - atom.y;
     fDz = fZ - atom.z;
-    double sigmaOverRsquared = (r+rProbe)*(r+rProbe) / (fDx*fDx + fDy*fDy + fDz*fDz);
+    double sigmaOverRsquared = (r*r) / (fDx*fDx + fDy*fDy + fDz*fDz);
     fResult = pow(sigmaOverRsquared,6) - pow(sigmaOverRsquared,3);
     return fResult;
 }
@@ -342,12 +352,12 @@ float fGauss(atomQuery atom, float fX, float fY, float fZ)
     // https://bionano.cent.uw.edu.pl/Software/SurfaceDiver/UsersManual/Surface
     // suggested contour 1.0
     double fResult = 0.0;
-    float r = Atom::radius[atom.atnum];    
+    float r = Atom::radius[atom.atnum] + rProbe;    
     double fDx, fDy, fDz;
     fDx = fX - atom.x;
     fDy = fY - atom.y;
     fDz = fZ - atom.z;
-    fResult =  2.0 * exp( -log2(2.0) * ((fDx*fDx + fDy*fDy + fDz*fDz) / (r*r)) );
+    fResult =  2.0 * exp( -log2(2.0) * (fDx*fDx + fDy*fDy + fDz*fDz) / (r*r) );
     return fResult;
 }
 // van der Waal's potential
@@ -355,32 +365,33 @@ float fvdW(atomQuery atom, float fX, float fY, float fZ)
 {
     // suggested contour 1.0
     double fResult = 0.0;
-    float r = Atom::radius[atom.atnum];    
+    float r = Atom::radius[atom.atnum] + rProbe;    
     double fDx, fDy, fDz;
     fDx = fX - atom.x;
     fDy = fY - atom.y;
     fDz = fZ - atom.z;
-    double sigmaOverRsquared = (r+rProbe)*(r+rProbe) / (fDx*fDx + fDy*fDy + fDz*fDz);   
+    double sigmaOverRsquared = (r*r) / (fDx*fDx + fDy*fDy + fDz*fDz);   
     fResult = pow(sigmaOverRsquared,3);
     return fResult;
 }
 // fill the fSample array with data to be contoured
-void makeSample(int nx, int ny, int nz, atomQuery atom) {
+void makeSample(atomQuery atom, int nx, int ny, int nz) {
     
     float x,y,z;
     float fval;
+    //Point gradient;
     for (int i=0; i<nx; ++i) {
         x = corner.x + i*incs.x;
-        if ( abs(x-atom.x) > 4.0) continue; // should be 0 by then
+        if ( abs(x-atom.x) > MINDIST) continue; // should be 0 by then
         for (int j=0; j<ny; ++j) {
             y = corner.y + j*incs.y;
-            if ( abs(y-atom.y) > 4.0) continue;
+            if ( abs(y-atom.y) > MINDIST) continue;
             for (int k=0; k<nz; ++k) {
                 z = corner.z + k*incs.z;
-                if ( abs(z - atom.z) > 4.0) continue;
-                fval = fMakeSample(atom,x,y,z);
-                if (fval > fSample[i][j][k].value)  fSample[i][j][k].ownAtom = atom.atid;
-                fSample[i][j][k].value += fval;
+                if ( abs(z - atom.z) > MINDIST) continue;
+                fval = fSampleValue(atom,x,y,z);
+                if (fval > fSample[i][j][k].value) fSample[i][j][k].ownAtom = atom.atid;
+                fSample[i][j][k].value += fval;             
             }
         }
     }
@@ -409,19 +420,44 @@ Point vGetNormal(Point v[3]) {
     }
     return normal;
 }
+
 // gets the gradient of the sample data at a Point
-void vGetNormal(Point &rfNormal, int ix, int iy, int iz)
+void vGetNormal(Point &rfNormal, Point &rfEdge)
 {
-    rfNormal.x = fSample[ix-1][iy][iz].value - fSample[ix+1][iy][iz].value; //(fX-0.01, fY, fZ) - fSample(fX+0.01, fY, fZ);
-    rfNormal.y = fSample[ix][iy-1][iz].value - fSample[ix][iy+1][iz].value; //(fX, fY-0.01, fZ) - fSample(fX, fY+0.01, fZ);
-    rfNormal.z = fSample[ix][iy][iz-1].value - fSample[ix][iy][iz+1].value; //(fX, fY, fZ-0.01) - fSample(fX, fY, fZ+0.01);
-    vNormalizeVector(rfNormal, rfNormal);
+    float fposx = 0.0, fposy = 0.0, fposz = 0.0, fminx = 0.0, fminy = 0.0, fminz = 0.0;
+    int natom = 0;
+    for (atom->seek(-1, false); atom->next(); ) {
+        if ( abs(rfEdge.x - atom->x) > MINDIST) continue;
+        if ( abs(rfEdge.y - atom->y) > MINDIST) continue;
+        if ( abs(rfEdge.z - atom->z) > MINDIST) continue;
+        fposx += fSampleValue(*atom, rfEdge.x+0.05, rfEdge.y,      rfEdge.z);
+        fposy += fSampleValue(*atom, rfEdge.x,      rfEdge.y+0.05, rfEdge.z);
+        fposz += fSampleValue(*atom, rfEdge.x,      rfEdge.y,      rfEdge.z+0.05);
+        fminx += fSampleValue(*atom, rfEdge.x-0.05, rfEdge.y,      rfEdge.z);
+        fminy += fSampleValue(*atom, rfEdge.x,      rfEdge.y-0.05, rfEdge.z);
+        fminz += fSampleValue(*atom, rfEdge.x,      rfEdge.y,      rfEdge.z-0.05);
+        ++natom;
+    }
+    rfNormal.x = fminx - fposx;
+    rfNormal.y = fminy - fposy;
+    rfNormal.z = fminz - fposz;
 }
-void vertexNormalOutput(Point Edge, Point Norm) {
-    printf("%f,%f,%f %f,%f,%f\n", Edge.x, Edge.y, Edge.z, Norm.x, Norm.y, Norm.z);
-    //printf("%f,%f,%f\n", Edge.x, Edge.y, Edge.z);    
-}
+
 int Ntri = 0;
+void vertexNormalOutput(Point Edge, Point Norm, int owner) {
+    //printf("%f,%f,%f %f,%f,%f\n", Edge.x, Edge.y, Edge.z, Norm.x, Norm.y, Norm.z);
+    //printf("%f,%f,%f\n", Edge.x, Edge.y, Edge.z);
+    ++Ntri;
+    addTriangle->addBindValue(Ntri);
+    addTriangle->addBindValue(owner); // atom id        
+    addTriangle->addBindValue(Edge.x);
+    addTriangle->addBindValue(Edge.y);
+    addTriangle->addBindValue(Edge.z);
+    addTriangle->addBindValue(Norm.x);
+    addTriangle->addBindValue(Norm.y);
+    addTriangle->addBindValue(Norm.z);
+    addTriangle->exec();
+}
 void triangleOutput(Point v[3], int owner) {
     ++Ntri;
     //printf("3,6,1\n");    
@@ -440,7 +476,7 @@ void triangleOutput(Point v[3], int owner) {
     }
 }
 //vMarchCube1 performs the Marching Cubes algorithm on a single cube
-void vMarchCube1(int ix, int iy, int iz, float fTargetValue)
+void vMarchCube1(int ix, int iy, int iz, float fTargetValue, bool gradients)
 {
     extern int aiCubeEdgeFlags[256];
     extern int a2iTriangleConnectionTable[256][16];
@@ -449,7 +485,7 @@ void vMarchCube1(int ix, int iy, int iz, float fTargetValue)
     float fOffset;
     float afCubeValue[8];
     Point asEdgeVertex[12];
-    //Point asEdgeNorm[12];
+    Point asEdgeNorm[12];
     
     int owner = 0;
     //Make a local copy of the values at the cube's corners
@@ -460,9 +496,9 @@ void vMarchCube1(int ix, int iy, int iz, float fTargetValue)
                 [iy+a2iVertexOffset[iVertex][1]]
                 [iz+a2iVertexOffset[iVertex][2]].value;
         owner = std::max(owner, fSample
-                        [ix+a2iVertexOffset[iVertex][0]]
-                        [iy+a2iVertexOffset[iVertex][1]]
-                        [iz+a2iVertexOffset[iVertex][2]].ownAtom);
+                [ix+a2iVertexOffset[iVertex][0]]
+                [iy+a2iVertexOffset[iVertex][1]]
+                [iz+a2iVertexOffset[iVertex][2]].ownAtom);
     }
     
     // the coordinates of the cube bottom corner
@@ -500,30 +536,35 @@ void vMarchCube1(int ix, int iy, int iz, float fTargetValue)
             asEdgeVertex[iEdge].x = fX + (a2fVertexOffset[ a2iEdgeConnection[iEdge][0] ][0]  +  fOffset * a2fEdgeDirection[iEdge][0]) * incs.x;
             asEdgeVertex[iEdge].y = fY + (a2fVertexOffset[ a2iEdgeConnection[iEdge][0] ][1]  +  fOffset * a2fEdgeDirection[iEdge][1]) * incs.y;
             asEdgeVertex[iEdge].z = fZ + (a2fVertexOffset[ a2iEdgeConnection[iEdge][0] ][2]  +  fOffset * a2fEdgeDirection[iEdge][2]) * incs.z;
-            
-            //vGetNormal(asEdgeNorm[iEdge], asEdgeVertex[iEdge]);
-            //vGetNormal(asEdgeNorm[iEdge], ix, iy, iz);            
+            if (gradients) {
+                vGetNormal(asEdgeNorm[iEdge], asEdgeVertex[iEdge]);
+                vNormalizeVector(asEdgeNorm[iEdge], asEdgeNorm[iEdge]);
+            }
         }
     }
     
     //Draw the triangles that were found.  There can be up to five per cube
+    Point tri[3];    
     for(iTriangle = 0; iTriangle < 5; iTriangle++)
     {
         if(a2iTriangleConnectionTable[iFlagIndex][3*iTriangle] < 0)
             break;
-        Point tri[3];
+        
         for(iCorner = 0; iCorner < 3; ++iCorner)
         {
             iVertex = a2iTriangleConnectionTable[iFlagIndex][3*iTriangle+iCorner];
-            //vertexNormalOutput(asEdgeVertex[iVertex], asEdgeNorm[iVertex]);
-            tri[iCorner] = asEdgeVertex[iVertex];
+            if (gradients) {
+                vertexNormalOutput(asEdgeVertex[iVertex], asEdgeNorm[iVertex], owner);
+            } else {
+                tri[iCorner] = asEdgeVertex[iVertex];
+            }
         }
-        triangleOutput(tri, owner);        
+        if (!gradients) triangleOutput(tri, owner);        
     }
 }
 
 //vMarchTetrahedron performs the Marching Tetrahedrons algorithm on a single tetrahedron
-void vMarchTetrahedron(Point *pasTetrahedronPosition, float *pafTetrahedronValue, float fTargetValue, int owner)
+void vMarchTetrahedron(Point *pasTetrahedronPosition, float *pafTetrahedronValue, float fTargetValue, bool /*gradients*/, int owner)
 {
         extern int aiTetrahedronEdgeFlags[16];
         extern int a2iTetrahedronTriangles[16][7];
@@ -587,7 +628,7 @@ void vMarchTetrahedron(Point *pasTetrahedronPosition, float *pafTetrahedronValue
 
 
 //vMarchCube2 performs the Marching Tetrahedrons algorithm on a single cube by making six calls to vMarchTetrahedron
-void vMarchCube2(int ix, int iy, int iz, float fTargetValue)
+void vMarchCube2(int ix, int iy, int iz, float fTargetValue, bool gradients)
 {
         int iVertex, iTetrahedron, iVertexInACube;
         Point asCubePosition[8];
@@ -632,18 +673,18 @@ void vMarchCube2(int ix, int iy, int iz, float fTargetValue)
                         asTetrahedronPosition[iVertex].z = asCubePosition[iVertexInACube].z;
                         afTetrahedronValue[iVertex] = afCubeValue[iVertexInACube];
                 }
-                vMarchTetrahedron(asTetrahedronPosition, afTetrahedronValue, fTargetValue, owner);
+                vMarchTetrahedron(asTetrahedronPosition, afTetrahedronValue, fTargetValue, owner, gradients);
         }
 }
 
 //vMarch iterates over the entire dataset, calling vMarchCube on each cube
-void vMarch(int nx, int ny, int nz, float fTargetValue)
+void vMarch(int nx, int ny, int nz, float fTargetValue, bool gradients)
 {
     for(int iX = 1; iX < nx; iX++)
         for(int iY = 1; iY < ny; iY++)
             for(int iZ = 1; iZ < nz; iZ++)
             {
-                vMarchCube(iX, iY, iZ, fTargetValue);
+                vMarchCube(iX, iY, iZ, fTargetValue, gradients);
             }
 }
 
