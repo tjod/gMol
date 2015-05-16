@@ -84,11 +84,15 @@ void (*vMarchCube)(int ix, int iy, int iz, float fTargetValue, bool gradients) =
 void vMarch(int nx, int ny, int nz, float fTargetValue, bool gradients);
 
 // which potential energy function to use
-float fvdW(atomQuery atom, float fX, float fY, float fZ);
-float fLJ(atomQuery atom, float fX, float fY, float fZ);
-float fGauss(atomQuery atom, float fX, float fY, float fZ);
-float (*fSampleValue)(atomQuery atom, float fX, float fY, float fZ) = fvdW;
+float fvdW(float radius, float fX, float fY, float fZ);
+float fLJ(float radius, float fX, float fY, float fZ);
+float fGauss(float radius, float fX, float fY, float fZ);
+float (*fSampleValue)(float radius, float fX, float fY, float fZ) = fvdW;
 void makeSample(atomQuery atom, int nx, int ny, int nz);
+
+void makeGradients(int itemid);
+void vGetNormal(Point &rfNormal, Point &rfEdge);
+void vNormalizeVector(Point &rfVectorResult, Point &rfVectorSource);
 
 QSqlQuery *addTriangle; // prepared in main, used in triangleOutput
 atomQuery *atom; // prepared in main, used in triangleOutput
@@ -179,7 +183,7 @@ void dbstart() {
     addTriangle = new QSqlQuery();
     addTriangle->prepare("Insert Into tri_vertex (tid,atid,x,y,z,nx,ny,nz) Values (?,?,?,?,?,?,?,?)");
 }
-void dbfinish(int itemid) {
+void dbfinish(int itemid, bool gradients) {
     QSqlQuery q;
     q.prepare("Delete From vertex Where itemid=?");
     q.bindValue(0,itemid);
@@ -204,10 +208,54 @@ void dbfinish(int itemid) {
     q.bindValue(0,itemid);
     if (!q.exec()) Db::tellError(q, "exec");
     q.finish();
-    
-    sql = "Insert into vertex (itemid,vid,atid,x,y,z,nx,ny,nz) Select itemid,vid,atid,x,y,z,nx,ny,nz From uniq_vertex";
-    if (!q.exec(sql)) Db::tellError(q, "exec");
-    q.finish();
+
+    if (gradients) {
+            makeGradients(itemid);
+    } else {
+        sql = "Insert into vertex (itemid,vid,atid,x,y,z,nx,ny,nz) Select itemid,vid,atid,x,y,z,nx,ny,nz From uniq_vertex";
+        if (!q.exec(sql)) Db::tellError(q, "exec");
+        q.finish();
+    }
+}
+
+// compute gradients at each vertex point
+void makeGradients(int itemid) {
+    QString sql = "Select vid,atid,x,y,z From uniq_vertex";
+    QSqlQuery q;
+    if (!q.prepare(sql)) {
+        Db::tellError(q, "prepare");
+        return;
+    }
+    QSqlQuery insert;
+    if (!insert.prepare("Insert Into vertex (itemid,vid,atid,x,y,z,nx,ny,nz) Values (?,?,?,?,?,?,?,?,?)")) {
+        Db::tellError(insert, "prepare");
+        return;
+    }
+    insert.bindValue(0,itemid);
+    Point normal;
+    Point vtx;
+    q.exec();
+    while (q.next()) {
+        int vid = q.value(0).toInt();
+        int atid = q.value(1).toInt();
+        vtx.x = q.value(2).toFloat();
+        vtx.y = q.value(3).toFloat();
+        vtx.z = q.value(4).toFloat();
+        vGetNormal(normal, vtx);
+        vNormalizeVector(normal, normal);
+        insert.bindValue(1, vid);
+        insert.bindValue(2, atid);
+        insert.bindValue(3,vtx.x);
+        insert.bindValue(4,vtx.y);
+        insert.bindValue(5,vtx.z);
+        insert.bindValue(6,normal.x);
+        insert.bindValue(7,normal.y);
+        insert.bindValue(8,normal.z);
+        if (!insert.exec()) {
+            Db::tellError(insert, "insert");
+            return;
+        }
+    }
 }
 
 int main(int argc, char **argv) 
@@ -275,8 +323,7 @@ int main(int argc, char **argv)
     fSample = Create3D<gridValue>(Nx, Ny, Nz);
     int natom = 0;
     atom = new atomQuery();
-    atom->iter(imol, resnum, chain, filter, hydrogen);
-    for (; atom->next() ; ) {  
+    for (atom->iter(imol, resnum, chain, filter, hydrogen); atom->next() ; ) {  
        makeSample(*atom, Nx, Ny, Nz);       
        ++natom;
     }
@@ -285,7 +332,7 @@ int main(int argc, char **argv)
     vMarch(Nx-1, Ny-1, Nz-1, fTargetValue, gradients);
     
     if (outtype == DB) {
-        dbfinish(itemid);
+        dbfinish(itemid, gradients);
         db.commit();
         db.close();
     }
@@ -333,43 +380,43 @@ void vNormalizeVector(Point &rfVectorResult, Point &rfVectorSource)
     }
 }
 // Lennard-Jones potential
-float fLJ(atomQuery atom, float fX, float fY, float fZ)
+float fLJ(float radius, float fDx, float fDy, float fDz)
 {
     // suggested contour 0.0
     double fResult = 0.0;
-    float r = Atom::radius[atom.atnum] + rProbe;
-    double fDx, fDy, fDz;
-    fDx = fX - atom.x;
-    fDy = fY - atom.y;
-    fDz = fZ - atom.z;
+    float r = radius + rProbe;
+    //double fDx, fDy, fDz;
+    //fDx = fX - atom.x;
+    //fDy = fY - atom.y;
+    //fDz = fZ - atom.z;
     double sigmaOverRsquared = (r*r) / (fDx*fDx + fDy*fDy + fDz*fDz);
     fResult = pow(sigmaOverRsquared,6) - pow(sigmaOverRsquared,3);
     return fResult;
 }
 // Gaussian distribution
-float fGauss(atomQuery atom, float fX, float fY, float fZ)
+float fGauss(float radius, float fDx, float fDy, float fDz)
 {
     // https://bionano.cent.uw.edu.pl/Software/SurfaceDiver/UsersManual/Surface
     // suggested contour 1.0
     double fResult = 0.0;
-    float r = Atom::radius[atom.atnum] + rProbe;    
-    double fDx, fDy, fDz;
-    fDx = fX - atom.x;
-    fDy = fY - atom.y;
-    fDz = fZ - atom.z;
+    float r = radius + rProbe;    
+    //double fDx, fDy, fDz;
+    //fDx = fX - atom.x;
+    //fDy = fY - atom.y;
+    //fDz = fZ - atom.z;
     fResult =  2.0 * exp( -log2(2.0) * (fDx*fDx + fDy*fDy + fDz*fDz) / (r*r) );
     return fResult;
 }
 // van der Waal's potential
-float fvdW(atomQuery atom, float fX, float fY, float fZ)
+float fvdW(float radius, float fDx, float fDy, float fDz)
 {
     // suggested contour 1.0
     double fResult = 0.0;
-    float r = Atom::radius[atom.atnum] + rProbe;    
-    double fDx, fDy, fDz;
-    fDx = fX - atom.x;
-    fDy = fY - atom.y;
-    fDz = fZ - atom.z;
+    float r = radius + rProbe;    
+    //double fDx, fDy, fDz;
+    //fDx = fX - radius.x;
+    //fDy = fY - radius.y;
+    //fDz = fZ - radius.z;
     double sigmaOverRsquared = (r*r) / (fDx*fDx + fDy*fDy + fDz*fDz);   
     fResult = pow(sigmaOverRsquared,3);
     return fResult;
@@ -379,7 +426,6 @@ void makeSample(atomQuery atom, int nx, int ny, int nz) {
     
     float x,y,z;
     float fval;
-    //Point gradient;
     for (int i=0; i<nx; ++i) {
         x = corner.x + i*incs.x;
         if ( abs(x-atom.x) > MINDIST) continue; // should be 0 by then
@@ -389,7 +435,7 @@ void makeSample(atomQuery atom, int nx, int ny, int nz) {
             for (int k=0; k<nz; ++k) {
                 z = corner.z + k*incs.z;
                 if ( abs(z - atom.z) > MINDIST) continue;
-                fval = fSampleValue(atom,x,y,z);
+                fval = fSampleValue(Atom::radius[atom.atnum], x-atom.x, y-atom.y, z-atom.z);
                 if (fval > fSample[i][j][k].value) fSample[i][j][k].ownAtom = atom.atid;
                 fSample[i][j][k].value += fval;             
             }
@@ -422,22 +468,29 @@ Point vGetNormal(Point v[3]) {
 }
 
 // gets the gradient of the sample data at a Point
+int NearAtoms = 0;
+int NCalls = 0;
 void vGetNormal(Point &rfNormal, Point &rfEdge)
 {
     float fposx = 0.0, fposy = 0.0, fposz = 0.0, fminx = 0.0, fminy = 0.0, fminz = 0.0;
     int natom = 0;
     for (atom->seek(-1, false); atom->next(); ) {
-        if ( abs(rfEdge.x - atom->x) > MINDIST) continue;
-        if ( abs(rfEdge.y - atom->y) > MINDIST) continue;
-        if ( abs(rfEdge.z - atom->z) > MINDIST) continue;
-        fposx += fSampleValue(*atom, rfEdge.x+0.05, rfEdge.y,      rfEdge.z);
-        fposy += fSampleValue(*atom, rfEdge.x,      rfEdge.y+0.05, rfEdge.z);
-        fposz += fSampleValue(*atom, rfEdge.x,      rfEdge.y,      rfEdge.z+0.05);
-        fminx += fSampleValue(*atom, rfEdge.x-0.05, rfEdge.y,      rfEdge.z);
-        fminy += fSampleValue(*atom, rfEdge.x,      rfEdge.y-0.05, rfEdge.z);
-        fminz += fSampleValue(*atom, rfEdge.x,      rfEdge.y,      rfEdge.z-0.05);
+        float dx = rfEdge.x - atom->x;
+        float dy = rfEdge.y - atom->y;
+        float dz = rfEdge.z - atom->z;
+        if ( abs(dx) > MINDIST) continue;
+        if ( abs(dy) > MINDIST) continue;
+        if ( abs(dz) > MINDIST) continue;
+        fposx += fSampleValue(Atom::radius[atom->atnum], dx+0.05, dy,      dz);
+        fposy += fSampleValue(Atom::radius[atom->atnum], dx,      dy+0.05, dz);
+        fposz += fSampleValue(Atom::radius[atom->atnum], dx,      dy,      dz+0.05);
+        fminx += fSampleValue(Atom::radius[atom->atnum], dx-0.05, dy,      dz);
+        fminy += fSampleValue(Atom::radius[atom->atnum], dx,      dy-0.05, dz);
+        fminz += fSampleValue(Atom::radius[atom->atnum], dx,      dy,      dz-0.05);
         ++natom;
     }
+    NearAtoms += natom;
+    ++NCalls;
     rfNormal.x = fminx - fposx;
     rfNormal.y = fminy - fposy;
     rfNormal.z = fminz - fposz;
@@ -536,10 +589,10 @@ void vMarchCube1(int ix, int iy, int iz, float fTargetValue, bool gradients)
             asEdgeVertex[iEdge].x = fX + (a2fVertexOffset[ a2iEdgeConnection[iEdge][0] ][0]  +  fOffset * a2fEdgeDirection[iEdge][0]) * incs.x;
             asEdgeVertex[iEdge].y = fY + (a2fVertexOffset[ a2iEdgeConnection[iEdge][0] ][1]  +  fOffset * a2fEdgeDirection[iEdge][1]) * incs.y;
             asEdgeVertex[iEdge].z = fZ + (a2fVertexOffset[ a2iEdgeConnection[iEdge][0] ][2]  +  fOffset * a2fEdgeDirection[iEdge][2]) * incs.z;
-            if (gradients) {
-                vGetNormal(asEdgeNorm[iEdge], asEdgeVertex[iEdge]);
-                vNormalizeVector(asEdgeNorm[iEdge], asEdgeNorm[iEdge]);
-            }
+//            if (gradients) {
+//                vGetNormal(asEdgeNorm[iEdge], asEdgeVertex[iEdge]);
+//                vNormalizeVector(asEdgeNorm[iEdge], asEdgeNorm[iEdge]);
+//            }
         }
     }
     
@@ -605,8 +658,6 @@ void vMarchTetrahedron(Point *pasTetrahedronPosition, float *pafTetrahedronValue
                         asEdgeVertex[iEdge].x = fInvOffset*pasTetrahedronPosition[iVert0].x  +  fOffset*pasTetrahedronPosition[iVert1].x;
                         asEdgeVertex[iEdge].y = fInvOffset*pasTetrahedronPosition[iVert0].y  +  fOffset*pasTetrahedronPosition[iVert1].y;
                         asEdgeVertex[iEdge].z = fInvOffset*pasTetrahedronPosition[iVert0].z  +  fOffset*pasTetrahedronPosition[iVert1].z;
-                        
-                        //vGetNormal(asEdgeNorm[iEdge], asEdgeVertex[iEdge].x, asEdgeVertex[iEdge].y, asEdgeVertex[iEdge].z);
                 }
         }
         //Draw the triangles that were found.  There can be up to 2 per tetrahedron
