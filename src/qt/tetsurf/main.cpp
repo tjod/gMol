@@ -90,7 +90,7 @@ float fGauss(float radius, float fX, float fY, float fZ);
 float (*fSampleValue)(float radius, float fX, float fY, float fZ) = fvdW;
 void makeSample(atomQuery atom, int nx, int ny, int nz);
 
-void makeGradients(int itemid);
+void makeGradients(int itemid, int molid);
 void vGetNormal(Point &rfNormal, Point &rfEdge);
 void vNormalizeVector(Point &rfVectorResult, Point &rfVectorSource);
 
@@ -172,6 +172,7 @@ bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTarget
     return true;
 }
 
+// prepare tables and statements needed for output to db
 void dbstart() {
     QSqlQuery q;
     q.exec("Create Table If Not Exists vertex (itemid Integer, vid Integer, atid Integer, x Real, y Real, z Real, nx Real, ny Real, nz Real, Unique (itemid,vid) Foreign Key (itemid) References tree (itemid) On Delete Cascade)");
@@ -183,7 +184,8 @@ void dbstart() {
     addTriangle = new QSqlQuery();
     addTriangle->prepare("Insert Into tri_vertex (tid,atid,x,y,z,nx,ny,nz) Values (?,?,?,?,?,?,?,?)");
 }
-void dbfinish(int itemid, bool gradients) {
+// process output triangles into unique set of vertices
+void dbfinish(int itemid, int molid, bool gradients) {
     QSqlQuery q;
     q.prepare("Delete From vertex Where itemid=?");
     q.bindValue(0,itemid);
@@ -209,17 +211,94 @@ void dbfinish(int itemid, bool gradients) {
     if (!q.exec()) Db::tellError(q, "exec");
     q.finish();
 
+    // compute gradients for use as normals, or just copy averaged triangle normals
     if (gradients) {
-            makeGradients(itemid);
+            makeGradients(itemid, molid);
     } else {
-        sql = "Insert into vertex (itemid,vid,atid,x,y,z,nx,ny,nz) Select itemid,vid,atid,x,y,z,nx,ny,nz From uniq_vertex";
+        sql = "Insert into vertex (itemid,vid,atid,x,y,z,nx,ny,nz) Select itemid,u.oid,atid,x,y,z,nx,ny,nz From uniq_vertex u";
         if (!q.exec(sql)) Db::tellError(q, "exec");
         q.finish();
     }
 }
 
 // compute gradients at each vertex point
-void makeGradients(int itemid) {
+void makeGradients(int itemid, int molid) {
+    QString sql = "Select vid,a.atid,atnum,a.x,a.y,a.z,u.x,u.y,u.z From uniq_vertex u Join atom a Where molid=? \
+            And a.x Between u.x-? And u.x+? And a.y Between u.y-? And u.y+? And a.z Between u.z-? and u.z+? Order By u.oid";
+    QSqlQuery q;
+    if (!q.prepare(sql)) {
+        Db::tellError(q, "prepare");
+        return;
+    }
+    q.addBindValue(molid);
+    q.addBindValue(MINDIST);q.addBindValue(MINDIST);q.addBindValue(MINDIST);
+    q.addBindValue(MINDIST);q.addBindValue(MINDIST);q.addBindValue(MINDIST);
+    QSqlQuery insert;
+    if (!insert.prepare("Insert Into vertex (itemid,vid,atid,x,y,z,nx,ny,nz) Values (?,?,?,?,?,?,?,?,?)")) {
+        Db::tellError(insert, "prepare");
+        return;
+    }
+    insert.bindValue(0,itemid);
+    Point normal;
+    Point vtx;
+    double ax,ay,az,dx,dy,dz;
+    double dxyz = 0.05;
+    double fposx = 0.0, fposy = 0.0, fposz = 0.0, fminx = 0.0, fminy = 0.0, fminz = 0.0;    
+    int vid=0, pvid=0;
+    int atid;
+    int atnum;
+    q.exec();
+    //q.next();
+    int nvtx = 0;
+    while (true) {
+        bool atend = !(q.next());        
+        if (!atend) vid = q.value(0).toInt();
+        if (atend || (pvid > 0 && vid != pvid)) {
+            // new vertex, output gradient sum for previous vertex
+            normal.x = (fminx - fposx) / dxyz;
+            normal.y = (fminy - fposy) / dxyz;
+            normal.z = (fminz - fposz) / dxyz;
+            vNormalizeVector(normal, normal);
+            ++nvtx;            
+            insert.bindValue(1, nvtx);
+            insert.bindValue(2, atid);
+            insert.bindValue(3,vtx.x);
+            insert.bindValue(4,vtx.y);
+            insert.bindValue(5,vtx.z);
+            insert.bindValue(6,normal.x);
+            insert.bindValue(7,normal.y);
+            insert.bindValue(8,normal.z);
+            if (!insert.exec()) {
+                Db::tellError(insert, "insert");
+                return;
+            }
+            if (atend) {
+                return;
+            }
+            fposx=fposy=fposz=fminx=fminy=fminz=0.0;
+        }
+        atid = q.value(1).toInt();
+        atnum = q.value(2).toInt();
+        ax = q.value(3).toDouble();
+        ay = q.value(4).toDouble();
+        az = q.value(5).toDouble();
+        vtx.x = q.value(6).toFloat();
+        vtx.y = q.value(7).toFloat();
+        vtx.z = q.value(8).toFloat();
+        dx = vtx.x - ax;
+        dy = vtx.y - ay;
+        dz = vtx.z - az;
+        fposx += fSampleValue(Atom::radius[atnum], dx+dxyz, dy,      dz);
+        fposy += fSampleValue(Atom::radius[atnum], dx,      dy+dxyz, dz);
+        fposz += fSampleValue(Atom::radius[atnum], dx,      dy,      dz+dxyz);
+        fminx += fSampleValue(Atom::radius[atnum], dx-dxyz, dy,      dz);
+        fminy += fSampleValue(Atom::radius[atnum], dx,      dy-dxyz, dz);
+        fminz += fSampleValue(Atom::radius[atnum], dx,      dy,      dz-dxyz);
+        pvid = vid;
+    }
+}
+/*
+void makeGradients(int itemid, int molid) {
     QString sql = "Select vid,atid,x,y,z From uniq_vertex";
     QSqlQuery q;
     if (!q.prepare(sql)) {
@@ -257,11 +336,12 @@ void makeGradients(int itemid) {
         }
     }
 }
-
+*/
 int main(int argc, char **argv) 
 {
     QApplication app(argc, argv); // needed to get SQLITE plugin to work
     
+    // some default params, settable on command line
     float fTargetValue = 1.0; // countour value
     rProbe = 0.0; // probe radius
     int itemid = 0; // from the gMol tree table
@@ -270,6 +350,7 @@ int main(int argc, char **argv)
     int outtype = 0;  // output to db, or stdout in pix file format
     bool gradients = false;
     
+    // info comes from sqlite db
     QSqlDatabase db;
     QString dbname = "";
     if (!getArgs(argc, argv, &dbname, &itemid, &fTargetValue, &outtype, &step, &padding, &rProbe, &gradients)) {
@@ -287,6 +368,7 @@ int main(int argc, char **argv)
         q.exec("Pragma foreign_keys = ON");
     }
  
+    // get essential info from db
     int imol = 0;
     char chain = NOCHAIN;
     int resnum = NORESNUM;
@@ -301,6 +383,7 @@ int main(int argc, char **argv)
       resnum = item.resnum;
       hydrogen = item.hydrogens;
     }
+    // when output goes back to db
     if (outtype == DB) {
         dbstart();
         db.transaction();
@@ -311,6 +394,7 @@ int main(int argc, char **argv)
     incs.y = step;
     incs.z = step;
     
+    // set lower corner based on mol bounds; finally number of cubes in each dimension
     float min[3], max[3], avg[3];  
     Db::molBounds(imol, resnum, chain, filter, min, max, avg);
     corner.x = floor(min[0] - padding);
@@ -320,6 +404,7 @@ int main(int argc, char **argv)
     Ny = ( ceil(max[1] + padding) - floor(min[1] - padding) ) / incs.y;
     Nz = ( ceil(max[2] + padding) - floor(min[2] - padding) ) / incs.z;
     
+    // fill the grid with data
     fSample = Create3D<gridValue>(Nx, Ny, Nz);
     int natom = 0;
     atom = new atomQuery();
@@ -327,12 +412,14 @@ int main(int argc, char **argv)
        makeSample(*atom, Nx, Ny, Nz);       
        ++natom;
     }
-    qDebug() << natom << "atoms.";
+    //qDebug() << natom << "atoms.";
     
+    // make the isocontour
     vMarch(Nx-1, Ny-1, Nz-1, fTargetValue, gradients);
     
+    // finish up, possibly computing gradient normals
     if (outtype == DB) {
-        dbfinish(itemid, gradients);
+        dbfinish(itemid, imol, gradients);
         db.commit();
         db.close();
     }
@@ -472,28 +559,29 @@ int NearAtoms = 0;
 int NCalls = 0;
 void vGetNormal(Point &rfNormal, Point &rfEdge)
 {
-    float fposx = 0.0, fposy = 0.0, fposz = 0.0, fminx = 0.0, fminy = 0.0, fminz = 0.0;
+    double fposx = 0.0, fposy = 0.0, fposz = 0.0, fminx = 0.0, fminy = 0.0, fminz = 0.0;
+    double dxyz = 0.05;
     int natom = 0;
     for (atom->seek(-1, false); atom->next(); ) {
-        float dx = rfEdge.x - atom->x;
-        float dy = rfEdge.y - atom->y;
-        float dz = rfEdge.z - atom->z;
+        double dx = rfEdge.x - atom->x;
+        double dy = rfEdge.y - atom->y;
+        double dz = rfEdge.z - atom->z;
         if ( abs(dx) > MINDIST) continue;
         if ( abs(dy) > MINDIST) continue;
         if ( abs(dz) > MINDIST) continue;
-        fposx += fSampleValue(Atom::radius[atom->atnum], dx+0.05, dy,      dz);
-        fposy += fSampleValue(Atom::radius[atom->atnum], dx,      dy+0.05, dz);
-        fposz += fSampleValue(Atom::radius[atom->atnum], dx,      dy,      dz+0.05);
-        fminx += fSampleValue(Atom::radius[atom->atnum], dx-0.05, dy,      dz);
-        fminy += fSampleValue(Atom::radius[atom->atnum], dx,      dy-0.05, dz);
-        fminz += fSampleValue(Atom::radius[atom->atnum], dx,      dy,      dz-0.05);
+        fposx += fSampleValue(Atom::radius[atom->atnum], dx+dxyz, dy,      dz);
+        fposy += fSampleValue(Atom::radius[atom->atnum], dx,      dy+dxyz, dz);
+        fposz += fSampleValue(Atom::radius[atom->atnum], dx,      dy,      dz+dxyz);
+        fminx += fSampleValue(Atom::radius[atom->atnum], dx-dxyz, dy,      dz);
+        fminy += fSampleValue(Atom::radius[atom->atnum], dx,      dy-dxyz, dz);
+        fminz += fSampleValue(Atom::radius[atom->atnum], dx,      dy,      dz-dxyz);
         ++natom;
     }
     NearAtoms += natom;
     ++NCalls;
-    rfNormal.x = fminx - fposx;
-    rfNormal.y = fminy - fposy;
-    rfNormal.z = fminz - fposz;
+    rfNormal.x = (fminx - fposx) / dxyz;
+    rfNormal.y = (fminy - fposy) / dxyz;
+    rfNormal.z = (fminz - fposz) / dxyz;
 }
 
 int Ntri = 0;
