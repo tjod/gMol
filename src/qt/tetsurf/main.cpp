@@ -109,7 +109,7 @@ void usage() {
     std::cerr << "Options:          Description:" << std::endl;
     std::cerr << "  -i              itemid in tree table" << std::endl;
     std::cerr << "  -v              contour value" << std::endl;
-    std::cerr << "  -n              assign nearest atom (-db only)" << std::endl;
+    //std::cerr << "  -n              assign nearest atom (-db only)" << std::endl;
     std::cerr << "  -db             output triangles to database" << std::endl;
     std::cerr << "  -pix            output triangles to stdout" << std::endl;
     std::cerr << "  -m              use marching cubes" << std::endl;
@@ -373,7 +373,7 @@ int main(int argc, char **argv)
     char chain = NOCHAIN;
     int resnum = NORESNUM;
     int filter = 0;
-    int hydrogen = 0;
+    int hydrogens = 0;
     if (itemid) {
       treeQuery item;
       item.getRow(itemid);
@@ -381,7 +381,7 @@ int main(int argc, char **argv)
       imol = item.imol;
       filter = item.filter;
       resnum = item.resnum;
-      hydrogen = item.hydrogens;
+      hydrogens = item.hydrogens;
     }
     // when output goes back to db
     if (outtype == DB) {
@@ -408,7 +408,7 @@ int main(int argc, char **argv)
     fSample = Create3D<gridValue>(Nx, Ny, Nz);
     int natom = 0;
     atom = new atomQuery();
-    for (atom->iter(imol, resnum, chain, filter, hydrogen); atom->next() ; ) {  
+    for (atom->iter(imol, resnum, chain, filter, hydrogens); atom->next() ; ) {  
        makeSample(*atom, Nx, Ny, Nz);       
        ++natom;
     }
@@ -419,7 +419,7 @@ int main(int argc, char **argv)
     
     // finish up, possibly computing gradient normals
     if (outtype == DB) {
-        dbfinish(itemid, imol, gradients, resnum, chain, filter, hydrogen);
+        dbfinish(itemid, imol, gradients, resnum, chain, filter, hydrogens);
         db.commit();
         db.close();
     }
