@@ -891,8 +891,13 @@ bool atomQuery::iter(int qmol, int qresnum=NORESNUM, char qchain=NOCHAIN, int qf
     return valid;
 }
 QString atomQuery::atomSql(int qmol, int qresnum, char qchain, int qfilter, int qhydrogens) {
-    QString sql = "Select molid,atid,resnum,resnam,altLoc,icode,atnum,x,y,z,fcharge,pcharge,name,chain,hetatm \
-            From atom Where molid=" + QString::number(qmol);
+    QString sql = "Select molid,atid,resnum,resnam,altLoc,icode,atnum,x,y,z,fcharge,pcharge,name,chain,hetatm";
+    sql += " From atom Where " + atomClause(qmol, qresnum, qchain, qfilter, qhydrogens);
+    return sql;
+}
+QString atomQuery::atomClause(int qmol, int qresnum, char qchain, int qfilter, int qhydrogens) {
+    
+    QString sql = "molid=" + QString::number(qmol);
     if (qchain != NOCHAIN)   sql += " And chain='" + QString(qchain) + "'";
     if (qresnum != NORESNUM) sql += " And resnum=" + QString::number(qresnum);
     if (qhydrogens == HYDROGEN_HIDE) {

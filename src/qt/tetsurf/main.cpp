@@ -90,7 +90,7 @@ float fGauss(float radius, float fX, float fY, float fZ);
 float (*fSampleValue)(float radius, float fX, float fY, float fZ) = fvdW;
 void makeSample(atomQuery atom, int nx, int ny, int nz);
 
-void makeGradients(int itemid, int molid);
+void makeGradients(int itemid, int molid, int resnum, char chain, int filter, int hydrogens);
 void vGetNormal(Point &rfNormal, Point &rfEdge);
 void vNormalizeVector(Point &rfVectorResult, Point &rfVectorSource);
 
@@ -185,7 +185,7 @@ void dbstart() {
     addTriangle->prepare("Insert Into tri_vertex (tid,atid,x,y,z,nx,ny,nz) Values (?,?,?,?,?,?,?,?)");
 }
 // process output triangles into unique set of vertices
-void dbfinish(int itemid, int molid, bool gradients) {
+void dbfinish(int itemid, int molid, bool gradients, int resnum, char chain, int filter, int hydrogens) {
     QSqlQuery q;
     q.prepare("Delete From vertex Where itemid=?");
     q.bindValue(0,itemid);
@@ -213,7 +213,7 @@ void dbfinish(int itemid, int molid, bool gradients) {
 
     // compute gradients for use as normals, or just copy averaged triangle normals
     if (gradients) {
-            makeGradients(itemid, molid);
+            makeGradients(itemid, molid, resnum, chain, filter, hydrogens);
     } else {
         sql = "Insert into vertex (itemid,vid,atid,x,y,z,nx,ny,nz) Select itemid,u.oid,atid,x,y,z,nx,ny,nz From uniq_vertex u";
         if (!q.exec(sql)) Db::tellError(q, "exec");
@@ -222,15 +222,15 @@ void dbfinish(int itemid, int molid, bool gradients) {
 }
 
 // compute gradients at each vertex point
-void makeGradients(int itemid, int molid) {
-    QString sql = "Select vid,a.atid,atnum,a.x,a.y,a.z,u.x,u.y,u.z From uniq_vertex u Join atom a Where molid=? \
-            And a.x Between u.x-? And u.x+? And a.y Between u.y-? And u.y+? And a.z Between u.z-? and u.z+? Order By u.oid";
+void makeGradients(int itemid, int molid, int resnum, char chain, int filter, int hydrogens) {
+    QString sql = "Select vid,atom.atid,atnum,atom.x,atom.y,atom.z,u.x,u.y,u.z From uniq_vertex u Join atom Where ";
+    sql +=  atomQuery::atomClause(molid, resnum, chain, filter, hydrogens);
+    sql += " And atom.x Between u.x-? And u.x+? And atom.y Between u.y-? And u.y+? And atom.z Between u.z-? and u.z+? Order By u.oid";
     QSqlQuery q;
     if (!q.prepare(sql)) {
         Db::tellError(q, "prepare");
         return;
     }
-    q.addBindValue(molid);
     q.addBindValue(MINDIST);q.addBindValue(MINDIST);q.addBindValue(MINDIST);
     q.addBindValue(MINDIST);q.addBindValue(MINDIST);q.addBindValue(MINDIST);
     QSqlQuery insert;
@@ -251,9 +251,9 @@ void makeGradients(int itemid, int molid) {
     //q.next();
     int nvtx = 0;
     while (true) {
-        bool atend = !(q.next());        
-        if (!atend) vid = q.value(0).toInt();
-        if (atend || (pvid > 0 && vid != pvid)) {
+        bool at_end = !(q.next());
+        if (!at_end) vid = q.value(0).toInt(); // peek
+        if (at_end || (pvid > 0 && vid != pvid)) {
             // new vertex, output gradient sum for previous vertex
             normal.x = (fminx - fposx) / dxyz;
             normal.y = (fminy - fposy) / dxyz;
@@ -272,7 +272,7 @@ void makeGradients(int itemid, int molid) {
                 Db::tellError(insert, "insert");
                 return;
             }
-            if (atend) {
+            if (at_end) {
                 return;
             }
             fposx=fposy=fposz=fminx=fminy=fminz=0.0;
@@ -419,7 +419,7 @@ int main(int argc, char **argv)
     
     // finish up, possibly computing gradient normals
     if (outtype == DB) {
-        dbfinish(itemid, imol, gradients);
+        dbfinish(itemid, imol, gradients, resnum, chain, filter, hydrogen);
         db.commit();
         db.close();
     }

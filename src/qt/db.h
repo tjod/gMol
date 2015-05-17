@@ -199,10 +199,11 @@ public:
     int  hcount(int, int, char, int);
     int count();    
     QString getResnam(int imol, int resnum, char chain);
+    static QString atomClause(int qmol, int qresnum, char qchain, int qfilter, int qhydrogens);      
 
 private:
     int findAtomIdNear(int, char, float *, float);
-    QString atomSql(int, int, char, int, int);
+    QString atomSql   (int qmol, int qresnum, char qchain, int qfilter, int qhydrogens);
 };
 
 class triangleQuery : public QSqlQuery {
