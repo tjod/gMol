@@ -10,7 +10,6 @@ misc/
 *.o
 *.so
 *.a
-gmol
 moc_*
 Makefile
 gmol-*/

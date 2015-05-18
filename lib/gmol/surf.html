@@ -1,0 +1,90 @@
+<html>
+	<head>
+		<title>Custom Surface</title>
+		<link rel="stylesheet" type="text/css" href="surf.css">
+		<script>
+			params = {
+				accessible : {contour:1.0, radius:1.2, step:0.75, padding:4.0, func:"vdw", gradient:false},
+				molecular :  {contour:1.0, radius:0.0, step:0.75, padding:4.0, func:"vdw", gradient:false},
+				custom :     {contour:1.0, radius:1.2, step:0.5,  padding:4.0, func:"vdw", gradient:true}
+			};
+			function showParams(p) {
+				for (var key in p) {
+					if (key == "func") {
+						document.getElementById(p[key]).checked = true;
+					} else if (key == "gradient") {
+						document.getElementById(key).checked = p[key];
+					} else {
+						document.getElementById(key).value = p[key]; // range
+						document.getElementById(key+"-value").innerHTML = p[key]; // span
+					}
+				}
+			}
+			function showMolecular() {
+				showParams(params.molecular);
+			}
+			function showAccessible() {
+				showParams(params.accessible);
+			}
+			function showCustom() {
+				showParams(params.custom);
+			}
+			function saveCustom() {
+				for (var key in params.custom) {
+					if (key == "func") {
+						var f = document.querySelector('input[name="func"]:checked').value;
+					       	// value of radio is it's id too
+						params.custom[key] = f;
+					} else if (key == "gradient") {
+						params.custom[key] = document.getElementById(key).checked;
+					} else {
+						params.custom[key] = document.getElementById(key).value; // range
+						params.custom[key] = document.getElementById(key+"-value").innerHTML; // span
+					}
+				}
+			}
+			function updateValue(elem) {
+				document.getElementById(elem.id+"-value").innerHTML = elem.value;
+			}
+		</script>
+	</head>
+	<body onload="showCustom()">
+		<h2>Custom Surface Parameters</h2>
+		<h3>Reset to values used for</h3>
+		<input type="button" onclick=showMolecular() value="Molecular" />
+		<input type="button" onclick=showAccessible() value="Accessible" />
+		<input type="button" onclick=showCustom() value="Custom" />
+		<h3>Function</h3>
+		<ul>
+		    <input type="radio" name="func" id="LJ" value="LJ">Lennard-Jones
+		<br><input type="radio" name="func" id="vdw" value="vdw" checked>van der Waals
+		<br><input type="radio" name="func" id="gauss" value="gauss">Gaussian
+		</ul>
+		<div class="range-slider">
+			<p>
+			Contour at
+				<input class="input-range" type="range" id="contour" value="1.0" min="0.1" max="2.0" step="0.1" oninput=updateValue(this)>
+				<span class="range-value" id="contour-value"></span>
+			</p>
+			<p>
+				Add radius
+				<input class="input-range" type="range" id="radius" value="1.2" min="0.0" max="3.0" step="0.1" oninput=updateValue(this)>
+				<span class="range-value" id="radius-value"></span>
+			</p>
+			<p>
+				Step size
+				<input class="input-range" type="range" id="step" value="0.75" min="0.1" max="2.0" step="0.05" oninput=updateValue(this)>
+				<span class="range-value" id="step-value"></span>
+			</p>
+			<p>
+				Padding
+				<input class="input-range" type="range" id="padding" value="4.0" min="0.0" max="10.0" step="0.5" oninput=updateValue(this)>
+				<span class="range-value" id="padding-value"></span>
+			</p>
+			</div>
+		<input type="checkbox" id="gradient" unchecked>Smooth by computing gradients (slower)
+		<p>
+		<input type="button" onclick=saveCustom() value="Save Custom" />
+		</p>
+	</body>
+</html>
