@@ -63,6 +63,11 @@ MainWindow::MainWindow()
     connect(glWidget, SIGNAL(advanceDone()), this, SLOT(advanceDone()));
     grampsDock->hide();
 
+    surfDock = openUrl("file:///"+gmolLib+"/gmol/surf.html", false);
+    surfView = (WebWidget*)surfDock->widget();
+    surfDock->setWindowTitle("Custom surface");
+    surfDock->hide();
+    
     helpDock = openUrl("file:///" + gmolLib + "/index.html", false);
     helpView = (WebWidget*)helpDock->widget();
     // don't let the title change as page changes

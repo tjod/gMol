@@ -110,6 +110,8 @@ private:
     QDockWidget * controlDock;
     QDockWidget *grampsDock;
     WebWidget *grampsView;
+    QDockWidget *surfDock;
+    WebWidget *surfView;
 
     void setTimer(bool state);
     QTimer * continuousUpdater;
