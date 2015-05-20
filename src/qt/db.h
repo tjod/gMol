@@ -345,4 +345,19 @@ public:
     
 };
 
+class paramQuery : public QSqlQuery {
+public:
+    
+    paramQuery();
+    ~paramQuery();
+    
+    bool next();
+    bool iter(QString type);
+    
+    QString ptype;
+    QString pname;
+    QString pvalue;
+    bool valid;
+};
+
 #endif

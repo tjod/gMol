@@ -1613,3 +1613,32 @@ bool treeQuery::updateMainSide(int itemid, int newmainSide, int newfilter) {
     }
     return Db::tellError(query);
 }
+
+paramQuery::paramQuery() {}
+paramQuery::~paramQuery() {}
+
+bool paramQuery::iter(QString type) {
+    if (prepare("Select ptype,pname,pvalue from params Where ptype=? order by ptype")) {
+        addBindValue(type);
+        if (exec()) {
+            valid = true;
+        } else {
+            valid = false;
+        }
+    } else {
+        Db::tellError(*this);
+        valid = false;
+    }
+    return valid;
+}
+bool paramQuery::next() {
+    if (QSqlQuery::next()) {
+        ptype  = value(0).toString();
+        pname  = value(1).toString();
+        pvalue = value(2).toString();
+        valid = true;
+    } else {
+        valid = false;
+    }
+    return valid;
+}

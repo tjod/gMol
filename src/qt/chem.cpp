@@ -129,7 +129,7 @@ QStringList ChemWidget::pickPath(QString name, QTreeWidgetItem *item) {
     return path;
 }
 
-QString ChemWidget::processPick(QTreeWidgetItem* item, grampsPick gp) {
+QString ChemWidget::processPick(QTreeWidgetItem* item, grampsPick /*gp*/) {
     QString name = makePickedAtomName(true);
     QStringList path = pickPath(name, item);
     QString xyz;

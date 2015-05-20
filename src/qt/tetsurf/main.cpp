@@ -108,6 +108,7 @@ void usage() {
     std::cerr << "Usage: dbsurf <dbname> [options]" << std::endl;
     std::cerr << "Options:          Description:" << std::endl;
     std::cerr << "  -i              itemid in tree table" << std::endl;
+    std::cerr << "  -n <name>       parameters from table in db: type name = molecular, accessible or custom" << std::endl;
     std::cerr << "  -v              contour value" << std::endl;
     //std::cerr << "  -n              assign nearest atom (-db only)" << std::endl;
     std::cerr << "  -db             output triangles to database" << std::endl;
@@ -122,7 +123,7 @@ void usage() {
 }
 
 bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTargetValue, int *outtype,
-             float *step, float *padding, float *r, bool *gradients) {
+             float *step, float *padding, float *r, bool *gradients, QString *pname) {
     
     if (argc < 2) return false;
     
@@ -142,6 +143,9 @@ bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTarget
         } else if ((option == "-db")) {
             *outtype = DB;
             qDebug() << "output to" << *dbname;
+            
+        } else if ((option == "-n")  && (argc > (i+1))) {
+            *pname = argv[++i];
 
         } else if ((option == "-s") && (argc > (i+1))) {
             *step = atof(argv[++i]);
@@ -349,11 +353,12 @@ int main(int argc, char **argv)
     float step = 0.75; // size of cubes
     int outtype = 0;  // output to db, or stdout in pix file format
     bool gradients = false;
+    QString pname;
     
     // info comes from sqlite db
     QSqlDatabase db;
     QString dbname = "";
-    if (!getArgs(argc, argv, &dbname, &itemid, &fTargetValue, &outtype, &step, &padding, &rProbe, &gradients)) {
+    if (!getArgs(argc, argv, &dbname, &itemid, &fTargetValue, &outtype, &step, &padding, &rProbe, &gradients, &pname)) {
         usage();
         exit(-1);
     }
@@ -366,6 +371,26 @@ int main(int argc, char **argv)
         }
         QSqlQuery q;
         q.exec("Pragma foreign_keys = ON");
+        if (!pname.isNull()) {
+            paramQuery pq;
+            for (pq.iter(pname); pq.next(); ) {
+                if (pq.pname == "func") {
+                    if      (pq.pvalue.compare("vdW",   Qt::CaseInsensitive) == 0) fSampleValue = fvdW;
+                    else if (pq.pvalue.compare("LJ",    Qt::CaseInsensitive) == 0) fSampleValue = fLJ;
+                    else if (pq.pvalue.compare("Gauss", Qt::CaseInsensitive) == 0) fSampleValue = fGauss;
+                } else if (pq.pname == "contour") {
+                    fTargetValue = pq.pvalue.toFloat();
+                } else if (pq.pname == "radius") {
+                    rProbe = pq.pvalue.toFloat();
+                } else if (pq.pname == "step") {
+                    step = pq.pvalue.toFloat();
+                } else if (pq.pname == "padding") {
+                    padding = pq.pvalue.toFloat();
+                } else if (pq.pname == "gradient") {
+                    gradients = (pq.pvalue.toInt() == 1) ? true : false;
+                }
+            }
+        }
     }
  
     // get essential info from db

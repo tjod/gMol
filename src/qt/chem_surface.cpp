@@ -111,12 +111,12 @@ void ChemWidget::addSurface(int itemid) {
 
 void ChemWidget::makeSurface() {
   int style = currentRow.style;
-  if (style == STYLE_SURF_CUSTOM) {
-      // just redraw surface from current db tables; external run of dbsurf
-      int err = drawSurface(currentRow.itemId);
-      if (!err) addSurface(currentRow.itemId);
-      return;
-  }
+//  if (style == STYLE_SURF_CUSTOM) {
+//      // just redraw surface from current db tables; external run of dbsurf
+//      int err = drawSurface(currentRow.itemId);
+//      if (!err) addSurface(currentRow.itemId);
+//      return;
+//  }
   //addSurfRow(STYLE_SURF_MOL);
 #ifdef __APPLE__
   //QString prog = gmolLib + "/dbsurf";
@@ -129,11 +129,14 @@ void ChemWidget::makeSurface() {
   arguments << QSqlDatabase::database().databaseName() << "-db" << "-i" << QString::number(currentRow.itemId);
   QString title;
   if (style == STYLE_SURF_MOL) {
-    arguments << "-v" << "1.0" << "-s" << "0.75";  
+    arguments << "-n" << "molecular";  
     title = "Molecular surface";
   } else if (style == STYLE_SURF_WATER) {
-    arguments << "-v" << "1.0" << "-r" << QString::number(1.2) << "-p" << "5.0" << "-s" << "0.75";  
+    arguments << "-n" << "accessible";  
     title = "Water-accessible surface";
+  } else if (style == STYLE_SURF_CUSTOM) {
+    arguments << "-n" << "custom";  
+    title = "Custom surface";
   } else {
     //  try to avoid this before calling drawSurface; even avoid putting it into ContextMenu
     qDebug() << tr("unknown surface style") << style;
