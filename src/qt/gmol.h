@@ -30,6 +30,8 @@ private:
 
 public slots:
     QMap <QString, QVariant> atest();
+    QVariantMap getParams(QString kind);
+    bool setParams(QString, QString, QVariantMap);
     QList <QVariant> getTree();
     int getMolIdFromInchiKey(const QString);
     int readMolFromUrl(const QString);

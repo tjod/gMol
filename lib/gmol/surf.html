@@ -3,17 +3,21 @@
 		<title>Custom Surface</title>
 		<link rel="stylesheet" type="text/css" href="surf.css">
 		<script>
+			params = gmol.getParams("surface");
+			/*
 			params = {
-				accessible : {contour:1.0, radius:1.2, step:0.75, padding:4.0, func:"vdw", gradient:false},
-				molecular :  {contour:1.0, radius:0.0, step:0.75, padding:4.0, func:"vdw", gradient:false},
-				custom :     {contour:1.0, radius:1.2, step:0.5,  padding:4.0, func:"vdw", gradient:true}
+				accessible : {contour:1.0, radius:1.2, step:0.75, padding:4.0, func:"vdw", gradient:0},
+				molecular :  {contour:1.0, radius:0.0, step:0.75, padding:4.0, func:"vdw", gradient:0},
+				custom :     {contour:1.0, radius:1.2, step:0.5,  padding:4.0, func:"vdw", gradient:1}
 			};
+			*/
 			function showParams(p) {
 				for (var key in p) {
 					if (key == "func") {
 						document.getElementById(p[key]).checked = true;
 					} else if (key == "gradient") {
-						document.getElementById(key).checked = p[key];
+						//document.getElementById(key).checked = (p[key] == 1) ? true : false;;
+						document.getElementById(key).checked = parseInt(p[key]);
 					} else {
 						document.getElementById(key).value = p[key]; // range
 						document.getElementById(key+"-value").innerHTML = p[key]; // span
@@ -36,12 +40,13 @@
 					       	// value of radio is it's id too
 						params.custom[key] = f;
 					} else if (key == "gradient") {
-						params.custom[key] = document.getElementById(key).checked;
+						params.custom[key] = (document.getElementById(key).checked) ? 1 : 0;
 					} else {
 						params.custom[key] = document.getElementById(key).value; // range
 						params.custom[key] = document.getElementById(key+"-value").innerHTML; // span
 					}
 				}
+				gmol.setParams("custom", "surface", params.custom);
 			}
 			function updateValue(elem) {
 				document.getElementById(elem.id+"-value").innerHTML = elem.value;

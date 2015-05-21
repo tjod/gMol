@@ -74,6 +74,32 @@ int Gmol::readMolFromFileElement(const QWebElement fileElement) {
     return 1;
 }
 */
+QVariantMap Gmol::getParams(QString kind) {
+    QVariantMap result;
+    QVariantMap *group = NULL;
+    QString groupName = "";
+    paramQuery pq;
+    for (pq.iter(kind); pq.next(); ) {
+        if (groupName != pq.pgroup) {
+            if (group) result[groupName] = *group;
+            QVariantMap newgroup;
+            group = &newgroup;
+            groupName = pq.pgroup;          
+        }
+        (*group)[pq.pname] = pq.pvalue;
+    }
+    if (group) result[groupName] = *group;
+    return result;
+}
+bool Gmol::setParams(QString group, QString kind, QVariantMap params) {
+    qDebug() << group << kind << params;
+    paramQuery pq;
+    QVariantMap::iterator i;
+    for (i = params.begin(); i != params.end(); ++i) {
+        pq.update(kind, group, i.key(), i.value().toString());
+    }
+    return true;
+}
 
 QMap <QString, QVariant>Gmol::atest() {
   QMap <QString, QVariant>result;

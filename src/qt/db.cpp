@@ -1617,9 +1617,41 @@ bool treeQuery::updateMainSide(int itemid, int newmainSide, int newfilter) {
 paramQuery::paramQuery() {}
 paramQuery::~paramQuery() {}
 
-bool paramQuery::iter(QString type) {
-    if (prepare("Select ptype,pname,pvalue from params Where ptype=? order by ptype")) {
-        addBindValue(type);
+bool paramQuery::iter(QString kind) {
+    QString sql = "Select pkind,pgroup,pname,pvalue from params Where pkind = ? order by pkind, pgroup";
+    if (prepare(sql)) {
+        addBindValue(kind);
+        if (exec()) {
+            valid = true;
+        } else {
+            valid = false;
+        }
+    } else {
+        Db::tellError(*this);
+        valid = false;
+    }
+    return valid;
+}
+bool paramQuery::iter() {
+    QString sql = "Select pkind,pgroup,pname,pvalue from params order by pkind, pgroup";
+    if (prepare(sql)) {
+        if (exec()) {
+            valid = true;
+        } else {
+            valid = false;
+        }
+    } else {
+        Db::tellError(*this);
+        valid = false;
+    }
+    return valid;
+}
+
+bool paramQuery::iter(QString group, QString kind) {
+    QString sql = "Select pkind,pgroup,pname,pvalue from params Where pkind=? and pgroup=? order by pkind, pgroup";
+    if (prepare(sql)) {
+        addBindValue(kind);
+        addBindValue(group);
         if (exec()) {
             valid = true;
         } else {
@@ -1633,12 +1665,26 @@ bool paramQuery::iter(QString type) {
 }
 bool paramQuery::next() {
     if (QSqlQuery::next()) {
-        ptype  = value(0).toString();
-        pname  = value(1).toString();
-        pvalue = value(2).toString();
+        pkind  = value(0).toString();
+        pgroup = value(1).toString();
+        pname  = value(2).toString();
+        pvalue = value(3).toString();
         valid = true;
     } else {
         valid = false;
     }
     return valid;
+}
+bool paramQuery::update(QString akind, QString agroup, QString aname, QString avalue) {
+    QSqlQuery q;
+    q.prepare("Update params Set pvalue=? Where pkind=? And pgroup=? And pname=?");
+    q.addBindValue(avalue);    
+    q.addBindValue(akind);
+    q.addBindValue(agroup);
+    q.addBindValue(aname);
+    if (!q.exec()) {
+        Db::tellError(q);
+        return false;
+    }
+    return true;
 }

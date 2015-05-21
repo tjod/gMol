@@ -352,9 +352,13 @@ public:
     ~paramQuery();
     
     bool next();
-    bool iter(QString type);
+    bool iter(QString group, QString kind);
+    bool iter(QString kind);
+    bool iter();
+    bool update(QString akind, QString agroup, QString aname, QString avalue);
     
-    QString ptype;
+    QString pkind;
+    QString pgroup;
     QString pname;
     QString pvalue;
     bool valid;
