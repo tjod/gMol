@@ -50,6 +50,7 @@ C *************************************************************
 #define FILTER_ATOM       8  // One chosen atom
 #define FILTER_HETATM     9  // All HETATM as in pdb file
 #define FILTER_MOLECULE  10  // Most atoms, but not waters
+#define FILTER_SURFACE   25  // no waters, no hetatm
 
 #define NOCHAIN '\0'
 #define NOATOM -1

@@ -374,7 +374,7 @@ int main(int argc, char **argv)
     if (outtype == DB) {
         dbstart();
         db.transaction();
-    }        
+    }
     
     // size of each grid cube
     incs.x = step;

@@ -31,6 +31,7 @@ cat >/tmp/filters.tmp <<EODAT
 21|17|M|ATU*|atom.resnam In ('A', 'T', 'U') And atom.name Not In ('H', 'HA', 'OP1', 'P', 'OP2', 'OP3', 'O5''', 'C5''', 'H5''', 'H5''''', 'H3''', 'H4''', 'C4''', 'C3''', 'O3''')|AT(U) base pairs
 22|18|M|GC*|atom.resnam In ('G', 'C') And atom.name Not In ('H', 'HA', 'OP1', 'P', 'OP2', 'OP3', 'O5''', 'C5''', 'H5''', 'H5''''', 'H3''', 'H4''', 'C4''', 'C3''', 'O3''')|GC base pairs
 23|9|M|GLY*|atom.resnam='GLY' And atom.name='CA'|GLY
+25|0|0|Surface|atom.resnam Not In ('HOH', 'WAT') And (atom.hetatm=0 Or atom.hetatm Is Null)|Surface generation
 EODAT
 sqlite3 init.gdb3 <<EOSQL
 Drop Table filters;

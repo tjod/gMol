@@ -162,10 +162,11 @@ void ChemWidget::addSurfRow() {
   char chain     = currentRow.chain;
   int imol       = currentRow.imol;
   //int filter     = currentRow.filter;
-  int filter = FILTER_NONE; // all atoms
+  int filter = FILTER_SURFACE;
+  currentRow.filter = filter;
   int resnum = currentRow.resnum;
   int numres = (mol_query.get(imol) ? mol_query.nresidue : 0); //Db::molNumRes(imol);
-  if (numres > 1) filter = FILTER_MOLECULE; // not waters
+  //if (numres > 1) filter = FILTER_MOLECULE; // not waters
   setCurrentItem(addMolRow(parent, "Surface", resnum, Qt::Checked, imol, NOATOM, chain, "surface", STYLE_SURF_WATER, COLOR_BY_SOLID, color, filter));
   expandItem(parent);
   currentRow.ignore = 1; // so as to prevent the forget command from being issued
