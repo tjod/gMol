@@ -114,8 +114,8 @@ private:
     WebWidget *surfView;
 
     void setTimer(bool state);
-    QTimer * continuousUpdater;
-    void addMenuItem(QDockWidget *dock, QString tip);
+    QTimer *continuousUpdater;
+    QAction *addMenuItem(QDockWidget *dock, QString tip);
     QString showDock(QDockWidget *);
     //void resizeEvent(QResizeEvent *);
 };

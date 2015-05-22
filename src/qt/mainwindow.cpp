@@ -53,6 +53,12 @@ MainWindow::MainWindow()
     tabifyDockWidget(logDock, controlDock);
     controlDock->hide();
 
+    surfDock = openUrl("file:///"+gmolLib+"/gmol/surf.html", false);
+    surfView = (WebWidget*)surfDock->widget();
+    surfDock->setWindowTitle("Custom surface");
+    surfDock->hide();
+    
+    // create some html-based docks
     //QDockWidget *grampsDock = openUrl("file:///"+gmolLib+"/js/gramps/index.html", false);
     grampsDock = openUrl("file:///"+gmolLib+"/extjs/gmol/index-dbg.html", false);
     grampsView = (WebWidget*)grampsDock->widget();
@@ -63,11 +69,6 @@ MainWindow::MainWindow()
     connect(glWidget, SIGNAL(advanceDone()), this, SLOT(advanceDone()));
     grampsDock->hide();
 
-    surfDock = openUrl("file:///"+gmolLib+"/gmol/surf.html", false);
-    surfView = (WebWidget*)surfDock->widget();
-    surfDock->setWindowTitle("Custom surface");
-    surfDock->hide();
-    
     helpDock = openUrl("file:///" + gmolLib + "/index.html", false);
     helpView = (WebWidget*)helpDock->widget();
     // don't let the title change as page changes
@@ -136,11 +137,12 @@ void MainWindow::showdock(bool b) {
     //qDebug() << "showdock" << title << b;
 }
 
-void MainWindow::addMenuItem(QDockWidget *dock, QString tip) {
+QAction *MainWindow::addMenuItem(QDockWidget *dock, QString tip) {
     QAction *act = dock->toggleViewAction();
     tabMenu->addAction(act);
     act->setToolTip(tip);
     connect(act, SIGNAL(toggled(bool)), this, SLOT(showdock(bool)));
+    return act;
 }
 
 void MainWindow::createDockWindows() {
@@ -164,7 +166,6 @@ void MainWindow::createDockWindows() {
 
     logDock->setWidget(cmdWidget);
     addDockWidget(Qt::LeftDockWidgetArea, logDock);
-    addMenuItem(logDock, tr("Toggle command log"));
     //connect(logDock, SIGNAL(visibilityChanged(bool)), this, SLOT(dockVisible(bool)));
 
 // control widget
@@ -173,15 +174,7 @@ void MainWindow::createDockWindows() {
     controlWidget->setupConnections();
     controlDock->setWidget(controlWidget);
     addDockWidget(Qt::LeftDockWidgetArea, controlDock);
-    addMenuItem(controlDock, tr("Toggle control devices"));
     //connect(controlDock, SIGNAL(visibilityChanged(bool)), this, SLOT(dockVisible(bool)));
-
-// status bar
-    QAction *act = tabMenu->addAction(tr("Status")); //, this, SLOT(toggleStatus(bool)));
-    act->setCheckable(true);
-    act->setChecked(false);
-    statusBar()->hide();
-    connect(act, SIGNAL(toggled(bool)), this, SLOT(toggleStatus(bool)));
 
 // subsumed into help; see doHelp(QAction)
     demoView = NULL;
@@ -198,6 +191,15 @@ void MainWindow::createDockWindows() {
     chemDock->setMinimumWidth(450);
     //connect(chemDock, SIGNAL(visibilityChanged(bool)), this, SLOT(dockVisible(bool)));
 #endif
+    addMenuItem(logDock, tr("Toggle command log"));    
+    addMenuItem(controlDock, tr("Toggle control devices"))->setEnabled(false);    
+    
+    // status bar
+    QAction *act = tabMenu->addAction(tr("Status")); //, this, SLOT(toggleStatus(bool)));
+    act->setCheckable(true);
+    act->setChecked(false);
+    statusBar()->hide();
+    connect(act, SIGNAL(toggled(bool)), this, SLOT(toggleStatus(bool)));
 }
 //void MainWindow::dockVisible(bool visible) {
 //    QDockWidget *dock = static_cast<QDockWidget *>(QObject::sender());
