@@ -8,13 +8,13 @@ surface|molecular|padding|4.0
 surface|molecular|gradient|0
 surface|accessible|func|vdw
 surface|accessible|contour|1.0
-surface|accessible|radius|1.2
+surface|accessible|radius|0.7
 surface|accessible|step|0.75
 surface|accessible|padding|4.0
 surface|accessible|gradient|0
 surface|custom|func|vdw
 surface|custom|contour|1.0
-surface|custom|radius|1.2
+surface|custom|radius|0.7
 surface|custom|step|0.5
 surface|custom|padding|4.0
 surface|custom|gradient|1
