@@ -195,6 +195,7 @@ public:
     bool next();
 
     bool near(int imol, char chain, float *xyzw, float range);
+    bool iterNear(int atomid, float range);
     bool get(int imol, int iatom);
     bool iter(int imol, int resnum, char chain, int filter, int hydrogens);
     int  hcount(int, int, char, int);

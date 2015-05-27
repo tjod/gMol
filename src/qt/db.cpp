@@ -933,6 +933,7 @@ QString atomQuery::getResnam(int imol, int resnum, char chain) {
     Db::tellError(query);
     return name;
 }
+
 bool atomQuery::near(int qmol, char qchain, float *xyzw, float range=2.5) {
     int atomid = findAtomIdNear(qmol,qchain,xyzw,range);
     if (atomid != NOATOM) get(qmol,atomid); // will set valid
@@ -940,7 +941,7 @@ bool atomQuery::near(int qmol, char qchain, float *xyzw, float range=2.5) {
     return valid;
 }
 
-int atomQuery::findAtomIdNear(int qmol, char qchain, float *xyzw, float range=1.0) {
+int atomQuery::findAtomIdNear(int qmol, char qchain, float *xyzw, float range) {
 #ifdef DEBUG
     qDebug() << "Db::findAtomNear";
 #endif
@@ -948,7 +949,7 @@ int atomQuery::findAtomIdNear(int qmol, char qchain, float *xyzw, float range=1.
     QSqlQuery query;
     //query.prepare("Select atid,x-? As dx,y-? As dy,z-? As dz From atom Where molid = ? and (chain is null Or chain = ?) And x Between ? And ? And y Between ? And ? And z Between ? And ? Order By (dx*dx+dy*dy+dz*dz) Desc");
     QString sql = "Select atid,x-? As dx,y-? As dy,z-? As dz From atom Where molid = ? And x Between ? And ? And y Between ? And ? And z Between ? And ? Order By (dx*dx+dy*dy+dz*dz) Desc";
-    if (!query.prepare(sql)) return NOATOM;
+    if (!query.prepare(sql)) return false;
     query.addBindValue(xyzw[0]); query.addBindValue(xyzw[1]); query.addBindValue(xyzw[2]);
     query.addBindValue(qmol);
     //query.addBindValue((QString)chain);
@@ -970,6 +971,26 @@ int atomQuery::findAtomIdNear(int qmol, char qchain, float *xyzw, float range=1.
     //qDebug() << nfound << " near atoms.";
     if (nfound == 0) return findAtomIdNear(qmol, qchain, xyzw, range*2);
     return atomid;
+}
+bool atomQuery::iterNear(int atomid, float range=2.5) {
+    QString sql = "With a As (Select atid,molid,chain,resnam,resnum,x,y,z,? range From atom Where atid=? And atnum != 6), \
+      nearNonBonded As (Select a.atid root, b.atid nearid From atom b join a Where a.atid != b.atid And b.atnum != 6 \
+      And Case a.molid = b.molid When a.chain = b.chain Then a.resnum != b.resnum End \
+      And b.x Between a.x-range And a.x+range \
+      And b.y Between a.y-range And a.y+range \
+      And b.z Between a.z-range And a.z+range Except Select aid,bid From bond) \
+      Select molid,atid,resnum,resnam,altLoc,icode,atnum,x,y,z,fcharge,pcharge,name,chain,hetatm \
+      From atom Join nearNonBonded On (nearid=atid)";
+    if (!prepare(sql)) return false;
+    addBindValue(range);
+    addBindValue(atomid);
+    if (exec()) {
+        valid = true; // don't call next for this iter method
+    } else {
+        Db::tellError(*this);
+        valid = false;
+    }
+    return valid;
 }
 
 int atomQuery::hcount(int qmol, int qresnum, char qchain, int qfilter) {

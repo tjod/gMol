@@ -143,13 +143,17 @@ QString ChemWidget::processPick(QTreeWidgetItem* item, grampsPick /*gp*/) {
 }
 
 void ChemWidget::gotPick(const QPoint &globalP, grampsPick gp) {
+    // right-click or ctrl-click Mac
     // got a pick of a gramps molecule object with name and location
     QTreeWidgetItem *item = getGrampsItem(gp.name);
     if (item) {
         setCurrentItem(item);
         setItemsFromPick(item, gp);
+        for (atom_query.iterNear(pickedAtom.atid, 3.5); atom_query.next(); ) {
+            qDebug() << pickedAtom.atid << pickedAtom.resnam << pickedAtom.resnum << pickedAtom.name << atom_query.atid << atom_query.resnam << atom_query.resnum << atom_query.name;
+        }
         QString path = processPick(item, gp);
-        showPickMenu(globalP, item, path);        
+        showPickMenu(globalP, item, path);
     }
 }
 
@@ -344,7 +348,7 @@ void ChemWidget::addSurfStyleMenu(QMenu *styleMenu, int current_style, const cha
   act->setData(STYLE_SURF_MOL);
   g->addAction(act);
 
-  act = styleMenu->addAction(tr("Water-accessible"), this, slot);
+  act = styleMenu->addAction(tr("Accessible"), this, slot);
   act->setCheckable(true);
   if (current_style == STYLE_SURF_WATER) act->setChecked(true);
   act->setData(STYLE_SURF_WATER);

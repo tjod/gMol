@@ -132,8 +132,8 @@ void ChemWidget::makeSurface() {
     arguments << "-n" << "molecular";  
     title = "Molecular surface";
   } else if (style == STYLE_SURF_WATER) {
-    arguments << "-n" << "accessible";  
-    title = "Water-accessible surface";
+    arguments << "-n" << "accessible";
+    title = "Accessible surface";
   } else if (style == STYLE_SURF_CUSTOM) {
     arguments << "-n" << "custom";  
     title = "Custom surface";
