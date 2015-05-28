@@ -149,12 +149,28 @@ void ChemWidget::gotPick(const QPoint &globalP, grampsPick gp) {
     if (item) {
         setCurrentItem(item);
         setItemsFromPick(item, gp);
-        for (atom_query.iterNear(pickedAtom.atid, 3.9); atom_query.next(); ) {
-            qDebug() << pickedAtom.atid << pickedAtom.resnam << pickedAtom.resnum << pickedAtom.name << atom_query.atid << atom_query.resnam << atom_query.resnum << atom_query.name;
-        }
         QString path = processPick(item, gp);
         showPickMenu(globalP, item, path);
+        showNear();
     }
+}
+void ChemWidget::showNear() {
+    float data[9] = {0.,0.,1.};
+    if (idname_("DISTANCE",8)) {
+        emit cmdReady("forget DISTANCE");
+    }
+    int err = getMem("DISTANCE", data, 3, 8);
+    if (err) return;
+    data[0] = 2; data[1] = 2; data[2] = 3;
+    for (atom_query.iterNear(pickedAtom.atid, 3.0); atom_query.next(); ) {
+#ifdef DEBUG
+        qDebug() << pickedAtom.atid << pickedAtom.resnam << pickedAtom.resnum << pickedAtom.name << atom_query.atid << atom_query.resnam << atom_query.resnum << atom_query.name;
+#endif
+        data[3] = pickedAtom.x; data[4] = pickedAtom.y; data[5] = pickedAtom.z;
+        data[6] = atom_query.x; data[7] = atom_query.y; data[8] = atom_query.z;
+        err = getMemMore("", data, 9, 0);
+    }
+    err = getMemDone("", NULL, 0, 0);
 }
 
 void ChemWidget::gotDoubleClick(const QPoint & /*globalP*/, grampsPick gp) {
@@ -2206,7 +2222,7 @@ void ChemWidget::dumpout(float *data, int size) {
   }
 }
 
-//#define MEMDEBUG 1
+#define MEMDEBUG 1
 int ChemWidget::getMem    (const char *name, float *data, int size, int namlen) {
   int s = size;
 #ifdef PIXTMP

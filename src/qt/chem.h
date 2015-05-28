@@ -187,6 +187,7 @@ private:
     QString encodeMolName(int imol, char chain, int rindex, QString suffix);
     void createContextMenu(QTreeWidgetItem *, int, QMenu *, const char* slot, bool highlight);
     void showPickMenu(const QPoint &, QTreeWidgetItem *, QString name);
+    void showNear();
     void addColorMenu(QMenu *, int colorBy);
     void addAtomStyleMenu(QMenu *styleMenu, int current_style, const char *slot);
     void addSurfStyleMenu(QMenu *styleMenu, int current_style, const char *slot);
