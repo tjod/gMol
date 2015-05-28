@@ -149,7 +149,7 @@ void ChemWidget::gotPick(const QPoint &globalP, grampsPick gp) {
     if (item) {
         setCurrentItem(item);
         setItemsFromPick(item, gp);
-        for (atom_query.iterNear(pickedAtom.atid, 3.5); atom_query.next(); ) {
+        for (atom_query.iterNear(pickedAtom.atid, 3.9); atom_query.next(); ) {
             qDebug() << pickedAtom.atid << pickedAtom.resnam << pickedAtom.resnum << pickedAtom.name << atom_query.atid << atom_query.resnam << atom_query.resnum << atom_query.name;
         }
         QString path = processPick(item, gp);
