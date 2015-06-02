@@ -162,7 +162,7 @@ void ChemWidget::showNear() {
     int err = getMem("DISTANCE", data, 3, 8);
     if (err) return;
     data[0] = 2; data[1] = 2; data[2] = 3;
-    for (atom_query.iterNear(pickedAtom.atid, 3.0); atom_query.next(); ) {
+    for (atom_query.iterNear(pickedAtom.molid, pickedAtom.atid, 3.0); atom_query.next(); ) {
 #ifdef DEBUG
         qDebug() << pickedAtom.atid << pickedAtom.resnam << pickedAtom.resnum << pickedAtom.name << atom_query.atid << atom_query.resnam << atom_query.resnum << atom_query.name;
 #endif
@@ -2222,7 +2222,7 @@ void ChemWidget::dumpout(float *data, int size) {
   }
 }
 
-#define MEMDEBUG 1
+//#define MEMDEBUG 1
 int ChemWidget::getMem    (const char *name, float *data, int size, int namlen) {
   int s = size;
 #ifdef PIXTMP

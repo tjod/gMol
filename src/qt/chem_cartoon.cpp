@@ -336,7 +336,7 @@ int ChemWidget::sendRibbon(float spline_minus[][3], float spline_plus[][3], int 
                         //if (thick == 0) {
                         f =  (float(ntaper-i)/ntaper) * 0.49;
                     } else {
-                        f = (float(ntaper-i)/ntaper) * (width-abs(thick)*2)/width * 0.49;
+                        f = (float(ntaper-i)/ntaper) * (width-fabs(thick)*2)/width * 0.49;
                     }
                 } else {
                     // taper down from full width
@@ -344,7 +344,7 @@ int ChemWidget::sendRibbon(float spline_minus[][3], float spline_plus[][3], int 
                         //if (thick == 0) {
                         f = (float(ntaper-(slength-1-i))/ntaper) * 0.49;
                     } else {
-                        f = (float(ntaper-(slength-1-i))/ntaper) * (width-abs(thick)*2)/width * 0.49;
+                        f = (float(ntaper-(slength-1-i))/ntaper) * (width-fabs(thick)*2)/width * 0.49;
                     }
                 }
                 // adjust edges
@@ -440,7 +440,7 @@ int ChemWidget::makeRibbon(int nguide, float *guide_minus, float *guide_plus, fl
     int spline_len = spline_zero[0]; //makeSpline returns n,ldm1,ldm1 in first 3 elements
     ++begin; // start of spline data
     b=begin*3; // *3 because 3D xyz coords
-    
+
     int len;
     int ires=1;
     int nspan;

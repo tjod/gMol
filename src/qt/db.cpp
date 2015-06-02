@@ -972,10 +972,10 @@ int atomQuery::findAtomIdNear(int qmol, char qchain, float *xyzw, float range) {
     if (nfound == 0) return findAtomIdNear(qmol, qchain, xyzw, range*2);
     return atomid;
 }
-bool atomQuery::iterNear(int atomid, float range=2.5) {
-    QString sql = "With a As (Select atid,molid,chain,resnam,resnum,name,x,y,z,? range From atom Where atid=?), \
-      nearNonBonded As (Select a.atid root, b.atid nearid From atom b join a Where a.atid != b.atid \
-      And Case a.molid = b.molid When a.chain = b.chain Then a.resnum != b.resnum End \
+bool atomQuery::iterNear(int molid, int atomid, float range=2.5) {
+    QString sql = "With a As (Select atid,molid,chain,resnam,resnum,name,x,y,z,? range From atom Where molid=? And atid=?), \
+      nearNonBonded As (Select a.atid root, b.atid nearid From atom b join a Where a.molid = b.molid And a.atid != b.atid \
+      And  Case When a.chain = b.chain Then a.resnum != b.resnum End \
       And (Case When a.name In (Select name from donor) Then b.name In (Select name from acceptor) \
                 When a.name In (Select name from acceptor) Then b.name In (Select name from donor) End) \
       And b.x Between a.x-range And a.x+range \
@@ -986,6 +986,7 @@ bool atomQuery::iterNear(int atomid, float range=2.5) {
     //qDebug() << sql;
     if (!prepare(sql)) return false;
     addBindValue(range);
+    addBindValue(molid);
     addBindValue(atomid);
     if (exec()) {
         valid = true; // don't call next for this iter method

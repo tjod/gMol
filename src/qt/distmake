@@ -13,5 +13,5 @@ cp -r gmol.app $DIR
 cd $DIR
 macdeployqt gmol.app -executable=gmol.app/Contents/MacOS/dbchem -executable=gmol.app/Contents/MacOS/dbsurf  -verbose=3 -dmg >log 2>&1
 mv log ..
-hdiutil create gmol.dmg -srcfolder .
+#hdiutil create gmol.dmg -srcfolder .
 mv ../log .
