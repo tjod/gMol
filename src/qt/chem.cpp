@@ -156,10 +156,12 @@ void ChemWidget::gotPick(const QPoint &globalP, grampsPick gp) {
 }
 void ChemWidget::showNear() {
     float data[9] = {0.,0.,1.};
-    if (idname_("DISTANCE",8)) {
-        emit cmdReady("forget DISTANCE");
+    if (idname_(PICKNAME, strlen(PICKNAME))) {
+        QString cmd = "forget ";
+        cmd += PICKNAME;
+        emit cmdReady(cmd);
     }
-    int err = getMem("DISTANCE", data, 3, 8);
+    int err = getMem(PICKNAME, data, 3, strlen(PICKNAME));
     if (err) return;
     data[0] = 2; data[1] = 2; data[2] = 3;
     for (atom_query.iterNear(pickedAtom.molid, pickedAtom.atid, 3.0); atom_query.next(); ) {

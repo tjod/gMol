@@ -1,3 +1,5 @@
+TARGET = dbsurf
+
 TEMPLATE += app
 CONFIG += console
 QT += sql core widgets opengl
@@ -23,6 +25,3 @@ HEADERS += \
 SOURCES += main.cpp \
    ../db.cpp \
    ../ChemDb/dbchem.cpp
-
-@#include(deployment.pri)
-#qtcAddDeployment()

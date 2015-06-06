@@ -82,6 +82,8 @@ C *************************************************************
 
 //#define HAS_BIT(flag, FILTER_BIT) (flag&&((flag&FILTER_BIT)==flag))
 
+#define PICKNAME "DISTANCE"
+
 //   Q_DECLARE_METATYPE(QTreeWidgetItem*);
 class ChemWidget : public QTreeWidget
 {
