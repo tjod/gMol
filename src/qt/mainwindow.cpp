@@ -192,7 +192,7 @@ void MainWindow::createDockWindows() {
     //connect(chemDock, SIGNAL(visibilityChanged(bool)), this, SLOT(dockVisible(bool)));
 #endif
     addMenuItem(logDock, tr("Toggle command log"));    
-    addMenuItem(controlDock, tr("Toggle control devices"))->setEnabled(false);    
+    addMenuItem(controlDock, tr("Toggle control devices"))->setEnabled(true);    
     
     // status bar
     QAction *act = tabMenu->addAction(tr("Status")); //, this, SLOT(toggleStatus(bool)));

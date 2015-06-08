@@ -151,7 +151,7 @@ void ChemWidget::gotPick(const QPoint &globalP, grampsPick gp) {
         setItemsFromPick(item, gp);
         QString path = processPick(item, gp);
         showPickMenu(globalP, item, path);
-        showNear();
+        //showNear();
     }
 }
 void ChemWidget::showNear() {
@@ -423,6 +423,7 @@ void ChemWidget::createContextMenu(QTreeWidgetItem *item, int filter, QMenu *men
       }
       QMenu *styleMenu = menu->addMenu(tr("Draw"));
       addAtomStyleMenu(styleMenu, currentRow.style, slot);
+      menu->addAction(tr("Hbonds"), this, SLOT(showNear()));
       if (hasRow) {
           menu->addAction(tr("Hide"), this, SLOT(hideMol()));
           menu->addAction(tr("Ignore"), this, SLOT(ignoreMol()));
