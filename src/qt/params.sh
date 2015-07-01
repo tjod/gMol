@@ -6,18 +6,21 @@ surface|molecular|radius|0.0
 surface|molecular|step|0.75
 surface|molecular|padding|4.0
 surface|molecular|gradient|0
+surface|molecular|hetatm|0
 surface|accessible|func|vdw
 surface|accessible|contour|1.0
 surface|accessible|radius|0.7
 surface|accessible|step|0.75
 surface|accessible|padding|4.0
 surface|accessible|gradient|0
+surface|accessible|hetatm|0
 surface|custom|func|vdw
 surface|custom|contour|1.0
 surface|custom|radius|0.7
 surface|custom|step|0.5
 surface|custom|padding|4.0
 surface|custom|gradient|1
+surface|custom|hetatm|0
 EODAT
 sqlite3 init.gdb3 <<EOSQL
 Drop Table If Exists params;

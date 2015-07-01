@@ -116,6 +116,7 @@ void usage() {
     std::cerr << "  -m              use marching cubes" << std::endl;
     std::cerr << "  -t              use marching tetrahedra" << std::endl;
     std::cerr << "  -g              use gradient normals (slower); no effect with -t" << std::endl;
+    std::cerr << "  -a              include HETATM (for pdb)" << std::endl;    
     std::cerr << "  -f <type>       potential energy function: vdW, LJ or Gauss" << std::endl;    
     std::cerr << "  -s <stepsize>   step size" << std::endl;
     std::cerr << "  -p <padding>    padding" << std::endl;
@@ -123,7 +124,7 @@ void usage() {
 }
 
 bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTargetValue, int *outtype,
-             float *step, float *padding, float *r, bool *gradients, QString *pgroup) {
+             float *step, float *padding, float *r, bool *gradients, bool *hetatm, QString *pgroup) {
     
     if (argc < 2) return false;
     
@@ -314,12 +315,13 @@ int main(int argc, char **argv)
     float step = 0.75; // size of cubes
     int outtype = 0;  // output to db, or stdout in pix file format
     bool gradients = false;
+    bool hetatm = false;
     QString pgroup;
     
     // info comes from sqlite db
     QSqlDatabase db;
     QString dbname = "";
-    if (!getArgs(argc, argv, &dbname, &itemid, &fTargetValue, &outtype, &step, &padding, &rProbe, &gradients, &pgroup)) {
+    if (!getArgs(argc, argv, &dbname, &itemid, &fTargetValue, &outtype, &step, &padding, &rProbe, &gradients, &hetatm, &pgroup)) {
         usage();
         exit(-1);
     }
@@ -350,6 +352,8 @@ int main(int argc, char **argv)
                     padding = pq.pvalue.toFloat();
                 } else if (pq.pname == "gradient") {
                     gradients = (pq.pvalue.toInt() == 1) ? true : false;
+                } else if (pq.pname == "hetatm") {
+                    hetatm = (pq.pvalue.toInt() == 1) ? true : false;
                 }
             }
         }
@@ -366,7 +370,11 @@ int main(int argc, char **argv)
       item.getRow(itemid);
       chain = item.chain;
       imol = item.imol;
-      filter = item.filter;
+      if (hetatm) {
+          filter = 0; // all atoms, but not HOH or WAT
+      } else {
+          filter = item.filter;
+      }
       resnum = item.resnum;
       hydrogens = item.hydrogens;
     }

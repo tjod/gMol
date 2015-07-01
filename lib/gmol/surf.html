@@ -15,7 +15,7 @@
 				for (var key in p) {
 					if (key == "func") {
 						document.getElementById(p[key]).checked = true;
-					} else if (key == "gradient") {
+               } else if (key == "gradient" || key == "hetatm") {
 						//document.getElementById(key).checked = (p[key] == 1) ? true : false;;
 						document.getElementById(key).checked = parseInt(p[key]);
 					} else {
@@ -39,7 +39,7 @@
 						var f = document.querySelector('input[name="func"]:checked').value;
 					       	// value of radio is it's id too
 						params.custom[key] = f;
-					} else if (key == "gradient") {
+               } else if (key == "gradient" || key == "hetatm") {
 						params.custom[key] = (document.getElementById(key).checked) ? 1 : 0;
 					} else {
 						params.custom[key] = document.getElementById(key).value; // range
@@ -88,6 +88,8 @@
 			</p>
 			</div>
 		<input type="checkbox" id="gradient" unchecked>Smooth by computing gradients (slower)
+      <br>
+      <input type="checkbox" id="hetatm" unchecked>Include HETATM
 		<p>
 		<input type="button" onclick=saveCustom() value="Save Custom" />
 		</p>
