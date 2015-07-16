@@ -112,7 +112,7 @@ bool WebWidget::handlePDB(QNetworkReply *reply, QString header, QString path) {
             int imol = Db::readPDB(spdb, QFileInfo(path).fileName());
             emit molReady(imol); // signals ChemWidget molReady
             canReload = false;  // reload causes new model of existing mol
-            deleteTab();            
+            if (canDelete) deleteTab();            
             return true;
         }
     }
