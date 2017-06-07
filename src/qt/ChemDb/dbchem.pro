@@ -17,6 +17,7 @@ unix:!macx {
 }
 macx {
  INCLUDEPATH  += /Users/tj/Documents/openbabel/include/openbabel-2.0 ../
+ #INCLUDEPATH  += /usr/local/include/openbabel-2.0 ../
 }
 win32 {
 CONFIG += console
@@ -36,6 +37,7 @@ SOURCES       = main.cpp \
                 dbchem.cpp
 macx {
  LIBS         += ${HOME}/Documents/openbabel/lib/libopenbabel.a /opt/local/lib/libz.a
+ #LIBS         += -L${HOME}/Documents/openbabel/lib -l openbabel /opt/local/lib/libz.a
 }
 unix:!macx {
  LIBS         += -L/usr/local/lib/ -lopenbabel

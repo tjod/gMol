@@ -60,7 +60,8 @@ MainWindow::MainWindow()
     
     // create some html-based docks
     //QDockWidget *grampsDock = openUrl("file:///"+gmolLib+"/js/gramps/index.html", false);
-    grampsDock = openUrl("file:///"+gmolLib+"/extjs/gmol/index-dbg.html", false);
+    //grampsDock = openUrl("file:///"+gmolLib+"/extjs/gmol/index-dbg.html", false);
+    grampsDock = openUrl("file:///"+gmolLib+"/jquery/gramps.html", false);
     grampsView = (WebWidget*)grampsDock->widget();
     connect(glWidget, SIGNAL(mousePressed(const QPoint &,const QPoint &,Qt::MouseButton)),
             this,     SLOT(       gotPick(const QPoint &,const QPoint &,Qt::MouseButton)));
