@@ -13,7 +13,7 @@ C *************************************************************
 #include <openbabel/griddata.h>
 #include <string.h>
 
-using namespace std;
+//using namespace std;
 using namespace OpenBabel;
 
 extern "C" int readgrid_(float *vdata, int *nx, int *ny, int *nz,
@@ -29,13 +29,13 @@ extern "C" int readgrid_(float *vdata, int *nx, int *ny, int *nz,
   OBConversion conv;
   conv.SetInFormat("cube");
  
-  string fname = file;
+  std::string fname = file;
   int blank = fname.find(" ");
   //printf("%d,'%s'\n", blank, fname.substr(0,blank).c_str());
   conv.ReadFile(&mol, fname.substr(0,blank).c_str());
   //cout << mol.NumAtoms() << " atoms." << endl;
   if (mol.HasData(OBGenericDataType::GridData)) {
-    vector<OBGenericData*> grids = mol.GetAllData(OBGenericDataType::GridData);
+    std::vector<OBGenericData*> grids = mol.GetAllData(OBGenericDataType::GridData);
     OBGridData *grid = dynamic_cast<OBGridData *> (grids[0]);
     gsize = grid->GetNumberOfPoints();
     grid->GetNumberOfPoints(*nx, *ny, *nz);
@@ -78,6 +78,7 @@ extern "C" int readgrid_(float *vdata, int *nx, int *ny, int *nz,
   }
   vavg = vavg/navg;
   printf("min/avg/max = %f/%f/%f\n", vmin, vavg, vmax);
+  return 0;
 }
  
 

@@ -107,7 +107,7 @@ C (New) contour from (same) data - see goto 25 below
      &      'enter number of, then those many contour values: '
       Call flush(6)
       read(iunit,*)niso, (isoval(i),i=1,niso)
-      if(niso.le.0) stop 'Zero contours requested'
+      If(niso.le.0) stop 'Zero contours requested'
 c
       write(*,askfmt)
      &      'enter output scale factor, '//
@@ -118,14 +118,14 @@ c
       write(*,askfmt)'enter output file name: '
       Call flush(6)
       read(iunit,'(a)')file
-      if(index(file,'.qix').eq.0)then
+      If(index(file,'.qix').eq.0)Then
         open(unit=ounit, file=file, status='unknown')
         outfile = PIX
-      else
+      Else
         open(unit=ounit, file=file, status='unknown',
      &       form='unformatted')
         outfile = QIX
-      end if
+      End If
 c
 c      Read request to contour only part of volume
       If(ask)write(*,askfmt)
@@ -195,47 +195,48 @@ c
       nvox=(nx-1)*(ny-1)*(nz-1)
       bigvol=nvox*dx*dy*dz
 c
-C     do i=1,niso
-C     do j=0,mtags
+C     Do i=1,niso
+      i = 1
+C     Do j=0,mtags
 C     parea(j)=0.0
 C     pvol(j) =0.0
-C     end do
+C     End Do
 C
-      write(*,*)'contour at ',isoval(i)
+      write(*,*)'contour at ',i,isoval(i)
       Call flush(6)
-      if(outfile .eq. QIX)then
+      If(outfile .eq. QIX)Then
         write(ounit)0,0,abs(scale)
         Call flush(6)
-      else if(outfile .eq. PIX)then
+      Else If(outfile .eq. PIX)Then
         write(ounit,*)'0,0,',abs(scale)
         Call flush(6)
-      end if
+      End If
       call intsect(isoval(i), vdata, nx, ny, nz,
      &      nx0, ny0, nz0, nxx, nyy, nzz, nvert, ntri,
      &      vlist, mvert, x0, y0, z0, dx, dy, dz,
      &  volume, volcomp, tags, ntags)
-      if(volcomp)then
-        if((scale*isoval(i)).gt.0)then
+      If(volcomp)Then
+        If((scale*isoval(i)).gt.0)Then
           invol=volume
           outvol=bigvol-volume
-        else
+        Else
           outvol=volume
           invol=bigvol-volume
-        end if
+        End If
         write(*,'(1x,a,f12.3,a,f12.3)')'volume: inside = ',invol,
      &        ' outside = ',outvol
         Call flush(6)
-C        if(prpvol .and. ntags.gt.0)then
+C        If(prpvol .and. ntags.gt.0)Then
 C          write(*,*)'   Tag   Partial Volumes'
 C          Call flush(6)
-C           do j=0,ntags
-C           if(pvol(j).ne.0)Then
+C           Do j=0,ntags
+C           If(pvol(j).ne.0)Then
 C            write(*,'(1x,i5,3x,f12.3)')j, pvol(j)
 C            Call flush(6)
 C          End If
-C          end do
-C        end if
-C      end if
+C          End Do
+C        End If
+      End If
 c
 C      call vsort(nvert, ntri,  vlist, mvert, tlist)
 c
@@ -245,29 +246,29 @@ c
       write(*,'(1x,i5,a)')ntri, ' triangles created.'
       Call flush(6)
 c
-      if(volcomp)then
+      If(volcomp)Then
         write(*,'(1x,a,f12.3)')'total surface area = ', area
         Call flush(6)
-C       if(prpvol .and. ntags.gt.0)then
+C       If(prpvol .and. ntags.gt.0)Then
 C         write(*,*)'   Tag   Partial Areas'
 C         Call flush(6)
-C          do j=0,ntags
-C          if(parea(j).ne.0)Then
+C          Do j=0,ntags
+C          If(parea(j).ne.0)Then
 C           write(*,'(1x,i5,3x,f12.3)')j, parea(j)
 C           Call flush(6)
 C         End If
-C         end do
+C         End Do
 C         write(*,*)
 C         Call flush(6)
-C       end if
-C     end if
+C       End If
+      End If
 c
-      if(outfile.eq.QIX)then
+      If(outfile.eq.QIX)Then
         write(ounit)-1.,0.,0.
-      else if(outfile.eq.PIX)then
+      Else If(outfile.eq.PIX)Then
         write(ounit,*)'-1,0,0'
-      end if
-      end do
+      End If
+C      End Do
 c
 c      could be more data sets
 c      or could be sending data to gramps
@@ -281,5 +282,9 @@ C Signal end of computation, and go back for more
 C
  999  continue
       close(unit=punit)
-      stop
+      Stop
+      End
+      subroutine addtri()
+      end
+      subroutine addtrinml()
       end
