@@ -1,0 +1,23 @@
+.ui-widget {
+	font-size:80%;
+}
+
+.cmd_echo {
+	color: blue;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+#cmd_line {
+	width: 100%;
+}
+#cmd_in {
+	background-color: white;
+	overflow: hidden;
+}
+#cmd_out {
+	overflow: auto;
+}
+#tree {
+}
+#system {
+}

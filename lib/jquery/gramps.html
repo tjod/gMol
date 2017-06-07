@@ -1,0 +1,31 @@
+<html>
+	<head>
+		<title>Gramps</title>
+		<link rel="stylesheet" href="jquery-ui-1.12.1.custom/jquery-ui.min.css">
+		<link rel="stylesheet" href="jquery-ui-1.12.1.custom/jquery-ui.structure.min.css">
+		<link rel="stylesheet" href="jquery-ui-1.12.1.custom/jquery-ui.theme.min.css">
+		<script src="jquery-3.2.1.min.js"> </script>
+		<script src="jquery-ui-1.12.1.custom/jquery-ui.min.js"> </script>
+		<link rel="stylesheet" href="gramps.css">
+		<script src="gramps.js"> </script>
+	</head>
+	<body>
+		<div id="tabs">
+			<ul>
+				<li><a href="#command">Commands</a></li>
+				<li><a href="#tree">Tree</a></li>
+				<li><a href="#system">System</a></li>
+			</ul>
+			<div id="command">
+				<form>
+				<div id="cmd_in">
+					<input type="text" id="cmd_line">
+				</div>
+				</form>
+				<pre><div id="cmd_out"></div></pre>
+			</div>
+			<pre><div id="tree"></div></pre>
+			<pre><div id="system"></div></pre>
+		</div>
+	</body>
+</html>
