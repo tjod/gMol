@@ -17,6 +17,18 @@
 #cmd_out {
 	overflow: auto;
 }
+ul.tree, li.tree {
+	list-style-type: none;
+	margin: 0;
+	margin-left: 10px;
+	padding: 0;
+}
+#showobj {
+	border-style: solid;
+	border-width: 1px;
+	border-color: lightgrey;
+	margin-top: 10px;
+}
 #tree {
 }
 #system {
