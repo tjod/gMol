@@ -4,8 +4,13 @@
 
 .cmd_echo {
 	color: blue;
+	font-size: 110%;
 	margin-top: 0;
 	margin-bottom: 0;
+}
+.cmd_show {
+	color: blue;
+	font-size: 110%;
 }
 #cmd_line {
 	width: 100%;
@@ -15,6 +20,8 @@
 	overflow: hidden;
 }
 #cmd_out {
+	white-space: pre;
+	font-family: monospace;
 	overflow: auto;
 }
 ul.tree, li.tree {
@@ -24,12 +31,18 @@ ul.tree, li.tree {
 	padding: 0;
 }
 #showobj {
+	white-space: pre;
+	font-family: monospace;
 	border-style: solid;
 	border-width: 1px;
 	border-color: lightgrey;
 	margin-top: 10px;
 }
 #tree {
+	white-space: pre;
+	font-family: monospace;
 }
 #system {
+	white-space: pre;
+	font-family: monospace;
 }
