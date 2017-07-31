@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
     gmolApp *app = new gmolApp(argc, argv);
     app->setOrganizationName("gNova");
     app->setApplicationName("gMol");
+    app->setStyle("fusion"); // fixes radio and checkbox in webkit
 #ifdef __APPLE__
     QDir appdir = QCoreApplication::applicationDirPath();
     appdir.cdUp();
