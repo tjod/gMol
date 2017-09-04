@@ -21,6 +21,7 @@ WebWidget::WebWidget(QWidget *parent, bool canDelete, bool allowAccess)
     gramps = new Gramps();
     gmol = new Gmol();
     this->canDelete = canDelete;
+    setStyle(QStyleFactory::create("Fusion"));  // fixes radio and checkbox bug in webkit
     canReload = true;  // until set otherwise for pdb and sdf loaded from url
     //dock = parent;
     connect(this,  SIGNAL(loadFinished(bool)),  this, SLOT(pageLoaded(bool)));

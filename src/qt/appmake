@@ -4,7 +4,8 @@ EXE=gmol.app/Contents/MacOS
 #cp -f empty.gdb3 $RESOURCES
 #cp -f residue.db $RESOURCES
 cp -f ChemDb/dbchem $EXE
-cp -f   surf/dbsurf $EXE
+#cp -f    surf/dbsurf $EXE
+cp -f  tetsurf/dbsurf $EXE
 rsync -av --exclude=".*" --exclude="jtest/" --exclude="gMolLib.*" --exclude="Makefile" --exclude="init.gdb3" ../../lib/* $RESOURCES 
 cp -f init.gdb3 $RESOURCES
 cp -f gmol.icns $RESOURCES
