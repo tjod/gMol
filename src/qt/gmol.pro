@@ -67,7 +67,7 @@ macx {
     -lgfortran
    ICON = gmol.icns
    QMAKE_CXXFLAGS += -D__APPLE__
-   QMAKE_MAC_SDK = macosx10.12
+   QMAKE_MAC_SDK = macosx10.13
 }
 
 # install
