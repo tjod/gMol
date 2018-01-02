@@ -68,6 +68,8 @@ macx {
    ICON = gmol.icns
    QMAKE_CXXFLAGS += -D__APPLE__
    QMAKE_MAC_SDK = macosx10.13
+	QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.9
+
 }
 
 # install

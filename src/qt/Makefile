@@ -13,8 +13,8 @@ MAKEFILE      = Makefile
 CC            = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang
 CXX           = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++
 DEFINES       = -DQT_OPENGL_LIB -DQT_WEBKITWIDGETS_LIB -DQT_WIDGETS_LIB -DQT_WEBKIT_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_UITOOLS_LIB -DQT_CORE_LIB
-CFLAGS        = -pipe -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk -mmacosx-version-min=10.7 -Wall -W -fPIC $(DEFINES)
-CXXFLAGS      = -pipe -DCHEM -DPDBREADER -DQT5 -D__APPLE__ -g -DDEBUG -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk -mmacosx-version-min=10.7 -Wall -W -fPIC $(DEFINES)
+CFLAGS        = -pipe -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk -mmacosx-version-min=10.9 -Wall -W -fPIC $(DEFINES)
+CXXFLAGS      = -pipe -DCHEM -DPDBREADER -DQT5 -D__APPLE__ -g -DDEBUG -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk -mmacosx-version-min=10.9 -Wall -W -fPIC $(DEFINES)
 INCPATH       = -I. -I/opt/local/include -I/Users/tj/Qt/5.4/clang_64/lib/QtOpenGL.framework/Versions/5/Headers -I/Users/tj/Qt/5.4/clang_64/lib/QtWebKitWidgets.framework/Versions/5/Headers -I/Users/tj/Qt/5.4/clang_64/lib/QtWidgets.framework/Versions/5/Headers -I/Users/tj/Qt/5.4/clang_64/lib/QtWebKit.framework/Versions/5/Headers -I/Users/tj/Qt/5.4/clang_64/lib/QtGui.framework/Versions/5/Headers -I/Users/tj/Qt/5.4/clang_64/lib/QtNetwork.framework/Versions/5/Headers -I/Users/tj/Qt/5.4/clang_64/lib/QtSql.framework/Versions/5/Headers -I/Users/tj/Qt/5.4/clang_64/include -I/Users/tj/Qt/5.4/clang_64/include/QtUiTools -I/Users/tj/Qt/5.4/clang_64/lib/QtCore.framework/Versions/5/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/OpenGL.framework/Versions/A/Headers -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/System/Library/Frameworks/AGL.framework/Headers -I. -I/Users/tj/Qt/5.4/clang_64/mkspecs/macx-clang -F/Users/tj/Qt/5.4/clang_64/lib
 QMAKE         = /Users/tj/Qt/5.4/clang_64/bin/qmake
 DEL_FILE      = rm -f
@@ -35,7 +35,7 @@ COMPRESS      = gzip -9f
 DISTNAME      = gmol1.0.0
 DISTDIR = /Users/tj/Documents/sci3d/trunk/gmol/src/qt/.tmp/gmol1.0.0
 LINK          = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++
-LFLAGS        = -headerpad_max_install_names -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk -mmacosx-version-min=10.7 -Wl,-rpath,/Users/tj/Qt/5.4/clang_64/lib
+LFLAGS        = -headerpad_max_install_names -Wl,-syslibroot,/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk -mmacosx-version-min=10.9 -Wl,-rpath,/Users/tj/Qt/5.4/clang_64/lib
 LIBS          = $(SUBLIBS) -F/Users/tj/Qt/5.4/clang_64/lib ../gramps/qtgramps.a -L/usr/local/gfortran/lib -lgfortran -framework QtOpenGL -framework QtWidgets -framework QtGui -framework QtCore -framework DiskArbitration -framework IOKit -framework QtWebKitWidgets -framework QtWebKit -framework QtNetwork -framework QtSql -L/Users/tj/Qt/5.4/clang_64/lib -lQt5UiTools_debug -framework OpenGL -framework AGL 
 AR            = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar cq
 RANLIB        = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib -s
@@ -135,7 +135,7 @@ QMAKE_COMP_QMAKE_OBJECTIVE_CFLAGS = -pipe \
 		-g \
 		-isysroot \
 		/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk \
-		-mmacosx-version-min=10.7 \
+		-mmacosx-version-min=10.9 \
 		-Wall \
 		-W
 

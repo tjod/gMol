@@ -108,7 +108,6 @@ void GLWidget::wheelEvent(QWheelEvent *event)
 #endif
 //    QGLWidget::wheelEvent(event);
     event->accept();
-
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
