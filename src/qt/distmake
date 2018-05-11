@@ -15,4 +15,7 @@ cd $DIR
 $QTBIN/macdeployqt gmol.app -executable=gmol.app/Contents/MacOS/dbchem -executable=gmol.app/Contents/MacOS/dbsurf  -verbose=3 -dmg >log 2>&1
 mv log ..
 #hdiutil create gmol.dmg -srcfolder .
+hdiutil mount gmol.dmg
+hdiutil create gmol-HFS.dmg -fs HFS+ -srcfolder /Volumes/gmol/
+hdiutil unmount /Volumes/gmol
 mv ../log .

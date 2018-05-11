@@ -150,7 +150,14 @@ void ChemWidget::makeSurface() {
   progress->setLabelText(tr("Computing surface"));
   surfproc->start(prog, arguments);
   progress->setMaximum(100);
-  progress->setValue(1);
+  progress->setValue(50);
+//  progress->setWindowModality(Qt::NonModal);
+//  progress->setAutoClose(false);
+//  progress->reset();
+  progress->setCancelButton(0);
+//  progress->open(NULL, NULL);
+  progress->show();
+  progress->raise();
 }
 
 void ChemWidget::addSurfRow() {

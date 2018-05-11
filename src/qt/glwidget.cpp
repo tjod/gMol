@@ -18,7 +18,9 @@ C *************************************************************
 #include "glwidget.h"
 #include "gramps.h"
 #include "controls.h"
+//#include "mainwindow.h"
 
+//extern MainWindow * mainWindow;
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent)
 {
@@ -126,6 +128,7 @@ void GLWidget::mouseReleaseEvent(QMouseEvent *event)
     emit device(0,0,0);
     event->type();  // just to avoid compiler warning about non-use of event
     QGLWidget::mouseReleaseEvent(event);  //Dont forget to pass on the event to parent
+    //mainWindow->chemWidget->showProgress();
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
