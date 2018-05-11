@@ -87,8 +87,10 @@ void ChemWidget::surfReady(int /*exitcode*/) {
   progress->setMaximum(100);
   progress->setValue(50);
   int err = drawSurface(itemid);
-  progress->cancel();
   if (!err) addSurface(itemid);
+  progress->cancel();
+  QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
+  QApplication::processEvents();
 }
 
 void ChemWidget::addSurface(int itemid) {
@@ -158,6 +160,8 @@ void ChemWidget::makeSurface() {
 //  progress->open(NULL, NULL);
   progress->show();
   progress->raise();
+  QApplication::setOverrideCursor(QCursor(Qt::BusyCursor));
+  QApplication::processEvents();
 }
 
 void ChemWidget::addSurfRow() {
