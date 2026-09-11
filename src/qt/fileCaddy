@@ -1,0 +1,15 @@
+http://localhost:8080 {
+    handle /siteA/* {
+        uri strip_prefix /siteA
+        reverse_proxy https://github.com {
+            header_up Host {upstream_hostport}
+        }
+    }
+
+    handle /siteB/* {
+        uri strip_prefix /siteB
+        reverse_proxy https://gnova.com {
+            header_up Host {upstream_hostport}
+        }
+    }
+}
