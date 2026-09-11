@@ -21,7 +21,8 @@ gmol.app
 dbchem
 dbsurf
 tetsurf
-build-gmol-Qt_5_3_2_clang_64-Debug/
+build-*
+CMakeLists.txt.user
 *.pro.user*
 ui_controls.h
 deployment.pri
