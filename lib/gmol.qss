@@ -1,0 +1,12 @@
+QMainWindow QTabBar::tab {
+    background: #eeeeee;
+    color: #000000;
+    padding: 6px 12px;
+    border: 1px outset #999999;
+    border-bottom-right-radius: 5px;
+}
+QMainWindow QTabBar::tab:selected {
+    background-color: #eeffee; /* Highlight color for active tab */
+    color: #000000;            /* Text color for active tab */
+    font-weight: bold;
+}
