@@ -1,12 +1,12 @@
-FC = /usr/local/bin/gfortran
-FFLAGS = -DQT -gdwarf-2
+FC = /opt/local/bin/gfortran
+FFLAGS = -gdwarf-2 -Wno-implicit-int -Wno-old-style-definition
 #FFLAGS = -O -IMesa/include/GL
 
 #CC = /usr/bin/gcc-3.4
-CC = gcc
+CC = cc
+CFLAGS = -Wno-implicit-int -Wno-old-style-definition
 #CFLAGS =  -IMesa/include -I/usr/X11R6/include
 #CFLAGS =  -I/home/tjo/Mesa-4.0.4/include
-CFLAGS =  -DQT
 
 #XLIBS =   -lXi -lXext -lXm -lXt -lX11 -lPW
 #XLIBS_s = -lXi -lXext -lXm_s -lXt_s -lX11_s -lPW
@@ -46,6 +46,8 @@ GLUTOB= glut_8x13.o glut_bitmap.o glut_hel12.o glut_tr10.o glut_9x15.o glut_hel1
 all: qtgramps.a
 
 qtgramps.a: $(O1) $(O2) $(O4) $(GLUTOB)
+	FFLAGS = -DQT
+	CFLAGS = -DQT
 	rm -f $@
 	$(AR) -r $@ $(O1) $(O2) $(O4) $(GLUTOB)
 #	mv $@ ../qt/
