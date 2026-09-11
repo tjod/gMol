@@ -11,6 +11,7 @@ misc/
 *.so
 *.a
 *.bak
+*.save
 gramps.deb
 gramps
 moc_*
