@@ -1,5 +1,5 @@
 .ui-widget {
-	font-size:80%;
+	font-size:100%;
 }
 
 .cmd_echo {
@@ -21,7 +21,7 @@
 }
 #cmd_out {
 	white-space: pre;
-	font-family: monospace;
+	/*font-family: monospace;*/
 	overflow: auto;
 }
 ul.tree, li.tree {
@@ -32,7 +32,7 @@ ul.tree, li.tree {
 }
 #showobj {
 	white-space: pre;
-	font-family: monospace;
+	/*font-family: monospace;*/
 	border-style: solid;
 	border-width: 1px;
 	border-color: lightgrey;
@@ -40,9 +40,10 @@ ul.tree, li.tree {
 }
 #tree {
 	white-space: pre;
-	font-family: monospace;
+	/*font-family: monospace;*/
 }
 #system {
 	white-space: pre;
-	font-family: monospace;
+	/*font-family: monospace;*/
+	overflow: auto;
 }
