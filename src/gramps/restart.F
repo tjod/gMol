@@ -39,6 +39,7 @@ C
         OUTTING=OUTSAVE
         WLDVAL(WWINDA,LWORLD) = LA
         WLDVAL(WWINDA,RWORLD) = RA
+        CALL G0REDRAW(1)
         RETURN
       END IF
 C

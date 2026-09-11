@@ -13,6 +13,8 @@ C *************************************************************
 #include <GL/gl.h>
 #endif
 #include <string.h>
+void grout_(char *s, int slen);
+
 void showgl_ () {
 
  char tmpline[120];
@@ -46,7 +48,7 @@ void showgl_ () {
  grout_(tmpline, strlen(tmpline));
  begin = (char *)glout;
  strcpy(tmpline, " ");
- while (blank = strstr(begin," ")) {
+ while ( (blank = strstr(begin," ")) ) {
   n = blank - begin + 1;
   strncpy(tmpline+1, begin, n);
   grout_(tmpline, n);

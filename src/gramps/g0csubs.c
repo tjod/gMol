@@ -10,6 +10,7 @@ C *************************************************************
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
+#include <GLUT/glut.h>
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -19,6 +20,7 @@ C *************************************************************
 // for text
 #include "glutbitmap.h"
 #else
+#include "glutbitmap.h"
 #endif
 
 #include <unistd.h>
@@ -166,7 +168,7 @@ static GLubyte mask[128]; /* 4 8-bit-bytes is 32 bits and 32*4 = 128 */
 
 }
 
-rayshow_(name, options, namelen, optlen)
+void rayshow_(name, options, namelen, optlen)
 char *name;
 char *options;
 int namelen;
@@ -185,7 +187,7 @@ printf("%s", cmd);
 system(cmd);
 }
 
-psplot_(name, color, namelen)
+void psplot_(name, color, namelen)
 char *name;
 int *color;
 int namelen;
@@ -212,10 +214,12 @@ void commout_(char *string) {
 /* output to command window */
 }
 
-savewin_(name, nlen, namlen)
+void savewin_(char *name, int *namlen, size_t nlen)
+/*
 char *name;
 int namlen;
 int *nlen;
+*/
 {
 
  char filename[256];
@@ -241,9 +245,9 @@ int *nlen;
   return;
  }
  glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, rgbbuf);
- sprintf(filename, "%.*s\0", *nlen, name);
+ snprintf(filename, *namlen, "%s", name);
 #if defined QT
- snapscreen(filename, width, height, rgbbuf); 
+ snapscreen_(filename, width, height, rgbbuf); 
 #else
  fp = fopen(filename, "wb");
  if (NULL == fp) {
@@ -280,8 +284,8 @@ int *nlen;
  free(rgbbuf);
 }
 
-int g0texture_(int *iobj) {
-	glCallList(*iobj);
+void g0texture_(int *iobj) {
+    return glCallList(*iobj);
 }
 int g0texture_init__(int *iobj) {
 	static unsigned char roygbiv[8][3] =
@@ -307,8 +311,8 @@ int g0texture_init__(int *iobj) {
 
 	return(1);
 }
-g0texcoord1f_(float *c) {
-	glTexCoord1f(*c);
+void g0texcoord1f_(float *c) {
+    return glTexCoord1f(*c);
 }
 
 void g0colormaterial_(int *flag) {
@@ -365,7 +369,7 @@ void g0line_width_(float *v) { glLineWidth(*v); }
 void g0line_width__(float *v) { glLineWidth(*v); }
 #endif
 
-setsmooth_(int *flag) {
+void setsmooth_(int *flag) {
 	if (*flag == 0) {
 		glDisable(GL_LINE_SMOOTH);
 		glDisable(GL_POINT_SMOOTH);
@@ -377,7 +381,7 @@ setsmooth_(int *flag) {
 	}
 }
 
-g0normalization_(int *type) {
+void g0normalization_(int *type) {
 /* GL_RESCALE_NORMAL works for isotropic scaling (e.g. sphere primitive)*/
 /* GL_NORMALIZE works for any scaling  (e.g. cylinder primitive)*/
  if (*type == 1) {
@@ -428,7 +432,7 @@ void lmbind_(int *ilit, int *flag) {
  }
 }
 
-g0material_ (float *red, float *green, float *blue, float *alpha,
+void g0material_ (float *red, float *green, float *blue, float *alpha,
  float *ambient, float *diffuse, float *specular, float *emissive,
  float *shiny, int *backface, float bfcolor[])  {
 
@@ -503,7 +507,7 @@ g0material_ (float *red, float *green, float *blue, float *alpha,
 
 }
 
-g0blendf_(int *source, int *dest) {
+void g0blendf_(int *source, int *dest) {
  GLenum funcs[] = {GL_ZERO, GL_ONE, GL_DST_COLOR, GL_ONE_MINUS_DST_COLOR,
   GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_DST_ALPHA,
   GL_ONE_MINUS_DST_ALPHA, GL_SRC_ALPHA_SATURATE,
@@ -628,10 +632,21 @@ void closeo_() {
 }
 
 void viewpo_(int *xlo, int *xhi, int *ylo, int *yhi) {
-// fprintf(stderr, "viewport %d %d %d %d\n", *xlo, *ylo, *xhi, *yhi);
+
+ //fprintf(stderr, "viewpo %d %d %d %d\n", *xlo, *ylo, *xhi, *yhi);
+
+#ifdef QT
+ GLint viewport[4];
+ glGetIntegerv(GL_VIEWPORT, viewport);
+ //fprintf(stderr, "GL_VIEWPORT %d,%d,%d,%d\n", viewport[0], viewport[1], viewport[2], viewport[3]);
+ int width  = viewport[2] - viewport[0];
+ int height = viewport[3] - viewport[1];
+#else
  int width  = *xhi - *xlo + 1;
  int height = *yhi - *ylo + 1;
+#endif
  glViewport(*xlo, *ylo, width, height);
+ //fprintf(stderr, "viewpo %dx%d\n", width, height);
 }
 
 void pushma_() {
@@ -845,7 +860,7 @@ void ortho_(float *left, float *right, float *bottom, float *top,
 }
 
  
-int processHits(GLint hits, int mx, int my, float *xyzw, GLuint *names) {
+int processHits(GLint hits, int mx, int my, float (*xyzw)[4], GLuint *names) {
 	int ihit = 0;
 	int zhit = 0;
  	int i,j,k,nn;
@@ -900,7 +915,7 @@ void gettfmmat_(GLfloat *mmat) {
 
 #define BUFSIZE 512
 GLuint selectBuf[BUFSIZE];
-int g0pickprocess(int mx, int my, float *xyzw) {
+int g0pickprocess(int mx, int my, float (*xyzw)[4]) {
 
   int hitset;
   int hits;
@@ -934,27 +949,45 @@ void g0worldcoords_(int *mx, int *my, float *tfmmat, float *xyzw) {
  GLdouble x,y,z;
  GLdouble winx,winy,winz;
  GLfloat wz[PICKWIDTH*PICKWIDTH];
- int  i;
+ int  i, j;
  glGetDoublev(GL_PROJECTION_MATRIX, pmat);
+
+// for (i=0; i<16; ++i) {
+//   if (!(i%4)) printf ("\n");
+//   printf("%f ", pmat[i]);
+// }
+// printf("\n");
 
 // glGetDoublev(GL_MODELVIEW_MATRIX, mmat);
  for (i=0; i<16; ++i) {
   mmat[i] = tfmmat[i];
+//   if (!(i%4)) printf ("\n");
+//   printf("%f ", tfmmat[i]);
  }
+// printf("\n");
 
  glGetIntegerv(GL_VIEWPORT, viewport);
+// for (i=0; i<4; ++i) {
+//  printf("%d ", viewport[i]);
+// }
+// printf("\n");
+
 // glReadPixels (*mx, *my, 1, 1, GL_DEPTH_COMPONENT, GL_DOUBLE, &winz);
 // is there a bug in glReadPixels with GL_DOUBLE?
  glReadPixels (*mx - PICKWIDTH/2, *my - PICKWIDTH/2, PICKWIDTH, PICKWIDTH, GL_DEPTH_COMPONENT, GL_FLOAT, wz);
  winx = *mx; winy = *my;
+// printf("%f %f", winx, winy);
 // find closest z in pick box; analogous to processHits
  winz = wz[0];
  for (i=0; i<PICKWIDTH*PICKWIDTH; ++i) {
+//  printf(" %f", wz[i]);
   if (wz[i] < winz) winz = wz[i];
  }
+// printf ("\n %f %f %f\n", winx, winy, winz);
  gluUnProject(winx,winy,winz,mmat,pmat,viewport,&x,&y,&z);
  xyzw[0] = x;
  xyzw[1] = y;
  xyzw[2] = z;
  xyzw[3] = 1.0;
+// printf ("%f %f %f\n",  x,y,z);
 }

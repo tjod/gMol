@@ -30,7 +30,9 @@ C
             IF(DEVUSE(J,I) .NE. 0) Then
               DEV = DEVUSE(J,I)
               DEVUSE(J,I)=0
+#ifdef QT
               call setdevval(dev,0,0)
+#endif
             End If
           End Do
         End Do
@@ -67,7 +69,9 @@ C
       END IF
 C
  20   CONTINUE
+#ifdef QT
       call setdevval(dev,0,0);
+#endif
 C
       IF(POINT.NE.0)GOTO 5
  999  RETURN

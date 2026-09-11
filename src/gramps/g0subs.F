@@ -97,6 +97,12 @@ C
       Return
       End
 C
+#ifdef QT
+      SUBROUTINE GETWINPOS(XO, YO, XS, YS)
+      INTEGER XO, YO, XS, YS
+
+      END
+#endif
       SUBROUTINE G0WSTORE(XO, YO, XS, YS)
 C
       IMPLICIT NONE
@@ -106,16 +112,19 @@ C
 #include "G0COMMON.FOR"
 #include "UDLIST.FOR"
 C
-#ifndef QT
+#ifdef QT
+      WINXO = XO
+      WINYO = YO
+      WINXS = XS
+      WINYS = YS
+#else
       IF (OUTTING .EQ. OUTWINDOW) THEN
          CALL getwinpos(WINXO, WINXS, WINYO, WINYS)
       ELSE
-#endif
         WINXO = XO
         WINYO = YO
         WINXS = XS
         WINYS = YS
-#ifndef QT
       END IF
 #endif
 C
@@ -137,9 +146,10 @@ C
 C
 C  Change the window size
 C
-C Stores in G0XORIG, etc.
+C     write(*,*)'g0wset',xo,yo,xs,ys,tellws
+C Store in G0XORIG, etc.
       Call G0WSTORE(XO, YO, XS, YS)
-
+C
       IF(OUTTING.EQ.OUTNIL)THEN
         RETURN
       ELSE IF(OUTTING.EQ.OUTWINDOW)THEN
@@ -148,9 +158,8 @@ C Stores in G0XORIG, etc.
         WLDVAL(WWINDA,LWORLD) = ASPECT
         WLDVAL(WWINDA,RWORLD) = ASPECT
         If (TELLWS .GT. 0) Then
-          call setwinpos(G0XORIG, G0XWIND, G0YORIG, G0YWIND)
+          call setwinpos(XO, XS, YO, YS)
         EndIf
-C        call viewpo(0,G0XWIND-1, 0,G0YWIND-1)
         DCHANGE = .TRUE.
       ELSE
 C    CALLTELLUSER1(BADOUTTYPE)
@@ -1985,7 +1994,7 @@ C       End If
 
       IF(HUE.EQ.0 .AND. SAT.EQ.0 .AND. VALU.EQ.0)RETURN
       Z1=0
-      Z2=X'7F0000'
+      Z2=INT(Z'7F0000')
 C
       IF(OUTTING.EQ.OUTNIL)THEN
         RETURN
@@ -2530,7 +2539,7 @@ C        call g0inten(LWORLD)
         uniqid=genobj()
         call makeob(uniqid)
         Z1=0
-        Z2=X'7F0000'
+        Z2=INT(Z'7F0000')
 C    CALL LSETDE(Z1, Z2)
         call dumpout( DLOC, DSIZE )
 C turn off any color material following that may have been activated
@@ -2614,7 +2623,6 @@ C
       INTEGER genobj
       EXTERNAL TRIM
 C
-C      write(*,*) 'hit ',iobj,' at ',mx,my
 c record the hit info: name and x,y,z
       if(hitsym.ne.0)then
         ARGLIST(hitsym,AGF)=namobj(iobj)
@@ -2631,6 +2639,12 @@ C have display get the tfm matrix for this obj into TMPMAT in common
       Call display(0)
 C
       Call G0WorldCoords(mx,my,tmpmat,xyzw)
+C
+!      write(*,*) 'hit ',iobj,' at ',mx,my
+!      write(*,*)HITSYM,'=',namobj(iobj)
+!      write(*,*) tmpmat
+!      write(*,*) xyzw
+C
       if(hitcoord.ne.0)then
 C        Call G0WorldCoords(mx,my,tmpmat,xyzw)
         UCOORD(1,hitcoord)=xyzw(1)
@@ -2859,7 +2873,7 @@ c  Never got around to alpha, let's try depth cueing.
 C
       DCHANGE=.TRUE.
       Call g0redisplay(2)
-      ZEXTREM='7FFFFF'X
+      ZEXTREM=INT(Z'7FFFFF')
       if(worksize.lt.g0xwind*2)return
         DO i=0,G0YWIND-1
 C    CALL READSO(SRCFRO)
@@ -2904,6 +2918,7 @@ C
 #include "G0COMMON.FOR"
         INTEGER NREAD, i, j
       LOGICAL ORDER
+      INTEGER ABUFF(2)
 C
       if(worksize.lt.g0xwind .or. worksize.lt.g0ywind)then
         g0dump=-1
@@ -2911,17 +2926,23 @@ C
       end if
 c
 c    WRITE(UNIT)G0XWIND, G0YWIND
-      i= fcwrite(g0xwind,1)
-      i= fcwrite(g0ywind,1)
+
+       ABUFF(1) = g0xwind
+       ABUFF(2) = g0ywind
+       i = fcwrite(ABUFF, 2)
+C      i= fcwrite(g0xwind,ONE)
+C      i= fcwrite(g0ywind,ONE)
 C    CALL READSO(SRCFRO)
       IF(ORDER)THEN
-        i= fcwrite(1,1)
+        ABUFF(1) = 1
+        i = fcwrite(ABUFF,1)
           DO i=G0XWIND-1,0,-1
           NREAD=g0read_rgb_buff(i,0, i,G0YWIND-1, WORK)
         j= fcwrite(WORK, G0YWIND)
         END DO
       ELSE
-        i= fcwrite(0,1)
+        ABUFF(1) = 0
+        i= fcwrite(ABUFF,1)
           DO i=0,G0YWIND-1
           NREAD=g0read_rgb_buff(0,i, G0XWIND-1,i, WORK)
 c      WRITE(UNIT)(WORK(j), j=1,G0XWIND)

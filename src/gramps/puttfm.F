@@ -155,7 +155,9 @@ C
  99   DEVUSE(TFMTYP,NID)=DEV
       FNUSE(TFMTYP,NID)=PUTFUNK
       DFACT(TFMTYP,NID)=FACTOR
+#ifdef QT
       if (DEV. NE. 0) call setdevval(DEV,TFMVAL(TFMTYP,NID),1)
+#endif
 C
       DCHANGE=.TRUE.
       RETURN

@@ -1,12 +1,12 @@
 FC = /opt/local/bin/gfortran
-FFLAGS = -gdwarf-2 -Wno-implicit-int -Wno-old-style-definition
+FFLAGS = -D__APPLE__ -DGL_SILENCE_DEPRECATION
 #FFLAGS = -O -IMesa/include/GL
 
 #CC = /usr/bin/gcc-3.4
 CC = cc
-CFLAGS = -Wno-implicit-int -Wno-old-style-definition
 #CFLAGS =  -IMesa/include -I/usr/X11R6/include
 #CFLAGS =  -I/home/tjo/Mesa-4.0.4/include
+CFLAGS =   -D__APPLE__ -DGL_SILENCE_DEPRECATION
 
 #XLIBS =   -lXi -lXext -lXm -lXt -lX11 -lPW
 #XLIBS_s = -lXi -lXext -lXm_s -lXt_s -lX11_s -lPW
@@ -17,7 +17,7 @@ CFLAGS = -Wno-implicit-int -Wno-old-style-definition
 LIBS = $(LIBDIR) -lreadline #-static -libgfortran libgcc_static.a
 
 #FRAMEWORKS = -framework GLUT -framework OpenGL -framework Cocoa
-FRAMEWORKS = -framework OpenGL
+FRAMEWORKS = -framework OpenGL -framework GLUT
 
 O1= aaxis.o advance.o argsubs.o bblank.o bitops.o blink.o \
 change.o charutil.o getdsk.o closeobj.o dumpbuff.o \
@@ -45,9 +45,9 @@ GLUTOB= glut_8x13.o glut_bitmap.o glut_hel12.o glut_tr10.o glut_9x15.o glut_hel1
 
 all: qtgramps.a
 
+qtgramps.a: FFLAGS += -DQT
+qtgramps.a: CFLAGS += -DQT
 qtgramps.a: $(O1) $(O2) $(O4) $(GLUTOB)
-	FFLAGS = -DQT
-	CFLAGS = -DQT
 	rm -f $@
 	$(AR) -r $@ $(O1) $(O2) $(O4) $(GLUTOB)
 #	mv $@ ../qt/
@@ -63,8 +63,10 @@ mtk_display: $(O1) $(O2) $(O4) mtk_display.o
 	$(FC) -o $@ mtk_display.o $(O1) $(O2) $(O4) $(LIBS) -lsphere -lfgl -lfm -lgl_s $(XLIBS_s)  -lI77
 	strip $@
 
+gramps.deb: FFLAGS += -g -O0 
+#gramps.deb: FFLAGS += -ggdb -gdwarf-2
 gramps.deb: $(O1) $(O2) $(O4) gramps.o
-	$(FC) -o $@ g -O1 gramps.o $(O1) $(O2) $(O4) $(LIBS) $(XLIBS)
+	$(FC) -o $@ -g -O1 gramps.o $(O1) $(O2) $(O4) $(LIBS) $(FRAMEWORKS)
 
 gramps.prof: $(O1) $(O2) $(O4) gramps.o
 	$(FC) -o $@  -p -O1 gramps.o $(O1) $(O2) $(O4) $(LIBS) -lfgl -lsphere -lfm -lgl

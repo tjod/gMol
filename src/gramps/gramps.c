@@ -1,3 +1,5 @@
+#include "gramps.h"
+
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -10,7 +12,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include "gramps.h"
 
 #include <pthread.h>
 #include <stdio.h>
@@ -57,11 +58,11 @@ static int glwin_width=500;
 static int glwin_height=500;
 static int glwin_xorig=0;
 static int glwin_yorig=0;
-static int Nadvance=0;
+//static int Nadvance=0;
 static int display_changed=0;
 static int outflag=STANDARD_OUT;
 static char *gr_cmd;
-static int doing;
+static int cmd_flag = 0; // communicate between i/o thread and Idler function
 static int waiting = 0;
 char title[] =" \tGramps v3.1";
 
@@ -163,50 +164,46 @@ void setwinpos_(int *x0, int *width, int *y0, int *height) {
 }
 
 void *getcmd_stdio(void *threadid) {
+
  gr_cmd = (char *)calloc(120, sizeof(char));
  grout_(">gramps>\n",9);
  while (1) {
-    fgets(gr_cmd, 120, stdin); 
-    if (feof(stdin)) {
-     grout_("use EXIT command to quit", 24);
-    } else if (*gr_cmd) {
-     gr_cmd[strlen(gr_cmd)-1] = '\0';
-     doing = 1;
-#ifdef MINGW32
-     while (doing) ;
-#else
-     while (doing) usleep(1000);
-#endif
-    }
-    grout_(">gramps>\n",9);
+      if (cmd_flag == 0) {
+          fgets(gr_cmd, 120, stdin);
+          if (feof(stdin)) {
+              grout_("use EXIT command to quit", 24);
+          } else if (*gr_cmd) {
+              gr_cmd[strlen(gr_cmd)-1] = '\0';
+              cmd_flag = 1;
+          }
+          grout_(">gramps>\n",9);
+      }
  }
 }
 
 void *getcmd_readline(void *threadid)
 {
    while (1) {
-    if (gr_cmd) free(gr_cmd);
-    gr_cmd = readline(">gramps>");
-    if (!gr_cmd) {
-     //exit(1);
-     grout_("use EXIT command to quit", 24);
-    } else if (*gr_cmd) {
-     add_history(gr_cmd);
-     doing = 1;
-#ifdef MINGW32
-     while (doing) ;
-#else
-     while (doing) usleep(1000);
-#endif
-    }
+    if (cmd_flag == 0) {
+        if (gr_cmd) free(gr_cmd);
+            gr_cmd = readline(">gramps>");
+            if (!gr_cmd) {
+             //exit(1);
+             grout_("use EXIT command to quit", 24);
+            } else if (*gr_cmd) {
+             add_history(gr_cmd);
+             cmd_flag = 1;  // lets i/o thread know we got a command string
+            }
+        }
    }
+
 }
 
 void setup_getcmd(int itype) {
 /* create thread to collect commands */
 
    int rc;
-   char *t;
+   void *t = NULL;
    pthread_t std_thread;
    if (itype == GETCMD_READLINE) {
     rc = pthread_create(&std_thread, NULL, getcmd_readline, (void *)t);
@@ -229,13 +226,13 @@ static int Nredraw=0;
  //choose_cursor(WAIT_CURSOR);
 
  Nredraw++;
- //fprintf(stderr, "Redraw event %d %d\r", Nredraw, display_changed);
+ //fprintf(stderr, "Redraw event %d %d\n", Nredraw, display_changed);
  g0redraw_(&display_changed);
  display_changed = 0;
 
 }
 
-void docmd(int output_to, char *gr_cmd)
+int docmd(int output_to, char *gr_cmd)
 {
 
 /* STANDARD_ERR means output any output to STANDARD_OUT, but no prompt */
@@ -246,17 +243,7 @@ else
 
 display_changed += do_(gr_cmd, strlen(gr_cmd));
 if (display_changed) glutPostRedisplay();
-
-}
-
-#ifdef __APPLE__
-void setup_advance_(int *nadv) {
-#elif GFORTRAN
-void setup_advance_(int *nadv) {
-#else
-void setup_advance__(int *nadv) {
-#endif
- Nadvance = *nadv;
+return display_changed;
 }
 
 void mbutton_feedback() {
@@ -271,31 +258,49 @@ void mbutton_feedback() {
 }
 
 
-static void Idle() {
+static void Idler(int timer_id) {
 
  int do_it = 0;
- int j;
- int wflag;
+ int j = 0;
+ int wflag = 0;
+ int display_changed = 0;
+ static int do_flag = 0;
+ int cont_flag = 0;
 
- /* check for command input, for 10 microseconds */
  if (outflag == STANDARD_OUT) {
   if (waiting) {
-   checkwait_(&wflag);
-   if (wflag == 0 && Nadvance == 0) {
-    waiting = 0; // the waiting is over
-    doing = 0;   // allow more command input
+   wflag = get_pick_wait_();
+   if (wflag == 0) {
+    waiting = 0;  // the waiting is over
+    cmd_flag = 0; // notifies i/o thread to allow more command input
    }
   } else {
-   if (doing) {
-     docmd(outflag, gr_cmd);
-     checkwait_(&wflag);
-     if (wflag == 0 && Nadvance == 0) {
-       doing = 0;
-       waiting = 0;
+   if (cmd_flag) do_flag = docmd(outflag, gr_cmd);
+     // cmd_flag alerts that i/o thread has a command
+
+    if (do_flag > 0) {
+        // do_flag returns # to advance, but advance command did updates itself
+        //printf ("do_flag = %d\n", do_flag);
+     } else if (do_flag < 0) {
+         //printf ("do_flag = %d\n", do_flag);
+         // do continuous updates
+         do_it = 0; do_flag = contupd_(&do_it);
+         do_it = 1; g0redraw_(&do_it);
+         //glutPostRedisplay();
      } else {
-       waiting = 1;
+         // pause command in effect or nothing to draw
+         //printf ("do_flag = %d\n", do_flag);
      }
-   }
+     cmd_flag = 0; // lets i/o thread ask for another command string
+
+//     wflag = get_pick_wait_();
+//     if (wflag == 0) {
+//       cmd_flag = 0;
+//       waiting = 0;
+//     } else {
+//       waiting = 1;
+//     }
+
   }
 #ifdef USE_SOCK
  } else if (outflag == SOCKET_OUT) {
@@ -311,17 +316,15 @@ static void Idle() {
 #endif
  }
 
-/* do continuous updates, if necessary and unless paused */
- do_it = 0; display_changed += contupd_(&do_it);
+// if (display_changed > 0) {
+///* do continuous updates, if necessary even if paused */
+//  do_it = 1; display_changed = contupd_(&do_it);
+//  advsnap_(); //write snap file if necessary and advance frame count
+////  nadvance--;
+// }
 
- if (Nadvance > 0) {
-/* do continuous updates, if necessary even if paused */
-  do_it = 1; display_changed += contupd_(&do_it);
-  advsnap_(); //write snap file if necessary and advance frame count
-  Nadvance--;
- }
+ glutTimerFunc(33, Idler, 0);  // 16.666... is 60 frames per second
 
- if (display_changed) glutPostRedisplay();
 }
 
 static void MouseEntry(int state) {
@@ -366,13 +369,13 @@ void setpickmatrix_() {
 }
 static void MouseButton( int button, int state, int x, int y )
 {
-int flag=0;
-
+ int flag=0;
+ float xyzw[4];
 /* global lastx, lasty, glwin_width, glwin_height */
 
  if (state == GLUT_DOWN && chosen_cursor == PICK_CURSOR) {
   currx = x; curry = glwin_height-y;
-  if (g0pickprocess(currx, curry)) choose_cursor(RESTORE_CURSOR);
+  if (g0pickprocess(currx, curry, &xyzw)) choose_cursor(RESTORE_CURSOR);
  }
 
  if (keystate == 1) return; //don't let mouse buttons override keyboard
@@ -407,6 +410,54 @@ int flag=0;
 
 static void MouseMotion( int x, int y )
 {
+  float xinc=0;
+  float yinc=0;
+  float xval=0.0;
+  float yval=0.0;
+  int type=0;
+  int flag = 0;
+  int do_it = 0;
+
+  /* global lastx, lasty, glwin_width, glwin_height */
+
+  xinc = x - lastx;
+  yinc = y - lasty;
+  lastx = x;
+  lasty = y;
+  //int ms = mouse_state+1; // allow for x0 and y0
+  //if (xinc < 2 && xinc > -2 && yinc < 2 && yinc > -2) return;
+  xinc =  xinc / (float)glwin_width;
+  yinc = -yinc / (float)glwin_height;
+  if(xinc) {
+      xval = (float)lastx/(float)glwin_width*2. - 1.;
+      type = MOUSS;
+      display_changed += update_(&type, &mouse_state, &xval, &xinc);
+  }
+  if(yinc) {
+      yval = (float)(glwin_height-lasty)/(float)glwin_height*2. - 1.;
+      type = MOUSS;
+      int ms = mouse_state+4;
+      display_changed += update_(&type, &ms, &yval, &yinc);
+  }
+
+  if (xinc == 0 && yinc == 0) return;
+  /* do continuous updates regardless of xinc, yinc */
+  /*
+  i don't like this effect
+ do_it = 1; display_changed += contupd_(&do_it);
+ */
+
+  if (display_changed) {
+      flag = 0;
+      g0hires_(&flag); /* draw in lo-res mode while moving */
+      glutPostRedisplay();
+  }
+
+  //fprintf(stderr, "type = %d; state = %d; motion x = %i(%8.6f) y = %i(%8.6f)\n", type, mouse_state, x, xinc, y, yinc);
+}
+
+static void PassiveMouseMotion( int x, int y )
+{
 float xinc=0;
 float yinc=0;
 float xval=0.0;
@@ -416,6 +467,8 @@ int flag = 0;
 int do_it = 0;
 
 /* global lastx, lasty, glwin_width, glwin_height */
+//fprintf(stderr, "passive %d %d\n", x, y);
+ return;  // for now
 
  xinc = x - lastx;
  yinc = y - lasty;
@@ -436,6 +489,7 @@ int do_it = 0;
   display_changed += update_(&type, &ms, &yval, &yinc);
  }
 
+ if (xinc == 0 && yinc == 0) return;
  /* do continuous updates regardless of xinc, yinc */
  /*
   i don't like this effect
@@ -448,7 +502,7 @@ int do_it = 0;
   glutPostRedisplay();
  }
 
- //fprintf(stderr, "state = %d; motion %5.3f %5.3f\n", mouse_state, xinc, yinc);
+ fprintf(stderr, "type = %d; state = %d; motion x = %i(%8.6f) y = %i(%8.6f)\n", type, ms, x, xinc, y, yinc);
 }
 
 void Reshape(int x, int y) {
@@ -539,7 +593,7 @@ static void Key( unsigned char key, int x, int y ) {
 	 break;
       case 27: //esc
          mouse_state = 0; /* MouseButton is NOT always called */
-	 keystate = 0;
+         keystate = 0;
          break;
    }
  //fprintf(stderr, "key = %d; mouse_state = %d\n", key, mouse_state);
@@ -553,7 +607,9 @@ int main (int argc, char **argv) {
    int setup_flag = 0;
 
    int i;
+   /* unless hardware supports alpha, don't use it */
    int glut_mode = GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_ALPHA;
+
    setup_flag=GETCMD_READLINE;
    outflag = STANDARD_OUT;
    for (i=0; i<argc; i++) {
@@ -578,7 +634,6 @@ int main (int argc, char **argv) {
    glutInit( &argc, argv );
    glutInitWindowPosition( glwin_xorig, glwin_yorig );
    glutInitWindowSize( glwin_width, glwin_height );
-   /* unless hardware supports alpha, don't use it */
    glutInitDisplayMode( glut_mode );
    glwinID = glutCreateWindow(argv[0]);
    glutSetWindowTitle(title);
@@ -587,17 +642,20 @@ int main (int argc, char **argv) {
    glutKeyboardFunc( Key );
    glutKeyboardUpFunc( UpKey );
    glutSpecialFunc( SpecialKey );
+
    glutMouseFunc( MouseButton );
    glutMotionFunc( MouseMotion );
-   glutPassiveMotionFunc( MouseMotion );
+   glutPassiveMotionFunc( PassiveMouseMotion );
 #ifdef linux
    glutMouseWheelFunc( MouseWheel );
 #endif
    glutEntryFunc( MouseEntry );
+
    glutReshapeFunc( Reshape );
    glutDisplayFunc( Redisplay );
-   glutIdleFunc( Idle );
-
+   glPointSize(4.0);
+//   glutIdleFunc( Idler );
+   glutTimerFunc(16, Idler, 0);
    udinit_();
    g0pinit_();
    startup_();

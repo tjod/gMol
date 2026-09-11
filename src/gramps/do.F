@@ -369,14 +369,17 @@ C
 C
 C   IF WATCH MODE IS IN EFFECT AND A CHANGE HAS
 C   OCCURRED IN THE DISPLAY LIST, LET IT BE SHOWN!
+C   If not DOING (command line) always obey change flags for display regardless of WATCH
 C
       IF( OUTTING.GT.0 )THEN
-         IF(WATCH.AND.(MCHANGE.OR.TCHANGE.OR.DCHANGE))THEN
-           call g0redisplay(AUTOCLEAR)
-           TCHANGE=.FALSE.
-           MCHANGE=.FALSE.
-           DCHANGE=.FALSE.
-         END IF
+         If(.NOT.DOING .OR. WATCH) Then
+             IF (MCHANGE.OR.TCHANGE.OR.DCHANGE)THEN
+               call g0redisplay(AUTOCLEAR)
+               TCHANGE=.FALSE.
+               MCHANGE=.FALSE.
+               DCHANGE=.FALSE.
+             END IF
+        End If
       END IF
 C
  999  CONTINUE

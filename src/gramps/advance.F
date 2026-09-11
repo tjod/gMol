@@ -81,10 +81,12 @@ C
 C global for contupd
       NADVANCE = NADV
 C
+#ifdef QT
 C the event loop in gramps.c or timer in qt
 C  will call contupd and redisplay when it can.
       if (agf.gt.1)call settimer(1)
       return
+#endif
 
 C   THIS COMMAND ALLOWS USER CONTROL OF THE CALL OF THE
 C   DISPLAY SUBROUTINE.  DO ALL CONT UPDATES, IF NECESSARY
@@ -97,7 +99,9 @@ C  IF(PENSTOP)CALL PSTOP
         DCHANGE=.TRUE.
         CALL G0REDRAW(1,1)
         If (AGF.GT.1) Then
+#ifdef QT
           call updategl
+#endif
 C if we're doing a file, we gotta go on
         Else
         End If

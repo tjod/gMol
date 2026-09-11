@@ -167,9 +167,8 @@ C
  999  RETURN
       END
 C
-      SUBROUTINE CHECKWAIT(FLAG)
+      INTEGER FUNCTION GET_PICK_WAIT()
       Implicit NONE
-      Integer FLAG
 #include "UDLIST.FOR"
-      FLAG = WAITING
+      GET_PICK_WAIT = WAITING
       END

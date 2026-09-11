@@ -11,6 +11,7 @@ C *************************************************************
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,19 +29,20 @@ int fdsock = 0; /* the file descriptor for socket i/o */
 
 #define GRAMPS_SOCK 5103
 
-gethostname_(char *host_name, int lenhost) {
- gethostname(host_name, sizeof(host_name));
+int gethostname_(char *host_name, int lenhost) {
+ return gethostname(host_name, sizeof(host_name));
 }
 
-sockclientend()
+int sockclientend()
 {
 /* clients use fdsock returned from socket call as the fd */
 /* and don't use sock at all */
 /*if(fdsock != 0){ shutdown(fdsock, 2); close(fdsock); }*/
 if(fdsock != 0)close(fdsock);
 fdsock = 0;
+return 0;
 }
-sockclientend_() { sockclientend(); }
+int sockclientend_() { return sockclientend(); }
 
 int sockclientinit(char *hname, char *service)
 {
@@ -106,7 +108,7 @@ return(sockclientinit(host_name, service_name));
 }
 
 
-sockserverend(int how)
+int sockserverend(int how)
 {
  if(sock   != 0){
  /*
@@ -118,8 +120,9 @@ sockserverend(int how)
  }
  if(fdsock != 0)close(fdsock);
  fdsock = sock = 0;
+ return 0;
 }
-sockserverend_() { sockserverend(2); }
+int sockserverend_() { return sockserverend(2); }
 
 
 int sockserverinit(char *service)
@@ -145,7 +148,7 @@ int sockserverinit(char *service)
 		name.sin_port = GRAMPS_SOCK;
 		}
 	else
-		name.sin_port = sp->s_port;
+        name.sin_port = sp->s_port;
 
 	/*printf("%s port =  %d\n", service, ntohs(sp->s_port));*/
 
@@ -171,12 +174,16 @@ int sockserverinit(char *service)
 */
 
 }
-int sockserverinit_(char *service, int slen) { sockserverinit(service); }
+int sockserverinit_(char *service, int slen) { return sockserverinit(service); }
 
 int sockaccept()
 {
 struct sockaddr_in from;
 socklen_t fromlen = sizeof (from);
+
+char str[INET_ADDRSTRLEN];
+struct in_addr ip_address;
+
 struct hostent *fromhost;
 struct servent *fromserv;
 char *p;
@@ -187,12 +194,16 @@ while ((fdsock = accept (sock, (struct sockaddr *)&from, &fromlen)) == -1) {
 	return(-1);
 }
 
-fprintf(stderr,"Accepted connection from client %s\n",
-	       	inet_ntoa(from.sin_addr));
-fromhost = gethostbyname((char *)inet_ntoa(from.sin_addr));
+const char *result = inet_ntop(AF_INET, &ip_address, str, INET_ADDRSTRLEN);
+
+fprintf(stderr,"Accepted connection from client %s\n",  result);
+/*
+fromhost = gethostbyname((char *)inet_ntop(from.sin_addr));
 while (fromhost != NULL && (p=*fromhost->h_aliases) != NULL) {
  fprintf(stderr," alias <%s>\n", p);
 }
+*/
+
 fromserv = getservbyport(from.sin_port, "tcp");
 if(fromserv != NULL)
 	fprintf(stderr,"Accepted connection from service <%s>\n",
@@ -202,7 +213,7 @@ return(fdsock);
 
 }
 
-message_wait(int fd, int msec)
+int message_wait(int fd, int msec)
 /* Routine to return 0 if nothing ready to be read on file-descriptor fd
    else it returns -1 for error, 1 for data ready to read.
    Wait upto msec milliseconds before deciding
@@ -239,7 +250,7 @@ if( i < 0) {
 if (FD_ISSET(fd, &readset))return(1);else return(0);
 }
 
-sockcheck(int msec)
+int sockcheck(int msec)
 {
 int i;
 
@@ -298,24 +309,26 @@ return( msgsize );
 }
 int sockget_(char *message, int msglen) { return(sockget(message, msglen)); }
 
-sockendprog()
+int sockendprog()
 {
 int writeret;
 int msgend=ENDPROG;
 
 if(fdsock)writeret = write(fdsock, &msgend, sizeof(msgend));
+return writeret;
 }
-sockendprog_() { sockendprog(); }
-sockquit_() { sockendprog(); }
+int sockendprog_() { return sockendprog(); }
+int sockquit_() { return sockendprog(); }
 
-sockend()
+int sockend()
 {
 int writeret;
 int msgend=ENDMSG;
 
 writeret = write(fdsock, &msgend, sizeof(msgend));
+return writeret;
 }
-sockend_() { sockend(); }
+int sockend_() { return sockend(); }
 
 int socksend(char *message)
 {
@@ -368,7 +381,7 @@ int nwrite;
 nbytes = nelem   * sizeof (float);
 nwrite = write(fdsock, &nbytes, sizeof(long) );
 if(nwrite != sizeof(long))
-  fprintf(stderr,"qixsend: only %d bytes of %d written\n",nwrite,sizeof(long));
+  fprintf(stderr,"qixsend: only %d bytes of %lu written\n",nwrite,sizeof(long));
 if(nbytes>0)
   {
   nwrite = write(fdsock, data, nbytes);

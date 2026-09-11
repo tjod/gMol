@@ -15,7 +15,7 @@ C
 C
       CHARACTER*80 FILE
       CHARACTER*80 fname
-      integer i, vpoint
+      integer i, vpoint, fnamelen
       LOGICAL ORDER
       EXTERNAL TRIM
 C
@@ -55,7 +55,8 @@ C      CLOSE(UNIT=PFILE, DISPOSE='DELETE')
 C
 C      If(SWITCHES.EQ.' ' .OR. MATCH(SWITCHES,'IPASTE'))THEN
       If(OUTTING.NE.OUTWINDOW)Call Telluser(NOTDEV,*999)
-      call savewin(fname, trim(fname))
+      fnamelen = trim(fname)
+      call savewin(fname, fnamelen)
 C      Else If(MATCH(SWITCHES,'ADVANCE'))THEN
 C       i=TRIM(fullfile)
 C       SNAPFILE=fullfile(:i-4)

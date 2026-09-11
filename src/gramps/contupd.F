@@ -19,6 +19,7 @@ C#include "DEVICES.FOR"
 #include "UDLIST.FOR"
        INTEGER J
 C
+C  [^A-Za-z]CONT[^A-Za-z]
       IF (.NOT.CONT .AND. DO_IT.EQ.0) Then
 C      If nothing needs updating and DO_IT (forcing flag) is off (zero),
 C        CONTUPD = 0

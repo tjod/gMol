@@ -69,7 +69,9 @@ C
       IF(IAND(DEVUSE(I,NID),FROMDEV).NE.0)THEN
         DEVUSE(I,NID)=IEOR(DEVUSE(I,NID),FROMDEV)
         DEVUSE(I,NID)=IOR(DEVUSE(I,NID),TODEV)
+#ifdef QT
         call setdevval(TODEV,TFMVAL(I,NID),1)
+#endif
       END IF
  10   CONTINUE
 C
@@ -83,7 +85,9 @@ C
       IF(IAND(DEVWLD(I,NID),FROMDEV).NE.0)THEN
         DEVWLD(I,NID)=IEOR(DEVWLD(I,NID),FROMDEV)
         DEVWLD(I,NID)=IOR (DEVWLD(I,NID),TODEV)
+#ifdef QT
         call setdevval(TODEV,WLDVAL(I,NID),1)
+#endif
       END IF
  20   CONTINUE
 C
