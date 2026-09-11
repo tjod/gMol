@@ -26,7 +26,8 @@ int ChemWidget::drawSurface(int itemid) {
   vtx.iter(itemid, treeRow.imol, treeRow.resnum, treeRow.chain, treeRow.filter, treeRow.hydrogens, currentRow.colorBy, nearAtom);
   int nvtx = vtx.count(); // vertexQuery::count(itemid);
  // qDebug() << tr("drawSurface vertex count") + " = " << nvtx;
-  float buff[9] = {float(nvtx),float(ldm1),1.};
+  float buff[9] = {float(nvtx), float(ldm1), 1.};
+  // float buff[9] = {float(nvtx), float(ldm1), 2.};  // 2 means invert normals
   int err = getMem(name.toLocal8Bit().data(), buff, 3, name.length());
   if (err) {
     qDebug() << "can't create surface for item" << itemid;
@@ -55,11 +56,14 @@ int ChemWidget::drawSurface(int itemid) {
       ++nvtx;
       if (err) { qDebug() << tr("drawSurface vertex error after ") << nvtx; break; }
     }
-    //qDebug() << tr("drawSurface vertex count") + " = " << nvtx;
+    // qDebug() << tr("drawSurface vertex count") + " = " << nvtx;
 
     int ntri = triangleQuery::count(itemid)/3;
-    buff[0] = ntri; buff[1] = 8; buff[2] = 1;
-    //qDebug() << tr("drawSurface triangle count") + " = " << ntri;
+    buff[0] = ntri;
+    buff[1] = 8; // mesh connectivity
+    buff[2] = 1; // clockwise
+    // buff[2] = -1; // counter-clockwise
+    // qDebug() << tr("drawSurface triangle count") + " = " << ntri;
     err += getMemMore("", buff, 3, 0);
     ntri=0;
     triangleQuery tri = triangleQuery();
@@ -87,10 +91,8 @@ void ChemWidget::surfReady(int /*exitcode*/) {
   progress->setMaximum(100);
   progress->setValue(50);
   int err = drawSurface(itemid);
-  if (!err) addSurface(itemid);
   progress->cancel();
-  QApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
-  QApplication::processEvents();
+  if (!err) addSurface(itemid);
 }
 
 void ChemWidget::addSurface(int itemid) {
@@ -152,16 +154,7 @@ void ChemWidget::makeSurface() {
   progress->setLabelText(tr("Computing surface"));
   surfproc->start(prog, arguments);
   progress->setMaximum(100);
-  progress->setValue(50);
-//  progress->setWindowModality(Qt::NonModal);
-//  progress->setAutoClose(false);
-//  progress->reset();
-  progress->setCancelButton(0);
-//  progress->open(NULL, NULL);
-  progress->show();
-  progress->raise();
-  QApplication::setOverrideCursor(QCursor(Qt::BusyCursor));
-  QApplication::processEvents();
+  progress->setValue(1);
 }
 
 void ChemWidget::addSurfRow() {

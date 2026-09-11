@@ -7,6 +7,7 @@ C It is unlawful to modify or remove this copyright notice.
 C See the accompanying LICENSE file for further information. 
 C *************************************************************
 */
+#define GL_SILENCE_DEPRECATION
 #ifdef QT5
 #include <QtWidgets>
 #endif
@@ -17,10 +18,7 @@ C *************************************************************
 
 #include "glwidget.h"
 #include "gramps.h"
-#include "controls.h"
-//#include "mainwindow.h"
 
-//extern MainWindow * mainWindow;
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(parent)
 {
@@ -48,6 +46,7 @@ QSize GLWidget::sizeHint() const
 
 void GLWidget::initializeGL()
 {
+    glPointSize(8.0); // overrides gramps
     udinit_();
     g0pinit_();
     startup_();
@@ -61,8 +60,14 @@ void GLWidget::paintGL()
 
 void GLWidget::resizeGL(int width, int height)
 {
-    int zero = 0;
-    g0wset_(&zero, &zero, &width, &height, &zero);
+    int tellws = 0;
+    int x0 = 0;
+    int y0 = 0;
+    //const qreal retinaScale = devicePixelRatio();  // QT5
+    //const qreal retinaScale = 1.0;
+    //int ww = width*retinaScale;
+    //int hh = height*retinaScale;
+    g0wset_(&x0, &y0, &width, &height, &tellws);
     glViewport(0,0, width, height);
     //qDebug() << width << height;
     //qDebug() << windowState() << topLevelWidget()->isFullScreen() << isFullScreen();
@@ -128,7 +133,6 @@ void GLWidget::mouseReleaseEvent(QMouseEvent *event)
     emit device(0,0,0);
     event->type();  // just to avoid compiler warning about non-use of event
     QGLWidget::mouseReleaseEvent(event);  //Dont forget to pass on the event to parent
-    //mainWindow->chemWidget->showProgress();
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
@@ -222,7 +226,7 @@ void GLWidget::doAdvance(bool advwait) {
 }
 
 void GLWidget::setTimer(bool state) {
-  if ( !continuousUpdater) {
+  if ( !continuousUpdater ) {
     qWarning() <<  "no timer available!";
     return;
   }

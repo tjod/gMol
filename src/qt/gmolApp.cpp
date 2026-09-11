@@ -8,8 +8,9 @@ C It is unlawful to modify or remove this copyright notice.
 C See the accompanying LICENSE file for further information.
 C *************************************************************
 */
+#define GL_SILENCE_DEPRECATION
 #include "gmolApp.h"
-#include "db.h"
+//#include "db.h"
 #include "mainwindow.h"
 #include <QFileOpenEvent>
 #include <QDebug>

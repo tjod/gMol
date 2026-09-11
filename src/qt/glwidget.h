@@ -12,6 +12,9 @@ C *************************************************************
 
 #include <QObject>
 #include <QGLWidget>
+#ifndef OBCHEM
+#include <GL/gl.h>
+#endif
 
 class GLWidget : public QGLWidget
 {

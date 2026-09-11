@@ -12,7 +12,9 @@ isEqual(QT_MAJOR_VERSION, 5): {
 }
 macx {
   CONFIG -= app_bundle
-  QMAKE_MAC_SDK = macosx10.9
+  QMAKE_MAC_SDK = macosx
+  QMAKE_MACOSX_DEPLOYMENT_TARGET = 12.7
+  QMAKE_CXXFLAGS += -stdlib=libc++
 }
 INCLUDEPATH  += ../ ../ChemDb
 HEADERS += \

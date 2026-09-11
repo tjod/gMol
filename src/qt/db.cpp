@@ -10,7 +10,7 @@ C *************************************************************
 #include <algorithm>
 #include "db.h"
 #include "chem.h"
-#include "mainwindow.h"
+//#include "mainwindow.h"
 #ifdef PDBREADER
 #include <fstream>
 #include <iostream>

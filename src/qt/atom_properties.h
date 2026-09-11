@@ -28,7 +28,7 @@ public:
 #define GREY   {0,0,0.7}
 #define PINK   {210./360,0.7,1}
 #define BROWN   {260./360,1.0,0.9}
-#define UNKNOWN {0,0.25,1} // light green
-#define NotC   UNKNOWN
+#define NOCOLOR {0,0.25,1} // light green
+#define NotC   NOCOLOR
 
 

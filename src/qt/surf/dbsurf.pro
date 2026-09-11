@@ -1,5 +1,5 @@
-##QMAKE_CXXFLAGS     += -DOBCHEM -DDEBUG
-QMAKE_CXXFLAGS     += -DDEBUG -DPDBREADER
+QMAKE_CXXFLAGS     += -DOBCHEM -DPDBREADER -DDEBUG
+
 INCLUDEPATH  += ../ ../ChemDb
 QT += sql \
       opengl \
@@ -22,19 +22,24 @@ HEADERS = \
 SOURCES  = dbsurf.cpp \
    ../db.cpp \
    ../ChemDb/dbchem.cpp
-unix {
-LIBS         += -L/usr/local/gfortran/lib/ -lgfortran
- fortran.commands = /usr/bin/gfortran -c ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
+unix:!macx {
+    LIBS         += -L/usr/local/gfortran/lib/ -lgfortran
+    fortran.commands = /usr/bin/gfortran -c ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
 }
 win32 {
  fortran.commands = gfortran -c ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
  LIBS         += -lgfortran
 }
 macx {
- fortran.commands = /opt/local/bin/gfortran-mp-4.5 -c ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
+  QMAKE_MACOSX_DEPLOYMENT_TARGET = 12.0
+  fortran.commands = /opt/local/bin/gfortran -c ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
+  QMAKE_CXXFLAGS     += -std=c++11
   CONFIG -= app_bundle
-  INCLUDEPATH  += /Users/tj/Documents/openbabel/include/openbabel-2.0 ../
-  QMAKE_MAC_SDK = macosx10.9
+  INCLUDEPATH  += /usr/local/include/openbabel3/ ../
+  QMAKE_MAC_SDK = macosx
+  QMAKE_LFLAGS += -Wl,-rpath,@executable_path/../Frameworks
+  LIBS         += -L/opt/local/lib/gcc15 -lgfortran \
+                  -L/usr/local/lib/      -lopenbabel
 }
 FORTRAN_SOURCES += isolib.F
 fortran.output = ${QMAKE_FILE_BASE}.o

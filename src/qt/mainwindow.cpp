@@ -9,6 +9,7 @@ C *************************************************************
 */
 #ifdef QT5
 #include <QtWidgets>
+#include <QTabBar>
 #endif
 #include "mainwindow.h"
 #include "gramps.h"
@@ -201,6 +202,7 @@ void MainWindow::createDockWindows() {
     act->setChecked(false);
     statusBar()->hide();
     connect(act, SIGNAL(toggled(bool)), this, SLOT(toggleStatus(bool)));
+
 }
 //void MainWindow::dockVisible(bool visible) {
 //    QDockWidget *dock = static_cast<QDockWidget *>(QObject::sender());

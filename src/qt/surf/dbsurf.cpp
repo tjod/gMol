@@ -13,7 +13,7 @@ dbprobe.cpp - This program will create a grid around a molecule
 #include "atom_properties.h"
 #include "atom_values.h"
 #include "db.h"
-#include "dbchem.h"
+//#include "dbchem.h"
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
@@ -33,7 +33,7 @@ extern "C" void interp_(float *, int *, int *, int *, int *,
      bool *, bool *, int *, int *, int *, int *, float *);
 extern "C" void unit_(float *);
 
-#define rProbe 1.4
+// #define rProbe 1.4
 #define Cmax 100.0
 #define BOHR (1.0/0.5291771)
 #define PIX 1
@@ -41,7 +41,7 @@ extern "C" void unit_(float *);
 #define DB  3
 #define CUBE  4
 QSqlQuery *addQuery; // used in addtri, setup in main
-bool computeGrid(float *grid, int *tags, atomQuery atom, float step, int xDim, int yDim, int zDim, float min[3]) {
+bool computeGrid(float *grid, int *tags, atomQuery atom, float step, int xDim, int yDim, int zDim, float min[3], float rProbe) {
     //float vdwR = etab.GetVdwRad(a->GetAtomicNum());
     float vdwR = Atom::radius[atom.atnum];
     float  R = pow((vdwR + rProbe), 2);
@@ -102,7 +102,7 @@ bool computeGrid(float *grid, int *tags, atomQuery atom, float step, int xDim, i
   return true;
 }
 
-void makeGrid(int imol, float step, float padding, char chain, int resnum, int filter, int hydrogen, int outtype, float isoval) {
+void makeGrid(int imol, float step, float padding, char chain, int resnum, int filter, int hydrogen, int outtype, float isoval, float rProbe) {
   float *fgrid;
   int *tags;
   float min[3], max[3], avg[3];
@@ -143,7 +143,7 @@ void makeGrid(int imol, float step, float padding, char chain, int resnum, int f
   //for (atomRecord atom = Db::nextAtom(qatom); atom.valid; atom = Db::nextAtom(qatom)) {
   atomQuery atom_query = atomQuery();
   for (atom_query.iter(imol, resnum, chain, filter, hydrogen); atom_query.next(); ) {  
-     computeGrid(fgrid, tags, atom_query, step, xDim, yDim, zDim, min);
+     computeGrid(fgrid, tags, atom_query, step, xDim, yDim, zDim, min, rProbe);
      ++natom;
   }
   qDebug() << natom << "atoms.";
@@ -238,6 +238,7 @@ void usage() {
     std::cerr << "  -qix            output triangles to qix file" << std::endl;
     std::cerr << "  -s <stepsize>   step size" << std::endl;
     std::cerr << "  -p <padding>    padding" << std::endl;
+    std::cerr << "  -r <probe>      probe size" << std::endl;
     exit(-1);
 }
 
@@ -263,6 +264,7 @@ int main(int argc,char **argv)
   float isoval = 100.;
   step    = 0.5;
   padding = 5.0;
+  float rProbe = 1.4;
 
   if (argc < 2) {
     usage();
@@ -310,6 +312,9 @@ int main(int argc,char **argv)
       } else if ((option == "-p") && (argc > (i+1))) {
         padding = atof(argv[++i]);
 
+      } else if ((option == "-r") && (argc > (i+1))) {
+        rProbe = atof(argv[++i]);
+
       }
     }
     
@@ -338,7 +343,7 @@ int main(int argc,char **argv)
   }
 
   qDebug() << imol << chain << resnum << filter;
-  makeGrid(imol, step, padding, chain, resnum, filter, hydrogen, outtype, isoval);
+  makeGrid(imol, step, padding, chain, resnum, filter, hydrogen, outtype, isoval, rProbe);
   if (outtype == DB) {
     QSqlQuery q;
     q.exec("Drop Table If Exists uniq_vertices");

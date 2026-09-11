@@ -1,8 +1,10 @@
+CC = /opt/local/bin/gcc
+
 #QMAKE_CXXFLAGS     += -DOBCHEM -DDEBUG
 QMAKE_CXXFLAGS     += -DOBCHEM -DDEBUG -DPDBREADER
 QT += sql \
-		opengl \
-		network
+    opengl \
+    network
 isEqual(QT_MAJOR_VERSION, 5): {
 cache()
 QMAKE_CXXFLAGS += -DQT5
@@ -15,18 +17,19 @@ unix:!macx {
  INCLUDEPATH  += /usr/include/openbabel-2.0 ../
  #INCLUDEPATH  += /Users/tj/Documents/openbabel/include/openbabel-2.0 ../
 }
-macx {
- INCLUDEPATH  += /Users/tj/Documents/openbabel/include/openbabel-2.0 ../
- #INCLUDEPATH  += /usr/local/include/openbabel-2.0 ../
-}
 win32 {
 CONFIG += console
  INCLUDEPATH  += /c/openbabel-2.3.2/build/install_dir/include/openbabel-2.0 ../
 }
 macx {
- QMAKE_CXXFLAGS     += -D__APPLE__
+ QMAKE_MACOSX_DEPLOYMENT_TARGET = 12.0
+ CONFIG += glu #c++17
+ INCLUDEPATH  += /usr/local/include/openbabel3/ ../
+ QMAKE_CXXFLAGS     += -D__APPLE__  -std=c++11
+ #QMAKE_CXXFLAGS     += -mmacosx-version-min=12.1
+ #QMAKE_CXXFLAGS     += -Wno-gnu-inline-cpp-without-extern -Wno-c++11-extensions
  CONFIG -= app_bundle
- QMAKE_MAC_SDK = macosx10.9
+ QMAKE_MAC_SDK = macosx
 }
 HEADERS       = dbchem.h \
                 ../db.h \
@@ -36,7 +39,7 @@ SOURCES       = main.cpp \
                 ../db.cpp \
                 dbchem.cpp
 macx {
- LIBS         += ${HOME}/Documents/openbabel/lib/libopenbabel.a /opt/local/lib/libz.a
+ LIBS         += -L/usr/local/lib/ -lopenbabel
  #LIBS         += -L${HOME}/Documents/openbabel/lib -l openbabel /opt/local/lib/libz.a
 }
 unix:!macx {

@@ -77,9 +77,10 @@ extern "C" int getmemmore_(const char *name, float *data, int *size, int namlen)
 extern "C" int getmemdone_(const char *name, float *data, int *size, int namlen);
 
 // from g0csubs
-extern "C" int g0pickprocess(int currx, int curry, float *xyzw);
+//extern "C" int g0pickprocess(int currx, int curry, float *xyzw);
+extern "C" int g0pickprocess(int currx, int curry, float (*xyzw)[4]);
 extern "C" void qtext(double x, double y, double z, char *string, int slen);
-extern "C" void snapscreen(char * filename, int width, int height, const uchar* rgbbuff);
+extern "C" void snapscreen_(char * filename, int width, int height, const uchar* rgbbuff);
 
 // for get *.html
 //extern "C" int geturl_(char *url, int ulen);

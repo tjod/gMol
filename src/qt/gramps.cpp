@@ -7,8 +7,10 @@ C It is unlawful to modify or remove this copyright notice.
 C See the accompanying LICENSE file for further information. 
 C *************************************************************
 */
+#define GL_SILENCE_DEPRECATION
 #include "mainwindow.h"
 #include <QtOpenGL>
+#include "gramps.h"
 #ifdef QT5
 #include <QtWebKitWidgets>
 #else
@@ -16,7 +18,7 @@ C *************************************************************
 #endif
 #include <QDebug>
 #include <QStringList>
-#include <GL/glu.h>
+#include <OpenGL/glu.h>
 
 extern MainWindow * mainWindow; // need to access some widgets from these global extern "C" functions.
 static QStringList qbuffer; // filled by qwrite_ (called by gramps to output), cleared and returned by this->cmd
@@ -45,10 +47,7 @@ static int curry;
 static bool savedb = false;
 
 grampsPick Gramps::pickProcess(const QPoint &p, Qt::MouseButton b) {
-/* Adjust curry: gl 0,0 is lower left, qt 0,0 is upper left.
-   Store current mouse press location in global currx, curry.
-   so that call to setpickprocess via g0pickprocess and display will know these values
-*/  grampsPick gp;
+    grampsPick gp;
     if (b == Qt::LeftButton || b == Qt::RightButton) {
         chosen_cursor = 2;
     }
@@ -72,9 +71,14 @@ grampsPick Gramps::fromPick(QPoint p) {
     grampsPick gp;
     gp.objid = 0;
     int height = mainWindow->glWidget->height();
+    /* Adjust curry: gl 0,0 is lower left, qt 0,0 is upper left.
+   Store current mouse press location in global currx, curry.
+   so that call to g0pickprocess and display will know these values
+    */
     currx = p.x();
     curry = height - p.y();
-    gp.objid = g0pickprocess(currx, curry, gp.xyzw);
+    const qreal retinaScale = mainWindow->devicePixelRatio();  // QT5
+    gp.objid = g0pickprocess(currx*retinaScale, curry*retinaScale, &gp.xyzw);
     if (gp.objid > 0) {
         char name[41];
         int len = getname_(&(gp.objid), name, 40);
@@ -108,7 +112,8 @@ void setpickmatrix_() {
    GLint viewport[4];
    glGetIntegerv(GL_VIEWPORT,viewport);
    //fprintf(stderr,"pick matrix %d %d\n", currx, curry);
-   gluPickMatrix(currx,curry,PICKWIDTH,PICKWIDTH,viewport);
+   const qreal retinaScale = mainWindow->devicePixelRatio();  // QT5
+   gluPickMatrix(currx*retinaScale, curry*retinaScale, PICKWIDTH,PICKWIDTH,viewport);
   }
 }
 void setpickcursor_() {
@@ -118,7 +123,7 @@ void setpickcursor_() {
 
 void setwinpos_(int *x, int *w, int *y, int *h) {
 
-  if(x||y){}; // get rid of warnings about unused args
+  if (x||y) {}; // get rid of warnings about unused args
 // how to resize only glWidget and have mainWindow adjust?
   QSize delta = QSize(*w, *h) - mainWindow->glWidget->size() + mainWindow->size();
   mainWindow->resize(delta);
@@ -166,7 +171,7 @@ int setdevval_(int *dev, float *rval, int *state) {
   return 1;
 }
 
-void snapscreen(char *filename, int width, int height, const uchar *rgbbuff) {
+void snapscreen_(char *filename, int width, int height, const uchar *rgbbuff) {
   QImage screen = QImage(rgbbuff, width, height, width*3, QImage::Format_RGB888);
   screen.mirrored().save(filename,0,100);
 }

@@ -1,6 +1,11 @@
 #! /bin/bash
+FRAMEWORKS=gmol.app/Contents/Frameworks
 RESOURCES=gmol.app/Contents/Resources
 EXE=gmol.app/Contents/MacOS
+
+cp /opt/local/lib/gcc15/libgfortran.5.dylib ${FRAMEWORKS}
+macdeployqt ${EXE}/gmol.app
+
 #cp -f empty.gdb3 $RESOURCES
 #cp -f residue.db $RESOURCES
 cp -f ChemDb/dbchem $EXE

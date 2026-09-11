@@ -9,7 +9,7 @@
 #include "chem.h"
 #include "atom_properties.h"
 #include "atom_values.h" // only once per app
-#include "mainwindow.h"
+// #include "mainwindow.h"
 #include <QObject>
 #include <QDebug>
 #include <QMenu>
@@ -22,6 +22,8 @@
 #include <string>
 #include <ios>
 #include <ctime>
+
+//#define PIXTMP YES
 
 extern QString gmolLib;
 
@@ -937,7 +939,8 @@ void ChemWidget::infoMol() {
 	 title = mol_query.title; // currentRow.rowname;
 	 props += "<caption><b>" + title + "</b></caption><tr><th>name</th><th>value</th></tr>";
      for ( property_query.iter(currentRow.imol); property_query.next(); ) {
-         props += "<tr><td>" + property_query.name.toHtmlEscaped() + "</td><td>" + property_query.text.toHtmlEscaped() + "</td></tr>";
+            //props += "<tr><td>" + property_query.name.toHtmlEscaped() + "</td><td>" + property_query.text.toHtmlEscaped() + "</td></tr>";
+            props += "<tr><td>" + (property_query.name).toHtmlEscaped() + "</td><td>" + (property_query.text).toHtmlEscaped() + "</td></tr>";
 	 }
 	 props += "</table>";
   } else {

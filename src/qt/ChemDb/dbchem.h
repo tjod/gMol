@@ -14,10 +14,16 @@ C *************************************************************
 #include <QtSql>
 #include <QSqlDatabase>
 #ifdef OBCHEM
+#include <openbabel/base.h>
 #include <openbabel/mol.h>
+#include <openbabel/obiter.h>
 #include <openbabel/obconversion.h>
+#include <openbabel/generic.h>
+#include <openbabel/residue.h>
+#include <openbabel/builder.h>
+#include <openbabel/forcefield.h>
 #endif
-#include "db.h"
+//#include "db.h"
 
 #define TR(a) QObject::tr(a)
 

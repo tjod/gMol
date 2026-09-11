@@ -379,6 +379,7 @@ bool ChemDb::addMolecule(OBMol &mol, QString file, QString type, QString smiles,
   return true;
 }
 
+
 bool ChemDb::addAtoms(OBMol &mol) {
 // add the atom rows to the atom table
   QString sql;
@@ -433,7 +434,7 @@ bool ChemDb::addAtoms(OBMol &mol) {
       if (res->IsHetAtom(&*atom)) flag = 1;
       query.addBindValue((int)flag);
     } else {
-      if (atomnam.isNull()) atomnam = etab.GetSymbol(atnum);
+      //if (atomnam.isNull()) atomnam = etab.GetSymbol(atnum);
       query.addBindValue(atomnam);
     }
     if (!query.exec()) return reportError(query);//"exec addAtoms");
@@ -460,6 +461,7 @@ bool ChemDb::addBonds(OBMol &mol) {
   }
   return true;
 }
+
 
 void ChemDb::protein(OBMol &pmol) {
 // for debugging pdb files
@@ -502,8 +504,7 @@ void ChemDb::protein(OBMol &pmol) {
   }
 
 }
-#include <openbabel/builder.h>
-#include <openbabel/forcefield.h>
+
 int ChemDb::gen3D(OBMol &pmol, bool force=false) {
 
   // make up 3D coords for this molecule
