@@ -1,11 +1,16 @@
 # to make app bundle from qtcreator build
 
 rm -rf gmol.app
-cp -r ../build-gmol-qt5_3-Debug/gmol.app .
+cp -r src/build-gmol-qt5_3-Debug/gmol.app .
 EXE=gmol.app/Contents/MacOS/
-cp build-dbchem-qt5_3-Debug/dbchem ${EXE}
-cp build-tetsurf-qt5_3-Debug/dbsurf ${EXE}
-cp -r $gmol_lib/* gmol.app/Contents/Resources
+
+cp src/qt/build-dbchem-qt5_3-Debug/dbchem ${EXE}
+#cp src/qt/build-dbsurf-qt5_3-Debug/dbsurf ${EXE}
+cp src/qt/build-tetsurf-qt5_3-Debug/dbsurf ${EXE}
+cp -r src/build-gramps-qt5_3-Debug/gramps ${EXE}
+
+cp -r lib/* gmol.app/Contents/Resources
+
 ~/Qt5/5.3/clang_64/bin/macdeployqt gmol.app -executable=${EXE}/dbchem -executable=${EXE}/dbsurf
 cp /opt/local/lib/gcc15/libgfortran.5.dylib gmol.app/Contents/Frameworks
 #cp /usr/local/lib/libopenbabel.8.dylib      gmol.app/Contents/Frameworks
