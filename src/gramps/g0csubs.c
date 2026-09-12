@@ -524,7 +524,7 @@ void g0blendf_(int *source, int *dest) {
 //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-
+#define BITMAP_FONTS
 void g0drawtext_(float *x, float *y, float *z, char *string, int *ifont, int slen) {
 
   int i;
@@ -540,19 +540,25 @@ void g0drawtext_(float *x, float *y, float *z, char *string, int *ifont, int sle
   };
 
   glDisable(GL_LIGHTING);
-//#ifdef QT
-//  qtext(*x,*y,*z,string,slen);
-//#else
-  //glPushMatrix();
-  //glTranslatef(*x, *y, *z);
   int jfont = *ifont;
   if (jfont < 0  || jfont > 6) jfont = 0;
+#ifdef BITMAP_FONTS
   glRasterPos3f(*x, *y, *z);
+#else
+  glPushMatrix();
+  glTranslatef(*x, *y, *z);
+  glScalef(0.002f, 0.002f, 0.002f);
+#endif
+#ifdef BITMAP_FONTS
   for (i=0; i<slen; i++) {
     glutBitmapCharacter(ffont[jfont], string[i]);
   }
-  //glPopMatrix();
-//#endif
+#else
+  for (i=0; i<slen; i++) {
+    glutStrokeCharacter(GLUT_STROKE_ROMAN, string[i]);
+  }
+  glPopMatrix();
+#endif
   glEnable(GL_LIGHTING);
 }
 
