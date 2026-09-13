@@ -154,7 +154,7 @@ C
       EXTERNAL TRIM
       CHARACTER*1 BLANK
       CHARACTER*40 FUNC
-      CHARACTER*200 TMPLINE
+      CHARACTER*400 TMPLINE
       LOGICAL LWORK(WORKSIZE)
       EQUIVALENCE (WORK,LWORK)
 C
@@ -208,24 +208,27 @@ C
 C
 C
       IF(ID.LE.RWORLD) Then
-        WRITE(TMPLINE,1000) WLDVAL(WMOVEX,ID),
+       WRITE(TMPLINE,1000) WLDVAL(WMOVEX,ID),
      &          WLDVAL(WMOVEY,ID),
      &          WLDVAL(WMOVEZ,ID),
      &          WLDVAL(WMOVEW,ID) 
  1000  FORMAT(',"move":{"x":',g12.5,',"y":',g12.5,
      &  ',"z":',g12.5,',"w":',g12.5,'}')
-      CALL GROUT(TMPLINE)
+       CALL GROUT(TMPLINE)
 C
-        WRITE(TMPLINE,1001)WLDVAL(WWINDS,ID),WLDVAL(WWINDV,ID),
-     &          WLDVAL(WWINDP,ID),WLDVAL(WWINDA,ID),
-     &          WLDVAL(WWINDH,ID),WLDVAL(WWINDY,ID),
-     &          WLDVAL(WWINDE,ID),WLDVAL(WWINDW,ID),
-     &          WLDVAL(WFOG,ID),WLDVAL(WDEPTH,ID)
- 1001  FORMAT(',"perspective":{"shear":',g12.5,',"v":',g12.5,
-     &  ',"p":',g12.5,',"aspect":',g12.5,
-     &  ',"hither":',g12.5,',"yon":',g12.5,',"eye":',g12.5,',"w":',g12.5,
-     &  ',"fog":',g12.5,',"depth":',g12.5,'}')
-      CALL GROUT(TMPLINE)
+       WRITE(TMPLINE,1001)
+     &          WLDVAL(WWINDS,ID), WLDVAL(WWINDV,ID),
+     &          WLDVAL(WWINDP,ID), WLDVAL(WWINDA,ID),
+     &          WLDVAL(WWINDH,ID), WLDVAL(WWINDY,ID),
+     &          WLDVAL(WWINDE,ID), WLDVAL(WWINDW,ID),
+     &          WLDVAL(WFOG,ID),   WLDVAL(WDEPTH,ID)
+ 1001  FORMAT(',"perspective":',
+     &  '{"shear":',  f12.5, ',"v":',      f12.5,
+     &  ',"p":',      f12.5, ',"aspect":', f12.5,
+     &  ',"hither":', f12.5, ',"yon":',    f12.5,
+     &  ',"fog":',    f12.5, ',"depth":',  f12.5,
+     &  ',"eye":',    f12.5, ',"w":',      f12.5, '}')
+       CALL GROUT(TMPLINE)
       End If
 C
        WRITE(TMPLINE,1002) TFMVAL(UTRANX,ID),
