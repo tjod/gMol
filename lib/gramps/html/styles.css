@@ -1,6 +1,12 @@
+body {
+ color: black;
+ background-color: white;
+}
 BODY.nav {
- background:lightgrey;
- font-size:12;
+ background: white;
+ font-size:15;
+ color: black;
+ overflow: hidden;
 }
 
 A {
@@ -14,4 +20,29 @@ SPAN.command {
 }
 SPAN.switch {
  font-family:courier;
+}
+
+div.nav-help {
+  display: flex;       /* Aligns children side by side */
+  gap: 5px;           /* Adds space between the two divs */
+}
+
+div.left {
+  width: 125px;
+  flex-shrink: 0;
+  padding: 1px;
+  background-color: white;
+  border-right: 1px ridge;
+}
+div.right {
+  flex: 1;
+  padding-left: 10px;
+  background-color: white;
+}
+
+iframe {
+  width: 100%;
+  border: none;
+  height: 100%;
+  display: none;
 }
