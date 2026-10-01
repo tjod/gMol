@@ -420,12 +420,12 @@ void MainWindow::open()
 
 void MainWindow::openUrl() {
     //QString init = helpView->url().toString();
-    //QString init = "http://sourceforge.net/projects/sci3d/";
-    QString init = "http://www.rcsb.org/pdb/files/3hiv.pdb";
+    //QString init = "https://github.com/tjod/gMol/wiki";
+    QString init = "https://files.rcsb.org/download/3hiv.pdb";
     //QString init = "http://www.gnova.com/";
     bool ok;
     QString url = QInputDialog::getText(this, tr("Enter a URL for website or file"),
-                  tr("Enter URL, for example:\n - www.google.com\n - http://sourceforge.net/projects/sci3d/\n - http://www.rcsb.org/pdb/files/4hhb.pdb\n - /home/users/joe/x.html\n - C:\\Documents and Settings\\joe\\My Documents\\x.html\n - file:///home/users/pam/z.html"), QLineEdit::Normal, init, &ok);
+                  tr("Enter URL, for example:\n - www.google.com\n - https://github.com/tjod/gMol/wiki\n - http://files.rcsb.org/download/4hhb.pdb\n - /home/users/joe/x.html\n - C:\\Documents and Settings\\joe\\My Documents\\x.html\n - file:///home/users/pam/z.html"), QLineEdit::Normal, init, &ok);
     if (ok) openUrl(url, true);
 }
 
