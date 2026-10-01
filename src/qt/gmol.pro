@@ -12,8 +12,8 @@ isEqual(QT_MAJOR_VERSION, 5): {
    cache()
    QMAKE_CXXFLAGS += -DQT5
    QT += uitools \
-    widgets \
-    webkitwidgets
+    widgets
+#   QT += webkitwidgets # use with Qt5.3 or less
 } else {
    QT += webkit
 }
@@ -75,10 +75,17 @@ macx {
 #       QMAKE_LFLAGS += -isysroot $$QMAKE_MAC_SDK_PATH
    QMAKE_LFLAGS += -Wl,-rpath,@executable_path/../Frameworks
    INCLUDEPATH += /opt/local/include
+   INCLUDEPATH += /usr/local/include # use with Qt5.15
+   INCLUDEPATH += /usr/local/include/QtWebKitWidgets # use with Qt5.15
    #INCLUDEPATH += /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1
    LIBS += ../gramps/qtgramps.a \
     -L/opt/local/lib/gcc15 -lgfortran \
     -framework GLUT -framework OPENGL
+   LIBS += -F/usr/local/lib -framework QtWebKit -framework QtWebKitWidgets # use with Qt5.15
+   #LIBS += -L/opt/local/lib/openssl-1.1 -lssl -lcrypto # use with Qt5.15
+   QMAKE_RPATHDIR += /usr/local/lib/ # use with Qt5.15
+   QMAKE_RPATHDIR += /usr/local/lib/QtWebKit.framework # use with Qt5.15
+   QMAKE_RPATHDIR += /usr/local/lib/QtWebKitWidgets.framework  # use with Qt5.15
    ICON = gmol.icns
    QMAKE_CXXFLAGS += -D__APPLE__
    #QMAKE_MAC_SDK = macosx13.1
