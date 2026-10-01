@@ -1,3 +1,17 @@
-https://github.com {
-	reverse_proxy localhost:5000
+https://localhost:8080 {
+# https://localhost:8080/github/tjod
+    handle /github/* {
+        uri strip_prefix /github
+        reverse_proxy https://github.com {
+            header_up Host {upstream_hostport}
+        }
+    }
+
+# https://localhost:8080/rcsb/download/3HIV.pdb
+    handle /rcsb/* {
+        uri strip_prefix /rcsb
+        reverse_proxy https://files.rcsb.org {
+            header_up Host {upstream_hostport}
+        }
+    }
 }
