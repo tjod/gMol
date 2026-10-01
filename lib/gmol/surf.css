@@ -6,6 +6,8 @@
 body {
   font-family: sans-serif;
   padding: 20px;
+  background-color: white;
+  color: black;
 }
 .range-slider .input-range {
   -webkit-appearance: none;
@@ -77,4 +79,12 @@ body {
 }
 input::-moz-focus-inner {
   border: 0;
+}
+
+input[type="button"] {
+  background-color: white;
+  color: black;
+}
+input[type="checkbox"] {
+  color: green;
 }

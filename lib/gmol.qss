@@ -10,3 +10,8 @@ QMainWindow QTabBar::tab:selected {
     color: #000000;            /* Text color for active tab */
     font-weight: bold;
 }
+
+QWebView WebWidget {
+	background-color: white;
+	color: black;
+}
