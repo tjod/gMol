@@ -524,7 +524,7 @@ void g0blendf_(int *source, int *dest) {
 //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-#define BITMAP_FONTS
+//#define BITMAP_FONTS
 void g0drawtext_(float *x, float *y, float *z, char *string, int *ifont, int slen) {
 
   int i;
@@ -547,7 +547,7 @@ void g0drawtext_(float *x, float *y, float *z, char *string, int *ifont, int sle
 #else
   glPushMatrix();
   glTranslatef(*x, *y, *z);
-  glScalef(0.002f, 0.002f, 0.002f);
+  glScalef(0.01f, 0.01f, 0.01f); // roughly full height of gramps 1.0 scale
 #endif
 #ifdef BITMAP_FONTS
   for (i=0; i<slen; i++) {
