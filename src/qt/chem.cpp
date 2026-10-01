@@ -922,6 +922,7 @@ void ChemWidget::infoMol() {
   QString filename;
   QString style = "\
   <style>\
+    body {background-color: white;}\
     td\
       {border-left:1px solid grey;\
        border-top:1px solid grey;}\
