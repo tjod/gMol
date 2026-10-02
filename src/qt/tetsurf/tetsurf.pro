@@ -2,7 +2,7 @@ TARGET = dbsurf
 
 TEMPLATE += app
 CONFIG += console
-QT += sql core widgets opengl
+QT += sql core widgets #opengl
 isEqual(QT_MAJOR_VERSION, 5): {
   cache()
   QMAKE_CXXFLAGS += -DQT5
