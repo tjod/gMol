@@ -8,9 +8,9 @@ QT += sql \
 isEqual(QT_MAJOR_VERSION, 5): {
 cache()
 QMAKE_CXXFLAGS += -DQT5
-QT +=  webkitwidgets
-} else {
-QT += webkit
+#QT +=  webkitwidgets
+#} else {
+#QT += webkit
 }
 unix:!macx {
  CONFIG += debug
