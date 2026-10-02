@@ -61,10 +61,11 @@ ChemWidget::ChemWidget(QDockWidget *parent)
     surfproc = new QProcess();
     connect(surfproc, SIGNAL(finished(int)), this, SLOT(surfReady(int)));
     connect(surfproc, SIGNAL(readyReadStandardOutput()), this, SLOT(readProc()));
-    progress = new QProgressDialog();
-    progress->setWindowTitle("Progress");
-    progress->cancel();
-    
+    progress = new QProgressDialog("Waiting...", "Cancel", 0, 100, this);
+    //progress->setWindowTitle("Progress");
+    //progress->setAutoClose(false);
+    progress->reset();
+
     treeQuery::createTable();
 }
 
@@ -1418,7 +1419,7 @@ int ChemWidget::addMolToDb(QString filename, QString fmt) {
 void ChemWidget::readProc() {
   QStringList msg;
   if (dbproc->state() == QProcess::Running) {
-    msg = QString(dbproc->readAllStandardOutput()).split(' ');
+    msg = QString(dbproc->readAllStandardOutput()).split("\\s+");
   } else if (surfproc->state() == QProcess::Running) {
     msg = QString(surfproc->readAllStandardOutput()).split(' ');
   }
