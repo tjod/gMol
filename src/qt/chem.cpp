@@ -62,6 +62,8 @@ ChemWidget::ChemWidget(QDockWidget *parent)
     connect(surfproc, SIGNAL(finished(int)), this, SLOT(surfReady(int)));
     connect(surfproc, SIGNAL(readyReadStandardOutput()), this, SLOT(readProc()));
     progress = new QProgressDialog();
+    progress->setWindowTitle("Progress");
+    progress->cancel();
     
     treeQuery::createTable();
 }
