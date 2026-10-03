@@ -524,7 +524,7 @@ void g0blendf_(int *source, int *dest) {
 //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-//#define BITMAP_FONTS
+#define BITMAP_FONTS
 void g0drawtext_(float *x, float *y, float *z, char *string, int *ifont, int slen) {
 
   int i;
