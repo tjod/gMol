@@ -1,16 +1,21 @@
 # to make app bundle from qtcreator build
 
+#QT=${HOME}/Qt5/5.3/clang_64/
+#BUILD=qt5_3-Debug
+
+QT=${HOME}/Qt/5.15.2/clang_64/
+BUILD=Desktop_Qt_5_15_2_clang_64bit-Debug
+
 rm -rf gmol.app
-cp -r src/build-gmol-qt5_3-Debug/gmol.app .
+cp -r ./src/build-gmol-${BUILD}/gmol.app .
 EXE=gmol.app/Contents/MacOS/
 
-cp src/qt/build-dbchem-qt5_3-Debug/dbchem ${EXE}
-#cp src/qt/build-dbsurf-qt5_3-Debug/dbsurf ${EXE}
-cp src/qt/build-tetsurf-qt5_3-Debug/dbsurf ${EXE}
-cp -r src/build-gramps-qt5_3-Debug/gramps ${EXE}
+cp src/qt/build-dbchem-${BUILD}/dbchem ${EXE}
+cp src/qt/build-tetsurf-${BUILD}/dbsurf ${EXE}
+cp -r src/build-gramps-${BUILD}/gramps ${EXE}
 
 cp -r lib/* gmol.app/Contents/Resources
 
-~/Qt5/5.3/clang_64/bin/macdeployqt gmol.app -executable=${EXE}/dbchem -executable=${EXE}/dbsurf
+${QT}/bin/macdeployqt gmol.app -executable=${EXE}/dbchem -executable=${EXE}/dbsurf # -verbose=2
 cp /opt/local/lib/gcc15/libgfortran.5.dylib gmol.app/Contents/Frameworks
 #cp /usr/local/lib/libopenbabel.8.dylib      gmol.app/Contents/Frameworks

@@ -84,8 +84,9 @@ macx {
    LIBS += -F/usr/local/lib -framework QtWebKit -framework QtWebKitWidgets # use with Qt5.15
    #LIBS += -L/opt/local/lib/openssl-1.1 -lssl -lcrypto # use with Qt5.15
    QMAKE_RPATHDIR += /usr/local/lib/ # use with Qt5.15
-   QMAKE_RPATHDIR += /usr/local/lib/QtWebKit.framework # use with Qt5.15
-   QMAKE_RPATHDIR += /usr/local/lib/QtWebKitWidgets.framework  # use with Qt5.15
+   #QMAKE_RPATHDIR += /usr/local/lib/QtWebKit.framework # use with Qt5.15
+   #QMAKE_RPATHDIR += /usr/local/lib/QtWebKitWidgets.framework  # use with Qt5.15
+   QMAKE_RPATHDIR += /Users/tj/Qt/5.15.2/clang_64/lib
    ICON = gmol.icns
    QMAKE_CXXFLAGS += -D__APPLE__
    #QMAKE_MAC_SDK = macosx13.1
