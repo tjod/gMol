@@ -12,6 +12,9 @@
 	color: blue;
 	font-size: 110%;
 }
+#command {
+	height: 100vh;
+}
 #cmd_line {
 	width: 100%;
 	color: black;
@@ -27,6 +30,7 @@
 	white-space: pre;
 	/*font-family: monospace;*/
 	overflow: auto;
+	height: 100vh;
 }
 ul.tree, li.tree {
 	list-style-type: none;
@@ -45,9 +49,11 @@ ul.tree, li.tree {
 #tree {
 	white-space: pre;
 	/*font-family: monospace;*/
+	height: 100vh;
 }
 #system {
 	white-space: pre;
 	/*font-family: monospace;*/
+	height: 100vh;
 	overflow: auto;
 }
