@@ -1,3 +1,6 @@
+body {
+	background-color: #f2f5f7;
+}
 .ui-widget {
 	font-size:100%;
 }
@@ -28,7 +31,7 @@
 }
 #cmd_out {
 	white-space: pre;
-	/*font-family: monospace;*/
+	font-family: monospace;
 	overflow: auto;
 	height: 100vh;
 }
@@ -40,11 +43,12 @@ ul.tree, li.tree {
 }
 #showobj {
 	white-space: pre;
-	/*font-family: monospace;*/
+	font-family: monospace;
 	border-style: solid;
 	border-width: 1px;
 	border-color: lightgrey;
 	margin-top: 10px;
+	background-color: #f2f5f7;
 }
 #tree {
 	white-space: pre;

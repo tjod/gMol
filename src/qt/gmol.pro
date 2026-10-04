@@ -110,4 +110,5 @@ OTHER_FILES += \
 RESOURCES +=
 
 DISTFILES += \
+    ../../lib/gmol.qss \
     gmol.qss

@@ -149,12 +149,14 @@ QAction *MainWindow::addMenuItem(QDockWidget *dock, QString tip) {
 
 void MainWindow::createDockWindows() {
     logDock = new QDockWidget("Log", this);
+    logDock->setObjectName("logDock"); // for qss styling
     logDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
 //  command is composite widget for output and input
     cmdWidget = new QWidget(logDock);
     cmdOutput = new QPlainTextEdit(cmdWidget);
     cmdInput  = new QLineEdit(cmdWidget);
+    cmdInput->setPlaceholderText("enter gramps commands here");
     QVBoxLayout * cmdLayout = new QVBoxLayout;
     cmdLayout->addWidget(cmdOutput);
     cmdLayout->addWidget(cmdInput);
@@ -186,6 +188,7 @@ void MainWindow::createDockWindows() {
 #ifdef CHEM
     Db::open();
     chemDock = new QDockWidget(tr("gMol"), this);
+    chemDock->setObjectName("chemDock"); // for qss styling
     chemWidget = new ChemWidget(chemDock);
     chemDock->setWidget(chemWidget);
     addDockWidget(Qt::LeftDockWidgetArea, chemDock);
