@@ -73,7 +73,13 @@ void WebWidget::showLink(const QString & link, const QString & , const QString &
 
 void WebWidget::interceptLink(QNetworkReply * reply)
 {
+    // unsupported content, e.g. pdb from rcsb
   QUrl url = reply->url();
+  QString header = reply->header(QNetworkRequest::ContentTypeHeader).toString();
+  qDebug() << url << " unsupported " << header;
+  QString title = QFileInfo(url.path()).fileName();
+  parentWidget()->setWindowTitle(title);
+  qDebug() << title << " " << page()->mainFrame()->toPlainText();
   if (url.scheme() == "gramps") {
     emit cmdReady(url.path()); // connected to gramps->cmd
   } else {
@@ -98,7 +104,7 @@ void WebWidget::interceptLink(QNetworkReply * reply)
 bool WebWidget::handlePDB(QNetworkReply *reply, QString header, QString path) {
     //qDebug() << "got PDB file from" << path;
     QString spdb = "";
-    if (header.isEmpty() || header == "application/download") {
+    if (header.isEmpty() || header == "application/download" ||  header == "text/plain") {
         spdb = QString(reply->readAll());
         //QString title =  QFileInfo(path).fileName();
         //setHtml("<header><title>"+title+"</title></header><pre>"+spdb.toHtmlEscaped());
@@ -155,6 +161,7 @@ bool WebWidget::handleSDF(QNetworkReply *reply, QString header, QString path) {
     return false;
 }
 void WebWidget::pageFinished(QNetworkReply * reply) {
+
   QString header = reply->header(QNetworkRequest::ContentTypeHeader).toString();
   //emit msgReady(header); // connected to mainWindow->statusBar
   if (reply->error() > 0) emit msgReady(reply->errorString());
@@ -182,7 +189,7 @@ void WebWidget::pageFinished(QNetworkReply * reply) {
           //mainWindow->chemDock->raise();
       }
   }
-  reply->deleteLater();
+  //reply->deleteLater();
 }
 
 void WebWidget::deleteTab() {
