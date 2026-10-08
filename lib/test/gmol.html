@@ -1,6 +1,7 @@
 <html>
 <head>
 <title>Tests</title>
+<link rel="stylesheet" href="style.css">
 <script>
 function loaded() {
 // Check for the various File API support.
@@ -22,7 +23,7 @@ function showtree() {
 }
 function getpdb() {
   var adiv = document.getElementById("pdb");
-  imol = gmol.readMolFromUrl("http://www.rcsb.org/pdb/files/1hox.pdb");
+  imol = gmol.readMolFromUrl("http://files.rcsb.org/download/1hox.pdb");
   adiv.innerHTML = "molecule #" + imol;
 }
 function showtest() {
