@@ -11,6 +11,7 @@ C *************************************************************
 #include "mainwindow.h"
 #include "atom_properties.h"
 #include "gmolApp.h"
+#include "fileDownload.h"
 
 MainWindow * mainWindow;  // others need this and its widgets
 QString gmolLib;
@@ -75,6 +76,11 @@ int main(int argc, char *argv[]) {
         app->setStyleSheet(styleSheet);
         file.close();
     }
+
+    // initial test of code
+//    QUrl url("https://files.rcsb.org/download/3hiv.pdb");
+//    QUrl url("file://" + gmolLib + "/test/1crn.pdb");
+//    FileDownloader downloader(url);
 
     return app->exec();
 }

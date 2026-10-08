@@ -31,7 +31,8 @@ HEADERS = glwidget.h \
     cpk.xpm \
     mainwindow.h \
     gmolApp.h \
-    atom_values.h
+    atom_values.h \
+    fileDownload.h
 SOURCES = glwidget.cpp \
     controls.cpp \
     web.cpp \
@@ -47,7 +48,8 @@ SOURCES = glwidget.cpp \
     mainwindow.cpp \
     main.cpp \
     gmolApp.cpp \
-    db.cpp
+    db.cpp \
+    fileDownload.cpp
 FORMS += controls.ui
 
 unix:!macx: {
