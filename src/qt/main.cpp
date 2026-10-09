@@ -47,15 +47,15 @@ int main(int argc, char *argv[]) {
     // qDebug() << "OpenSSL Build Version:" << QSslSocket::sslLibraryBuildVersionString();
     qDebug() << "OpenSSL Runtime Version:" << QSslSocket::sslLibraryVersionString();
 
-    // Force the global network configuration to use modern TLS
-    QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
-    // sslConfig.setProtocol(QSsl::TlsV1_2OrLater); // Forces TLS 1.2 or TLS 1.3
-    sslConfig.setProtocol(QSsl::TlsV1_2); // Forces TLS 1.2
-    QSslConfiguration::setDefaultConfiguration(sslConfig);
+//    // Force the global network configuration to use modern TLS
+//    QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+//    // sslConfig.setProtocol(QSsl::TlsV1_2OrLater); // Forces TLS 1.2 or TLS 1.3
+//    sslConfig.setProtocol(QSsl::TlsV1_2); // Forces TLS 1.2
+//    QSslConfiguration::setDefaultConfiguration(sslConfig);
 
-    qDebug() << "Supports SSL:" << QSslSocket::supportsSsl();
-    // qDebug() << "OpenSSL Build Version:" << QSslSocket::sslLibraryBuildVersionString();
-    qDebug() << "OpenSSL Runtime Version:" << QSslSocket::sslLibraryVersionString();
+//    qDebug() << "Supports SSL:" << QSslSocket::supportsSsl();
+//    // qDebug() << "OpenSSL Build Version:" << QSslSocket::sslLibraryBuildVersionString();
+//    qDebug() << "OpenSSL Runtime Version:" << QSslSocket::sslLibraryVersionString();
 
 
     mainWindow = new MainWindow;
