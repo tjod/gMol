@@ -27,7 +27,7 @@ QDockWidget#logDock QLineEdit {
 }
 
 QDockWidget#chemDock QTreeWidget {
-    background-color: white;
+    background-color: lightblue;
     color: black;
     border: none;
 }
