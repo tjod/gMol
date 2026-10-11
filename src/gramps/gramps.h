@@ -8,6 +8,7 @@ C See the accompanying LICENSE file for further information.
 C *************************************************************
 */
 /* Must correspond with values in initvar.f */
+
 #define XMOUSS 256
 #define MOUSS 256
 #define YMOUSS 262144
@@ -33,3 +34,4 @@ void setfrom_(int *outflag);
 void udinit_();
 void g0pinit_();
 void startup_();
+int init_font_(const char* fontPath, float size);

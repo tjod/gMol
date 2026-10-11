@@ -187,6 +187,8 @@ C
       ARGSTART=1
       CALL DOFILE('$HOME/gramps.gin')
       ERROR=0
+C USES fortran99 TRIM, not old EXTERNAL TRIM used everywhere else in gramps
+      call init_font(TRIM(TRIM(DIR) // "/Roboto-Regular.ttf"), 36.0);
 C
  999  CONTINUE
       RETURN

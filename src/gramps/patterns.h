@@ -1,3 +1,4 @@
+#include "OpenGL/OpenGL.h"
 static GLubyte *mask; /* 4 8-bit-bytes is 32 bits and 32*4 = 128 */
 
   static GLubyte mask9[128] = {

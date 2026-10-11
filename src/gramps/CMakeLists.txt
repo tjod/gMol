@@ -17,6 +17,7 @@ set(SOURCE_FILES
         gramps.h
         patterns.h
         glutbitmap.h
+        stb_truetype.h
     #main
         gramps.c
     #others .F and some .c

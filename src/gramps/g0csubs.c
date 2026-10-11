@@ -23,12 +23,22 @@ C *************************************************************
 #include "glutbitmap.h"
 #endif
 
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "stb_truetype.h"
+struct OpenGlFont {
+    GLuint textureId;
+    stbtt_bakedchar bakedChars[96]; // ASCII 32..126
+    float fontSize;
+};
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "gramps.h"
+
+struct OpenGlFont stbFont;
 
 /* G0 routines that used to be in g0subs.f */
 
@@ -524,9 +534,8 @@ void g0blendf_(int *source, int *dest) {
 //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-#define BITMAP_FONTS
-void g0drawtext_(float *x, float *y, float *z, char *string, int *ifont, int slen) {
-
+void draw_bitmap_text(float *x, float *y, float *z, char *string, int *ifont, int slen)
+{
   int i;
   int width;
   void *ffont[] = {
@@ -542,24 +551,124 @@ void g0drawtext_(float *x, float *y, float *z, char *string, int *ifont, int sle
   glDisable(GL_LIGHTING);
   int jfont = *ifont;
   if (jfont < 0  || jfont > 6) jfont = 0;
-#ifdef BITMAP_FONTS
   glRasterPos3f(*x, *y, *z);
-#else
-  glPushMatrix();
-  glTranslatef(*x, *y, *z);
-  glScalef(0.01f, 0.01f, 0.01f); // roughly full height of gramps 1.0 scale
-#endif
-#ifdef BITMAP_FONTS
   for (i=0; i<slen; i++) {
     glutBitmapCharacter(ffont[jfont], string[i]);
   }
-#else
+  glEnable(GL_LIGHTING);
+}
+void draw_stroke_text(float *x, float *y, float *z, char *string, int *ifont, int slen)
+{
+  int i;
+  int width;
+
+  //glDisable(GL_LIGHTING);
+  glPushMatrix();
+  glTranslatef(*x, *y, *z);
+  glScalef(0.01f, 0.01f, 0.01f); // roughly full height of gramps 1.0 scale
+
   for (i=0; i<slen; i++) {
     glutStrokeCharacter(GLUT_STROKE_ROMAN, string[i]);
   }
   glPopMatrix();
-#endif
+  //glEnable(GL_LIGHTING);
+}
+#define atlasWidth 512
+#define atlasHeight 512
+int init_font_(const char* fontPath, float size) {
+  stbFont.fontSize = size;
+
+  // 1. Read font file into a memory buffer
+  FILE* f = fopen(fontPath, "rb");
+  if (!f) {
+    printf("Error: Could not open font file at %s\n", fontPath);
+    return 0;
+  }
+  fseek(f, 0, SEEK_END);
+  long fileSize = ftell(f);
+  fseek(f, 0, SEEK_SET);
+  unsigned char* ttfBuffer = (unsigned char*)malloc(fileSize);
+  fread(ttfBuffer, 1, fileSize, f);
+  fclose(f);
+
+  // 2. Allocate bitmap memory for the texture atlas (512x512 is plenty for one size)
+
+  unsigned char* alphaBitmap = (unsigned char*)malloc(atlasWidth * atlasHeight);
+
+  // 3. Bake font glyphs into the alpha channel bitmap
+  // This maps ASCII characters 32 (space) to 126
+  int result = stbtt_BakeFontBitmap(ttfBuffer, 0, size, alphaBitmap, atlasWidth, atlasHeight, 32, 96, stbFont.bakedChars);
+  free(ttfBuffer); // Buffer no longer needed after baking
+
+  if (result <= 0) {
+    printf("Error: Font atlas size too small for font size %f\n", size);
+    free(alphaBitmap);
+    return 0;
+  }
+
+  // 4. Convert alpha-only bitmap to OpenGL GL_LUMINANCE_ALPHA format
+  // This allows glColor3f to dynamically recolor your text
+  unsigned char* rgbaBitmap = (unsigned char*)malloc(atlasWidth * atlasHeight * 2);
+  for (int i = 0; i < atlasWidth * atlasHeight; ++i) {
+    rgbaBitmap[i * 2 + 0] = 255;            // RGB Channels (White)
+    rgbaBitmap[i * 2 + 1] = alphaBitmap[i]; // Alpha Channel
+  }
+
+  // 5. Generate and bind OpenGL Texture
+  glGenTextures(1, &stbFont.textureId);
+  glBindTexture(GL_TEXTURE_2D, stbFont.textureId);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, atlasWidth, atlasHeight, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, rgbaBitmap);
+
+  // Texture filtering setup (Linear looks smooth, Nearest looks crisp/pixelated)
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  free(alphaBitmap);
+  free(rgbaBitmap);
+  return 1;
+}
+
+void draw_stb_text(float *x, float *y, float *z, char *text, int *ifont, int slen) {
+  glDisable(GL_LIGHTING);
+
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, stbFont.textureId);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glBegin(GL_QUADS);
+  for (int i=0; i<slen; ++i) {
+    char c = text[i];
+    if (c >= 32 && c < 128) {
+       stbtt_aligned_quad q;
+       //  THESE VALUES 512 MATCH ATLAS
+       stbtt_GetBakedQuad(stbFont.bakedChars, atlasWidth, atlasHeight, c - 32, x, y, &q, 1);
+
+       glTexCoord2f(q.s0, q.t0); glVertex2f(q.x0, q.y0);
+       glTexCoord2f(q.s1, q.t0); glVertex2f(q.x1, q.y0);
+       glTexCoord2f(q.s1, q.t1); glVertex2f(q.x1, q.y1);
+       glTexCoord2f(q.s0, q.t1); glVertex2f(q.x0, q.y1);
+    }
+  }
+  glEnd();
+
+  glDisable(GL_BLEND);
+  glDisable(GL_TEXTURE_2D);
+
   glEnable(GL_LIGHTING);
+}
+
+#define GLUT_BITMAP_FONTS
+//#define GLUT_STROKE_FONTS
+//#define STB_TRUETYPE_FONTS
+void g0drawtext_(float *x, float *y, float *z, char *string, int *ifont, int slen) {
+#if defined(GLUT_BITMAP_FONTS)
+  draw_bitmap_text(x, y, z, string, ifont, slen);
+#elif defined(GLUT_STROKE_FONTS)
+  draw_stroke_text(x, y, z, string, ifont, slen);
+#elif defined(STB_TRUETYPE_FONTS)
+  draw_stb_text(x, y, z, string, ifont, slen);
+#endif
 }
 
 #if defined __APPLE__
