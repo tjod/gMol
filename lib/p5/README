@@ -1,0 +1,9 @@
+The scripts here use p5.js from p5js.org to create 3D text pix files for display with gramps.
+Here, p5.js is run in a web browser. It appears to need to be run on a webserver and not
+served up simply using file://.  This is because of CORS restrictions loading the font.
+It works using a localhost webserver, or any other you may have access to.
+It might work using nodejs.
+https://p5js.org/tutorials/getting-started-with-nodejs/
+
+Edit the .js files here to using any font you like and any string to be displayed.
+Fonts here were from https://fonts.google.com
