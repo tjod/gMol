@@ -1,0 +1,16 @@
+body {
+ background: white;
+ color: black;
+}
+
+input[type="submit"] {
+  background-color: white;
+  color: black;
+} 
+input[type="button"] {
+  background-color: white;
+  color: black;
+} 
+input[type="text"] {
+  color: white;
+} 
