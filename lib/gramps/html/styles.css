@@ -46,3 +46,8 @@ iframe {
   height: 100%;
   display: none;
 }
+
+input[type="button"] {
+  background-color: white;
+  color: black;
+}
