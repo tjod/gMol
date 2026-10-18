@@ -114,7 +114,8 @@ set(SOURCE_FILES
 	)
 	
 
-add_executable(gramps ${SOURCE_FILES})
+add_executable(gramps ${SOURCE_FILES}
+)
 set(CMAKE_BUILD_TYPE Debug)
 set(BITMAP_FONTS)
 

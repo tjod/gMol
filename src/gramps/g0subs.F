@@ -2803,8 +2803,7 @@ c for rayshasde ambient light source, add up all lights ambient intensities
 c    write(OFILE,'(a,3g12.4)')'   intensity ',R,G,B
         write(OFILE,'(a,3(g12.4,a),a,3(a,g12.4),a,a)')
      &    ' light_source { < ',x,',',y,',',z,'>',
-     &    'color ', ' red ', R,' green ',G, ' blue ',B,
-     &    ' shadowless}'
+     &    'color ', ' red ', R,' green ',G, ' blue ',B, ' }'
         rtot=rtot+R
         gtot=gtot+G
         btot=btot+B

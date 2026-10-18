@@ -13,7 +13,7 @@ misc/
 *.bak
 *.save
 gramps.deb
-src/gramps
+src/gramps/gramps
 moc_*
 Makefile
 gmol-*/

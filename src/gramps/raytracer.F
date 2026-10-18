@@ -329,13 +329,25 @@ c
 #include "UDLIST.FOR"
 #include "G0COMMON.FOR"
 #include "TFMMAT.FOR"
+#include "ERRORS.FOR"
 c
       Integer i,j,lid
       Real YON, IA
       Real rtot, gtot, btot
       Real aspect
+      Character*120 aline
 c
-      write(OFILE,'(a)')'/* Output by Gramps */'
+      error = openfile('pov_header.txt', 9, .false., .false.)
+      if (error .eq. 0) then
+  10   continue
+       read(9, '(a)', END=20)aline
+       write(OFILE,'(a)')aline
+       goto 10
+      else
+        call telluser1(LASTERROR)
+        goto 20
+      end if
+ 20   continue
       write(OFILE,'(a,g10.3,a,g10.3)')'camera { '
       write(OFILE,'(a,g10.3,a,g10.3,a)')' location <',
      &    WLDVAL(WWINDP,LWORLD)*WLDVAL(WWINDW,LWORLD),
@@ -356,7 +368,7 @@ C angle seems ok for square windows, but ...
       write(OFILE,'(a)')'}'
 
       Call g0lits(0,0)
-        DO 10 i=1, NLITES
+        DO 30 i=1, NLITES
         LID = GLITE1 + i - 1
         IF( BTEST(KINDOBJ(LID),BLNKBIT) )then
         Continue
@@ -364,7 +376,7 @@ C angle seems ok for square windows, but ...
         write(OFILE,'(a,a,i1,a)')'/* ','Light',i,' */'
                 call g0lits(i, LID)
         END IF
- 10     CONTINUE
+ 30     CONTINUE
       Call g0alit
 c
       Return
