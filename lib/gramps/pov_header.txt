@@ -1,0 +1,15 @@
+/* Output by Gramps */
+#version 3.7; // Ensure modern radiosity handling
+
+global_settings {
+    assumed_gamma 1.0
+    radiosity {
+        pretrace_start 0.08
+        pretrace_end   0.01
+        count 100               // Number of rays per point (higher = better quality, slower)
+        error_bound 0.5         // Lower = smoother and more precise (0.1 to 0.4 for final)
+        recursion_limit 2       // Number of light bounces (1 or 2 is usually enough)
+        nearest_count 5
+        brightness 1.0          // Adjusts overall intensity of indirect light
+    }
+}
