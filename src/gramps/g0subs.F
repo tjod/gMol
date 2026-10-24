@@ -421,7 +421,6 @@ C
           Call G0SETRGB(BUFF(7,1), BUFF(8,1), BUFF(9,1))
         End If
       End If
-      Call g0raysurf(OFILE)
 
       If(n.eq.3) Then
         If (NORML.EQ.0) Then
@@ -448,6 +447,7 @@ C      End If
         End If
       End Do
 
+C      Call g0raysurf(OFILE)
       write(OFILE,'(a)')'}'
 
       End
@@ -1410,11 +1410,11 @@ C????    if(ntp.eq.0)return
           write(OFILE,'(6g12.4)')oldx,oldy,oldz,x,y,z
 
         Else If(OUTTING.EQ.OUTPOV)Then
-          Call g0raysurf(OFILE)
           write(OFILE,'(a)')' cylinder { '
           write(OFILE,'(a,3(g12.4,a))')'<',oldx,',',oldy,',',oldz,'>'
           write(OFILE,'(a,3(g12.4,a))')'<',x,',',y,',',z,'>'
           write(OFILE,'(g12.4)') CYLRAD
+          Call g0raysurf(OFILE)
           write(OFILE,'(a)')'}'
         End If
 
@@ -1558,9 +1558,10 @@ C
                 write(OFILE,'(a,g12.4)')' sphere ',sphrad
                 write(OFILE,'(3g12.4)')x,y,z
         Else IF(OUTTING.EQ.OUTPOV)Then
-                Call g0raysurf(OFILE)
                 write(OFILE,'(a,3(g12.4,a),g12.4,a)')
-     &           'sphere {<', x,',',y,',',z,'>', sphrad,'}'
+     &           'sphere {<', x,',',y,',',z,'>', sphrad
+                Call g0raysurf(OFILE)
+                write(OFILE,'(a)') '}'
         Else IF(OUTTING.EQ.OUTPOSTSCR)Then
                 write(OFILE,'(3f15.7,a)')X,Y,SPHRAD,' sphere'
         Else IF(OUTTING.EQ.OUTWINDOW)Then
@@ -1699,65 +1700,97 @@ C
 #include "G0COMMON.FOR"
 #include "UDLIST.FOR"
 #include "ERRORS.FOR"
+      Logical Distinct
       Real NML(3)
 C
 C  OUTPUT THE POINT BUFFER
 C
       IF(G0PCNT.LT.1)RETURN
+
       IF(OUTTING.EQ.OUTPOSTSCR)THEN
-      If(G0PTYP.EQ.G0LINES)Then
-        write(OFILE,'(2f15.7,a)')(G0DBUF(j,1),j=1,2),' moveto'
-        Do i=2,G0PCNT
-        write(OFILE,'(2f15.7,a)')(G0DBUF(j,i),j=1,2),' lineto'
-        End Do
-      Else If(G0PTYP.EQ.G0DOTS .or. G0PTYP.EQ.G0SPTS)Then
-        Do i=1,G0PCNT
-        write(OFILE,'(2f15.7,a)')
+        If(G0PTYP.EQ.G0LINES)Then
+          write(OFILE,'(2f15.7,a)')(G0DBUF(j,1),j=1,2),' moveto'
+          Do i=2,G0PCNT
+            write(OFILE,'(2f15.7,a)')(G0DBUF(j,i),j=1,2),' lineto'
+          End Do
+        Else If(G0PTYP.EQ.G0DOTS .or. G0PTYP.EQ.G0SPTS)Then
+          Do i=1,G0PCNT
+            write(OFILE,'(2f15.7,a)')
      &      (G0DBUF(j,i),j=1,2),' dot'
-        End Do
-      Else If(G0PTYP.EQ.G0CYLS)Then
+          End Do
+        Else If(G0PTYP.EQ.G0CYLS)Then
 C  Else If(G0PTYP.EQ.G0CONES)Then
-      End If
+        End If
+
       Else If(OUTTING.EQ.OUTRAYT)Then
-      If(G0PTYP.EQ.G0LINES)Then
-        Do i=1,G0PCNT-1
-        write(OFILE,'(a)')'cylinder'
-        write(OFILE,'(3(a,3g12.4))')
-     &    '   point ',(G0DBUF(j,i),j=1,3),
-     &    '   point ',(G0DBUF(j,i+1),j=1,3),
-     &    ' radius ',G0RAYRAD
-        If(i.eq.1)Call g0raysurf(OFILE)
-        End Do
-      Else If(G0PTYP.EQ.G0DOTS .or. G0PTYP.EQ.G0SPTS)Then
-        Do i=1,G0PCNT
-        write(OFILE,'(a)')'dot'
-        write(OFILE,'(a,3g12.4)')'    center ',(G0DBUF(j,i),j=1,3)
+          If(G0PTYP.EQ.G0LINES)Then
+            Do i=1,G0PCNT-1
+              write(OFILE,'(a)')'cylinder'
+              write(OFILE,'(3(a,3g12.4))')
+     &        ' point ',(G0DBUF(j,i),j=1,3),
+     &        ' point ',(G0DBUF(j,i+1),j=1,3),
+     &        '   radius ',G0RAYRAD
+              If(i.eq.1)Call g0raysurf(OFILE)
+            End Do
+          Else If(G0PTYP.EQ.G0DOTS .or. G0PTYP.EQ.G0SPTS)Then
+            Do i=1,G0PCNT
+              write(OFILE,'(a)')'dot'
+              write(OFILE,'(a,3g12.4)')'    center ',(G0DBUF(j,i),j=1,3)
 c Don't know point normals, but if I guess that their components are
 c the same as the location, it will be exactly right for a sphere, at least.
-        Call G0NMLZ(G0DBUF(1,i),NML,1)
-        write(OFILE,'(  a,3g12.4)')'    normal ',NML
-        If(i.eq.1)Call g0raysurf(OFILE)
-        End Do
-      Else If(G0PTYP.EQ.G0CYLS)Then
+              Call G0NMLZ(G0DBUF(1,i),NML,1)
+              write(OFILE,'(  a,3g12.4)')'    normal ',NML
+              If(i.eq.1)Call g0raysurf(OFILE)
+            End Do
+          Else If(G0PTYP.EQ.G0CYLS)Then
 C  Else If(G0PTYP.EQ.G0CONES)Then
-      End If
+          End If
+
       Else If(OUTTING.EQ.OUTRAYS)Then
-      If(G0PTYP.EQ.G0LINES)Then
-        Call g0raysurf(OFILE)
-        Do i=1,G0PCNT-1
-        write(OFILE,'(a,g12.4)')' cylinder ', G0RAYRAD
-        write(OFILE,'(6g12.4)')
-     &    (G0DBUF(j,i),j=1,3), (G0DBUF(j,i+1),j=1,3)
-        End Do
-      Else If(G0PTYP.EQ.G0DOTS .or. G0PTYP.EQ.G0SPTS)Then
-        Call g0raysurf(OFILE)
-        Do i=1,G0PCNT
-        write(OFILE,'(a,g12.4)')' disc ',G0RAYRAD
-        write(OFILE,'(3g12.4,a)') (G0DBUF(j,i),j=1,3), ' 0 0 1'
-        End Do
-      Else If(G0PTYP.EQ.G0CYLS)Then
+          If(G0PTYP.EQ.G0LINES)Then
+            Call g0raysurf(OFILE)
+            Do i=1,G0PCNT-1
+            write(OFILE,'(a,g12.4)')' cylinder ', G0RAYRAD
+            write(OFILE,'(6g12.4)')
+     &        (G0DBUF(j,i),j=1,3), (G0DBUF(j,i+1),j=1,3)
+            End Do
+          Else If(G0PTYP.EQ.G0DOTS .or. G0PTYP.EQ.G0SPTS)Then
+            Call g0raysurf(OFILE)
+            Do i=1,G0PCNT
+            write(OFILE,'(a,g12.4)')' disc ',G0RAYRAD
+            write(OFILE,'(3g12.4,a)') (G0DBUF(j,i),j=1,3), ' 0 0 1'
+            End Do
+          Else If(G0PTYP.EQ.G0CYLS)Then
 C  Else If(G0PTYP.EQ.G0CONES)Then
-      End If
+          End If
+
+      Else If(OUTTING.EQ.OUTPOV)THEN
+        If(G0PTYP.EQ.G0LINES)Then
+          Do i=1,G0PCNT-1
+            if (Distinct(G0DBUF, i, i+1)) Then
+              write(OFILE,'(a)')'cylinder {'
+              write(OFILE,'(a, g12.4, a, g12.4,a, g12.4, a)')
+     &       '<',G0DBUF(1,i),  ',',G0DBUF(2,i),  ',',G0DBUF(3,i),'>'
+              write(OFILE,'(a, g12.4, a, g12.4,a, g12.4, a)')
+     &       '<',G0DBUF(1,i+1),',',G0DBUF(2,i+1),',',G0DBUF(3,i+1),'>'
+              write(OFILE,'(g12.4,a)') G0RAYRAD, '}'
+            End If
+          End Do
+C          If(i.eq.1)Call g0raysurf(OFILE)
+        Else If(G0PTYP.EQ.G0DOTS .or. G0PTYP.EQ.G0SPTS)Then
+          Do i=1,G0PCNT
+            write(OFILE,'(a)')'dot'
+            write(OFILE,'(a,3g12.4)')'    center ',(G0DBUF(j,i),j=1,3)
+c Don't know point normals, but if I guess that their components are
+c the same as the location, it will be exactly right for a sphere, at least.
+            Call G0NMLZ(G0DBUF(1,i),NML,1)
+            write(OFILE,'(  a,3g12.4)')'    normal ',NML
+            If(i.eq.1)Call g0raysurf(OFILE)
+          End Do
+        Else If(G0PTYP.EQ.G0CYLS)Then
+C  Else If(G0PTYP.EQ.G0CONES)Then
+        End If
+
       Else If(OUTTING.EQ.OUTWINDOW)THEN
 c   write(6,*)'outputting buffer at G0PCNT = ',G0PCNT
         IF(G0PTYP.EQ.G0CYLS)THEN
@@ -1773,7 +1806,7 @@ c    w          G0PCNT
         DO I=1, G0PCNT
 c    CALL MOVE( G0PBUF(1,1,I), G0PBUF(2,1,I), G0PBUF(3,1,I) )
 c    CALL DRAW( G0PBUF(1,2,I), G0PBUF(2,2,I), G0PBUF(3,2,I) )
-        call v3f(G0DBUF(1,i))
+            call v3f(G0DBUF(1,i))
         END DO
         call endlin
         ELSE IF(G0PTYP.EQ.G0DOTS)THEN
@@ -1783,7 +1816,7 @@ c     write(6,*)'replacing element with point list of length',
 c    w          G0PCNT
         call bgnpoi
         DO I=1, G0PCNT
-        call v3f(G0DBUF(1,i))
+            call v3f(G0DBUF(1,i))
         END DO
         call endpoi
         ELSE IF(G0PTYP.EQ.G0SPTS)THEN
@@ -1858,17 +1891,18 @@ c
      &    ' ri ', 1.
 
       Else If(OUTTING.EQ.OUTPOV)Then
-        write(rayfile,'(a)')'#default { '
+C        write(rayfile,'(a)')'#default { '
         write(rayfile,'(a,4(a,g10.3),a)')'finish { ',
      &  ' ambient ', G0AMBI,    ' diffuse ', G0DIFF,
      &  ' specular ',G0SPEC*0.5,'roughness ',G0SHINY*0.10,'}'
         write(rayfile,'(a,4(a,g10.3),a)')'pigment{color',
      &  ' red ',G0RED,' green ',G0GREEN,' blue ',G0BLUE,
      &  ' filter ', G0ALPHA, '}'
-        write(rayfile,'(a)')'}'
-
+C        write(rayfile,'(a)')'}'
+C        povray isn't using default color inside union, i think
+         srf0 = .false.
       End If
-c
+csc
       ka=g0ambi
       kd=g0diff
       kp=g0shiny
@@ -3030,6 +3064,21 @@ c
         return
       Else
         call n3f(dummy)
+      End If
+      Return
+      End
+
+      Logical Function Distinct(buf, i1, i2)
+      Real buf (3,*)
+      Integer i1, i2
+C  Tell if 3D coords i1, i2 are distinct
+C  e.g. to avoid degenerate cylinders
+      If ( abs(buf(1,i1)-buf(1,i2)) +
+     &     abs(buf(2,i1)-buf(2,i2)) +
+     &     abs(buf(3,i1)-buf(3,i2)) < 0.0001) Then
+        Distinct = .FALSE.
+      Else
+        Distinct = .TRUE.
       End If
       Return
       End

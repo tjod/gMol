@@ -2,7 +2,7 @@
 #version 3.7; // Ensure modern radiosity handling
 
 global_settings {
-    assumed_gamma 1.0
+    assumed_gamma 2.0
     radiosity {
         pretrace_start 0.08
         pretrace_end   0.01
@@ -12,4 +12,9 @@ global_settings {
         nearest_count 5
         brightness 1.0          // Adjusts overall intensity of indirect light
     }
+}
+fog {
+    fog_type 1
+    distance 350
+    color rgb <0.0, 0.0, 0.0>
 }

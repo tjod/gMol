@@ -330,6 +330,7 @@ c
 #include "G0COMMON.FOR"
 #include "TFMMAT.FOR"
 #include "ERRORS.FOR"
+      External Trim
 c
       Integer i,j,lid
       Real YON, IA
@@ -341,7 +342,7 @@ c
       if (error .eq. 0) then
   10   continue
        read(9, '(a)', END=20)aline
-       write(OFILE,'(a)')aline
+       write(OFILE,'(a)')aline(:Trim(aline))
        goto 10
       else
         call telluser1(LASTERROR)

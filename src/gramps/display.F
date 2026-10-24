@@ -460,16 +460,28 @@ C
 #include "ERRORS.FOR"
       REAL HUE, SAT, VALU
       INTEGER I, IFR
-      External trim
+      integer namlen
+      External trim, BTEST
+      External ReplaceAny
+      Integer ReplaceAny
+      Character*40 aname
 C
 C       GOTO THE APPROPRIATE SPOT TO DISPLAY
 C       THIS TYPE OF OBJECT.
 C
-      If(outting.eq.outrayt .or. outting.eq.outrays
-     &   .or.  outting.eq.outpov)Then
-        write(OFILE,'(a)')'/* '//namobj(i)(:trim(namobj(i)))//' */'
+      aname = namobj(i)
+      namlen = Trim(aname)
+      If(outting.eq.outrayt .or. outting.eq.outrays) Then
+        write(OFILE,'(a)')'/* '//aname(:namlen)//' * /'
+      Else If (outting.eq.outpov .AND.
+     &   .NOT.BTEST(KINDOBJ(I),BLNKBIT) .AND.
+     &   TYPOBJ(I).NE.GROUP) Then
+        write(OFILE,'(a)')'/* '//aname(:namlen)//' */'
+        namlen = ReplaceAny(aname, ".-", "_")
+        write(OFILE,'(a)')'#declare _' //aname(:namlen)//
+     &    ' = union {'
       Else If(outting.eq.outpostscr)Then
-        write(OFILE,'(a)')'%grampsObject: '//namobj(i)(:trim(namobj(i)))
+        write(OFILE,'(a)')'%grampsObject: '//aname(:namlen)
       End If
       IF( BTEST(KINDOBJ(I),SYNOBIT) .AND. MASTSYN(I).NE.I )GOTO 400
       GOTO (100,200,300,400,50,50) TYPOBJ(I)+1
@@ -564,6 +576,16 @@ C
 C       END OF THE USED-TO-BE DO LOOP
 C
  900  CONTINUE
+      If (outting.eq.outpov .and. TYPOBJ(I).NE.GROUP) Then
+c        namlen = ReplaceAny(aname, ".-", "_")
+        write(OFILE,'(a)') '}'
+        write(OFILE,'(a)') 'object { _' // aname(:namlen)
+C       ensure color gets ouutput for the object
+        call g0color(i)
+        call g0raysrf0
+        call g0raysurf(OFILE)
+        write(OFILE,'(a)')' no_shadow }'
+      End If
       OBJDISP=0
       RETURN
       END

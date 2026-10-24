@@ -252,3 +252,25 @@ C
       xblank=xend
       Return
       End
+
+      Integer Function ReplaceAny(string, any, with)
+      Character*(*) string
+      Character*(*) any
+      Character*1 with
+
+      Integer Trim
+      EXTERNAL Trim
+      Integer iend, i
+
+C Replace each and every "any" character in "string" with the single/first character "with"
+C Return trim(string) length as a convenience
+
+      iend = Trim(string)
+      Do i = 1, iend
+        If (Index(any, string(i:i)) > 0) Then
+          string(i:i) = with(1:1)
+        End If
+      End Do
+      ReplaceAny = iend
+      Return
+      End
