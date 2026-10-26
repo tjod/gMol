@@ -984,16 +984,17 @@ c    SKIPCOLL=.TRUE.
 C
 C Keys
  440  Continue
-      IF(POINT.NE.0)THEN
-        VPOINT=POINT
-        CALL GETSTR(ARG,POINT,KEYTYP)
-        CALL UPCASE(KEYTYP)
-        If (KEYTYP .EQ. 'ON') Call setkeys(1)
-        If (KEYTYP .EQ. 'OFF') Call setkeys(0)
-        If (KEYTYP .EQ. 'STICKY') Call setkeys(-1)
-      ELSE
-        Call setkeys(1)
-      End If
+!      IF(POINT.NE.0)THEN
+!        VPOINT=POINT
+!        CALL GETSTR(ARG,POINT,KEYTYP)
+!        CALL UPCASE(KEYTYP)
+!        If (KEYTYP .EQ. 'ON') Call setkeys(1)
+!        If (KEYTYP .EQ. 'OFF') Call setkeys(0)
+!        If (KEYTYP .EQ. 'STICKY') Call setkeys(-1)
+!      ELSE
+!        Call setkeys(1)
+!      End If
+      Call Telluser1(NOTIMPL)
       Return
 C
 C OLD or NEW units.  If /ALL make it system-wide, else local to this
