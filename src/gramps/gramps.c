@@ -64,7 +64,7 @@ static int outflag=STANDARD_OUT;
 static char *gr_cmd;
 static int cmd_flag = 0; // communicate between i/o thread and Idler function
 static int waiting = 0;
-char title[] =" \tGramps v3.1";
+char title[] =" \tGramps v3.2";
 
 void choose_cursor(int which)
 {
@@ -246,18 +246,6 @@ if (display_changed) glutPostRedisplay();
 return display_changed;
 }
 
-void mbutton_feedback() {
-// create text on screen to reflect which mouse button (device) is active
-// if (mouse_state == 0) return;
- if (mouse_state == 0) {
-  title[0] = ' ';
- } else {
-  title[0] = '0' + mouse_state;
- }
- glutSetWindowTitle(title);
-}
-
-
 static void Idler(int timer_id) {
 
  int do_it = 0;
@@ -331,8 +319,10 @@ static void MouseEntry(int state) {
  int flag=1;
  if (state == GLUT_ENTERED) {
 //   glutPopWindow();
+   glutSetWindowTitle("mouse entered");
  } else if (state == GLUT_LEFT) {
 //   glutHideWindow();
+   glutSetWindowTitle(title);
  }
 }
 
@@ -343,10 +333,11 @@ static void MouseWheel( int wheel, int direction, int x, int y ) {
  float xinc;
  float xval;
  int flag = 0;
-/* this simulates D1 */
+ glutSetWindowTitle("mouse wheel");
+/* this simulates  */
  type = DIALS;
  ndial = 1;
- xinc = direction; /* let user decide incremental value with e.g, D1/10 */
+ xinc = direction; /* let user decide incremental value with e.g, /10 */
  xval = x;
  display_changed += update_(&type, &ndial, &xval, &xinc);
 
@@ -373,22 +364,23 @@ static void MouseButton( int button, int state, int x, int y )
  float xyzw[4];
 /* global lastx, lasty, glwin_width, glwin_height */
 
+ glutSetWindowTitle("mouse button");
  if (state == GLUT_DOWN && chosen_cursor == PICK_CURSOR) {
   currx = x; curry = glwin_height-y;
   if (g0pickprocess(currx, curry, &xyzw)) choose_cursor(RESTORE_CURSOR);
  }
 
- if (keystate == 1) return; //don't let mouse buttons override keyboard
+ if (keystate > 0) return; //don't let mouse buttons override keyboard
 
  if        (button == GLUT_LEFT_BUTTON) {
-  if (state == GLUT_UP)   mouse_state -= 4;
-  if (state == GLUT_DOWN) mouse_state += 4;
+  if (state == GLUT_UP)   mouse_state -= 1;
+  if (state == GLUT_DOWN) mouse_state += 1;
  } else if (button == GLUT_MIDDLE_BUTTON) {
   if (state == GLUT_UP)   mouse_state -= 2;
   if (state == GLUT_DOWN) mouse_state += 2;
  } else if (button == GLUT_RIGHT_BUTTON) {
-  if (state == GLUT_UP)   mouse_state -= 1;
-  if (state == GLUT_DOWN) mouse_state += 1;
+  if (state == GLUT_UP)   mouse_state -= 4;
+  if (state == GLUT_DOWN) mouse_state += 4;
 #ifdef MINGW32
  } else if (button == GLUT_WHEEL_UP) {
   MouseWheel(1,1,x,y);
@@ -403,9 +395,9 @@ static void MouseButton( int button, int state, int x, int y )
   flag = 1;
   g0hires_(&flag);
   glutPostRedisplay();
+  glutSetWindowTitle(title);
  }
 
-  mbutton_feedback();
 }
 
 static void MouseMotion( int x, int y )
@@ -418,8 +410,9 @@ static void MouseMotion( int x, int y )
   int flag = 0;
   int do_it = 0;
 
+  char ztitle[] = "D1";
   /* global lastx, lasty, glwin_width, glwin_height */
-
+  if (keystate > 0) return; //don't let mouse buttons override keyboard
   xinc = x - lastx;
   yinc = y - lasty;
   lastx = x;
@@ -428,19 +421,31 @@ static void MouseMotion( int x, int y )
   //if (xinc < 2 && xinc > -2 && yinc < 2 && yinc > -2) return;
   xinc =  xinc / (float)glwin_width;
   yinc = -yinc / (float)glwin_height;
-  if(xinc) {
+
+  int ms = 0;
+  if (xinc) {
       xval = (float)lastx/(float)glwin_width*2. - 1.;
       type = MOUSS;
-      display_changed += update_(&type, &mouse_state, &xval, &xinc);
+      if (type == MOUSS) snprintf(ztitle, sizeof(ztitle), "X%d", mouse_state);
+      ms = mouse_state;
+      display_changed += update_(&type, &ms, &xval, &xinc);
   }
-  if(yinc) {
+  if (yinc) {
       yval = (float)(glwin_height-lasty)/(float)glwin_height*2. - 1.;
       type = MOUSS;
-      int ms = mouse_state+4;
+      snprintf(ztitle, sizeof(ztitle), "Y%d", mouse_state);
+      ms = mouse_state+4;
       display_changed += update_(&type, &ms, &yval, &yinc);
   }
 
-  if (xinc == 0 && yinc == 0) return;
+  if (ms > 0) {
+    glutSetWindowTitle(ztitle);
+  } else {
+    glutSetWindowTitle(title);
+    return;
+  }
+
+  //if (xinc == 0 && yinc == 0) return;
   /* do continuous updates regardless of xinc, yinc */
   /*
   i don't like this effect
@@ -465,28 +470,34 @@ float yval=0.0;
 int type=0;
 int flag = 0;
 int do_it = 0;
-
+char ztitle[] = "D1";
+//glutSetWindowTitle("passive motion");
 /* global lastx, lasty, glwin_width, glwin_height */
-//fprintf(stderr, "passive %d %d\n", x, y);
- return;  // for now
 
  xinc = x - lastx;
  yinc = y - lasty;
  lastx = x;
  lasty = y;
- int ms = mouse_state+1; // allow for x0 and y0
+ if (keystate == 0) return;
+ int ks = 0;
  //if (xinc < 2 && xinc > -2 && yinc < 2 && yinc > -2) return;
  xinc =  xinc / (float)glwin_width;
  yinc = -yinc / (float)glwin_height;
  if(xinc) {
   xval = (float)lastx/(float)glwin_width*2. - 1.;
-  type = XMOUSS;
-  display_changed += update_(&type, &ms, &xval, &xinc);
+  // let these keyboard dials be relative devices
+  type = MOUSS;
+  ks = keystate;
+  snprintf(ztitle, sizeof(ztitle), "X%d", keystate);
+  display_changed += update_(&type, &ks, &xval, &xinc);
  }
  if(yinc) {
   yval = (float)(glwin_height-lasty)/(float)glwin_height*2. - 1.;
-  type = YMOUSS;
-  display_changed += update_(&type, &ms, &yval, &yinc);
+  // let these keyboard dials be relative devices
+  type = MOUSS;
+  ks = keystate + 4;
+  snprintf(ztitle, sizeof(ztitle), "Y%d", keystate);
+  display_changed += update_(&type, &ks, &yval, &yinc);
  }
 
  if (xinc == 0 && yinc == 0) return;
@@ -497,12 +508,15 @@ int do_it = 0;
  */
 
  if (display_changed) {
+  glutSetWindowTitle(ztitle);
   flag = 0;
   g0hires_(&flag); /* draw in lo-res mode while moving */
   glutPostRedisplay();
+ } else {
+  glutSetWindowTitle(title);
  }
 
- fprintf(stderr, "type = %d; state = %d; motion x = %i(%8.6f) y = %i(%8.6f)\n", type, ms, x, xinc, y, yinc);
+ //fprintf(stderr, "type = %d; state = %d; motion x = %i(%8.6f) y = %i(%8.6f)\n", type, ks, x, xinc, y, yinc);
 }
 
 void Reshape(int x, int y) {
@@ -514,15 +528,15 @@ void Reshape(int x, int y) {
  glutPostRedisplay();
 }
 
-void setkeys_(int *k) {
- keytype = *k;
- if (keytype == KEY_STICKY) {
-  choose_cursor(STICKY_CURSOR);
- } else {
-  choose_cursor(NORMAL_CURSOR);
- }
- keystate = 0;
-}
+//void setkeys_(int *k) {
+// keytype = *k;
+// if (keytype == KEY_STICKY) {
+//  choose_cursor(STICKY_CURSOR);
+// } else {
+//  choose_cursor(NORMAL_CURSOR);
+// }
+// keystate = 0;
+//}
 
 static void SpecialKey( int key, int x, int y )
 {
@@ -555,41 +569,44 @@ static void SpecialKey( int key, int x, int y )
    }
 }
 static void UpKey( unsigned char key, int x, int y ) {
- if (keytype == KEY_ON) mouse_state = 0;
- if (keytype != KEY_STICKY) keystate = 0;
- mbutton_feedback();
+// if (keytype == KEY_ON) keystate = 0;
+// if (keytype != KEY_STICKY) keystate = 0;
+   keystate = 0;
+   mouse_state = 0;
+   glutSetWindowTitle(title);
 }
 static void Key( unsigned char key, int x, int y ) {
-
- if (keytype == KEY_OFF) return;
- keystate = 1;
- switch (key) {
+  char ztitle[] = " 1";
+ //if (keytype == KEY_OFF) return;
+   keystate = 0;
+   mouse_state = 0;
+   switch (key) {
       case '1':
-         mouse_state = 1;
+         keystate = 1;
 	 break;
       case '2':
-         mouse_state = 2;
+         keystate = 2;
 	 break;
       case '3':
-         mouse_state = 3;
+         keystate = 3;
 	 break;
       case '4':
-         mouse_state = 4;
+         keystate = 4;
 	 break;
-      case '5':
-         mouse_state = 5;
-	 break;
-      case '6':
-         mouse_state = 6;
-	 break;
-      case '7':
-         mouse_state = 7;
-	 break;
-      case '8':
-         mouse_state = 8;
-	 break;
-      case '9':
-         mouse_state = 9;
+//      case '5':
+//         keystate = 5;
+//	 break;
+//      case '6':
+//         keystate = 6;
+//	 break;
+//      case '7':
+//         keystate = 7;
+//	 break;
+//      case '8':
+//         keystate = 8;
+//	 break;
+//      case '9':
+//         keystate = 9;
 	 break;
       case 27: //esc
          mouse_state = 0; /* MouseButton is NOT always called */
@@ -597,8 +614,12 @@ static void Key( unsigned char key, int x, int y ) {
          break;
    }
  //fprintf(stderr, "key = %d; mouse_state = %d\n", key, mouse_state);
- mbutton_feedback();
-
+   if (keystate == 0) {
+     glutSetWindowTitle(title);
+   } else {
+     snprintf(ztitle, sizeof(ztitle), " %d", keystate);
+     glutSetWindowTitle(ztitle);
+   }
 }
 
 int main (int argc, char **argv) {
@@ -645,7 +666,10 @@ int main (int argc, char **argv) {
 
    glutMouseFunc( MouseButton );
    glutMotionFunc( MouseMotion );
+
    glutPassiveMotionFunc( PassiveMouseMotion );
+
+
 #ifdef linux
    glutMouseWheelFunc( MouseWheel );
 #endif
@@ -654,14 +678,13 @@ int main (int argc, char **argv) {
    glutReshapeFunc( Reshape );
    glutDisplayFunc( Redisplay );
    glPointSize(4.0);
-//   glutIdleFunc( Idler );
    glutTimerFunc(16, Idler, 0);
    udinit_();
    g0pinit_();
    startup_();
    choose_cursor(NORMAL_CURSOR);
    setup_getcmd(setup_flag);
-
+//   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
    glutMainLoop();
 
 }
