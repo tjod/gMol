@@ -16,8 +16,6 @@ set(SOURCE_FILES
     #headers
         gramps.h
         patterns.h
-        glutbitmap.h
-        stb_truetype.h
     #main
         gramps.c
     #others .F and some .c
@@ -120,7 +118,9 @@ set(CMAKE_BUILD_TYPE Debug)
 set(BITMAP_FONTS)
 
 #target_link_libraries(gramps PRIVATE OpenGL::OpenGL)
-target_link_libraries(gramps PRIVATE "-framework OpenGL -framework GLUT -lreadline")
+target_link_libraries(gramps PRIVATE "-framework OpenGL -framework GLUT -lreadline -L/usr/local/opt/ftgl/lib -lftgl")
+#  -lftgl
+target_include_directories(gramps PRIVATE "/usr/local/opt/ftgl/include" "/usr/local/opt/freetype/include/freetype2")
 
 include(GNUInstallDirs)
 install(TARGETS gramps

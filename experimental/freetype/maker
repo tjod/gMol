@@ -1,0 +1,9 @@
+#! /bin/bash
+
+#$(pkg-config --cflags --libs freetype2)
+g++ $1.cpp -o my_program  \
+  -I/usr/local/opt/freetype/include/freetype2  \
+  -I/usr/local/opt/libpng/include/libpng16  \
+  -I/usr/local/Cellar/brotli/1.2.0/include  \
+  -L/usr/local/opt/freetype/lib  -lfreetype \
+  -framework opengl -framework glut

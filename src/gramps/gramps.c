@@ -679,9 +679,11 @@ int main (int argc, char **argv) {
    glutDisplayFunc( Redisplay );
    glPointSize(4.0);
    glutTimerFunc(16, Idler, 0);
+   initializeFonts("/System/Library/Fonts/Monaco.ttf");
    udinit_();
    g0pinit_();
    startup_();
+   glDepthFunc(GL_LESS);
    choose_cursor(NORMAL_CURSOR);
    setup_getcmd(setup_flag);
 //   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
