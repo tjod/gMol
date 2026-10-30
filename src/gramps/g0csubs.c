@@ -535,9 +535,9 @@ int initializeFonts(const char *font_path) {
 
 void draw_3D_text(float *x, float *y, float *z, char *string, int *size, int slen) {
   if (font3D) {
-    //ftglSetFontFaceSize(font, *ifont, *ifont);
     glTranslatef(*x, *y, *z);
-    ftglSetFontFaceSize(font3D, *size, *size); // Base font size
+    int res = 72;
+    ftglSetFontFaceSize(font3D, *size, res); // Base font size
     ftglSetFontDepth(font3D, 20.0);         // Depth of the 3D extrusion; let user scale later
     //ftglSetFontOutset(font, 0.0f, 1.0f);  // Front/back outset smoothing
     glScalef(0.01f, 0.01f, 0.01f); // this is a reasonable guess to fit screen; user can scale later
@@ -549,7 +549,8 @@ void draw_3D_text(float *x, float *y, float *z, char *string, int *size, int sle
 
 void draw_bitmap_text(float *x, float *y, float *z, char *string, int *size, int slen) {
   if (fontbitmap) {
-      ftglSetFontFaceSize(fontbitmap, *size, *size);
+      int res = 72;
+      ftglSetFontFaceSize(fontbitmap, *size, res);
       glDisable(GL_LIGHTING);
       glRasterPos3f(*x, *y, *z);
       string[slen] = '\0';
