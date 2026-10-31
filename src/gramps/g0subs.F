@@ -60,6 +60,7 @@ C
 #include "DEFVAL.FOR"
       INTEGER I
       Integer genobj
+      Character*100 dfont
 C
       OUTTING=OUTWINDOW
 C AGF should be 1 at this point
@@ -92,7 +93,9 @@ C Initialize textures
 C     G0TEX0 = genobj()
 C     Call g0texture_init(G0TEX0)
 C
-      Call G0DFONT(0)
+C      Call G0DFONT(0)
+      dfont = "/System/Library/Fonts/Monaco.ttf" // char(0)
+      Call initialize_fonts( dfont )
 C
       Return
       End
@@ -2181,7 +2184,7 @@ C
       IF(OUTTING.EQ.OUTNIL)THEN
         RETURN
       ELSE IF(OUTTING.EQ.OUTWINDOW)THEN
-        call g0drawtext(X,Y,Z,STRING(:ILEN),CSIZE)
+        call g0drawtext(X,Y,Z,CSIZE,FFONT,STRING(:ILEN))
 C    CALL CMOV(X,Y,Z)
 C   CALL CHARST(STRING,ILEN)
 c  STRING(ILEN+1:ILEN+1)=CHAR(0)
@@ -2257,119 +2260,119 @@ C
       G0IBKCOL=G0BKCOL
       END
 C
-      SUBROUTINE G0DFONT(IFONT)
-      IMPLICIT NONE
-      INTEGER IFONT
+!      SUBROUTINE G0DFONT(IFONT)
+!      IMPLICIT NONE
+!      INTEGER IFONT
+!C
+!#include "G0COMMON.FOR"
+!#include "UDLIST.FOR"
+!#include "ERRORS.FOR"
+!      INTEGER i
+!      INTEGER fmfindfont, fmscalefont
+!      EXTERNAL TRIM
+!C
+!C   SET THE FONT
+!C
+!      If(ifont.LT.0 .OR. ifont.GT.6)Then
+!        ERROR=BADFONT
+!        Return
+!      Else
+!        G0FONT=ifont
+!      End If
+!C
+!      RETURN
+!      END
 C
-#include "G0COMMON.FOR"
-#include "UDLIST.FOR"
-#include "ERRORS.FOR"
-      INTEGER i
-      INTEGER fmfindfont, fmscalefont
-      EXTERNAL TRIM
+!      Character*(*) Function G0IFONT()
+!      IMPLICIT NONE
+!C
+!#include "G0COMMON.FOR"
+!#include "UDLIST.FOR"
+!#include "ERRORS.FOR"
+!      Integer i, fmgetfontname
+!C
+!      If(OUTTING.EQ.OUTNONE)Then
+!        G0IFONT=G0FNTNAM
+!      Else If(OUTTING.EQ.OUTWINDOW)Then
+!        If(G0FONT.EQ.0)Then
+!          G0IFONT='Hardware'
+!        Else
+!c      i=fmgetfontname(G0FONT, Len(G0IFONT), G0IFONT)
+!          i=0
+!          G0IFONT(i+1:)=' '
+!        End If
+!      End If
+!      Return
+!      End
 C
-C   SET THE FONT
+!      SUBROUTINE G0DTSIZE(TSIZE)
+!      IMPLICIT NONE
+!      INTEGER           TSIZE
+!C
+!#include "G0COMMON.FOR"
+!#include "UDLIST.FOR"
+!#include "ERRORS.FOR"
+!C
+!C   SET THE CHARACTER SIZE
+!C
+!      G0TSIZE=TSIZE
+!      END
 C
-      If(ifont.LT.0 .OR. ifont.GT.6)Then
-        ERROR=BADFONT
-        Return
-      Else
-        G0FONT=ifont
-      End If
-C
-      RETURN
-      END
-C
-      Character*(*) Function G0IFONT()
-      IMPLICIT NONE
-C
-#include "G0COMMON.FOR"
-#include "UDLIST.FOR"
-#include "ERRORS.FOR"
-      Integer i, fmgetfontname
-C
-      If(OUTTING.EQ.OUTNONE)Then
-        G0IFONT=G0FNTNAM
-      Else If(OUTTING.EQ.OUTWINDOW)Then
-        If(G0FONT.EQ.0)Then
-          G0IFONT='Hardware'
-        Else
-c      i=fmgetfontname(G0FONT, Len(G0IFONT), G0IFONT)
-          i=0
-          G0IFONT(i+1:)=' '
-        End If
-      End If
-      Return
-      End
-C
-      SUBROUTINE G0DTSIZE(TSIZE)
-      IMPLICIT NONE
-      INTEGER           TSIZE
-C
-#include "G0COMMON.FOR"
-#include "UDLIST.FOR"
-#include "ERRORS.FOR"
-C
-C   SET THE CHARACTER SIZE
-C
-      G0TSIZE=TSIZE
-      END
-C
-      INTEGER FUNCTION G0ITSIZE()
-      IMPLICIT NONE
-C
-#include "G0COMMON.FOR"
-#include "UDLIST.FOR"
-#include "ERRORS.FOR"
-C
-      G0ITSIZE=G0FONT
-      END
-C
-      SUBROUTINE G0DXTSCALE(TSCALE)
-      IMPLICIT NONE
-      INTEGER             TSCALE
-C
-#include "G0COMMON.FOR"
-#include "UDLIST.FOR"
-#include "ERRORS.FOR"
-C
-C   SET THE CHARACTER X SCALE
-C
-      G0XTSCALE=TSCALE
-      END
-C
-      INTEGER FUNCTION G0IXTSCALE()
-      IMPLICIT NONE
-C
-#include "G0COMMON.FOR"
-#include "UDLIST.FOR"
-#include "ERRORS.FOR"
-C
-      G0IXTSCALE=G0XTSCALE
-      END
-C
-      SUBROUTINE G0DYTSCALE(TSCALE)
-      IMPLICIT NONE
-      INTEGER             TSCALE
-C
-#include "G0COMMON.FOR"
-#include "UDLIST.FOR"
-#include "ERRORS.FOR"
-C
-C   SET THE CHARACTER Y SCALE
-C
-      G0YTSCALE=TSCALE
-      END
-C
-      INTEGER FUNCTION G0IYTSCALE()
-      IMPLICIT NONE
-C
-#include "G0COMMON.FOR"
-#include "UDLIST.FOR"
-#include "ERRORS.FOR"
-C
-      G0IYTSCALE=G0YTSCALE
-      END
+!      INTEGER FUNCTION G0ITSIZE()
+!      IMPLICIT NONE
+!C
+!#include "G0COMMON.FOR"
+!#include "UDLIST.FOR"
+!#include "ERRORS.FOR"
+!C
+!      G0ITSIZE=G0FONT
+!!      END
+!C
+!      SUBROUTINE G0DXTSCALE(TSCALE)
+!      IMPLICIT NONE
+!      INTEGER             TSCALE
+!C
+!#include "G0COMMON.FOR"
+!#include "UDLIST.FOR"
+!#include "ERRORS.FOR"
+!C
+!C   SET THE CHARACTER X SCALE
+!C
+!      G0XTSCALE=TSCALE
+!      END
+!C
+!      INTEGER FUNCTION G0IXTSCALE()
+!      IMPLICIT NONE
+!C
+!#include "G0COMMON.FOR"
+!#include "UDLIST.FOR"
+!#include "ERRORS.FOR"
+!C
+!      G0IXTSCALE=G0XTSCALE
+!      END
+!C
+!      SUBROUTINE G0DYTSCALE(TSCALE)
+!      IMPLICIT NONE
+!      INTEGER             TSCALE
+!C
+!#include "G0COMMON.FOR"
+!#include "UDLIST.FOR"
+!#include "ERRORS.FOR"
+!C
+!C   SET THE CHARACTER Y SCALE
+!C
+!      G0YTSCALE=TSCALE
+!      END
+!C
+!      INTEGER FUNCTION G0IYTSCALE()
+!      IMPLICIT NONE
+!C
+!#include "G0COMMON.FOR"
+!#include "UDLIST.FOR"
+!#include "ERRORS.FOR"
+!C
+!      G0IYTSCALE=G0YTSCALE
+!      END
 C
       SUBROUTINE G0DCOLORS(I,RGB)
 C

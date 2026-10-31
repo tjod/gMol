@@ -679,7 +679,6 @@ int main (int argc, char **argv) {
    glutDisplayFunc( Redisplay );
    glPointSize(4.0);
    glutTimerFunc(16, Idler, 0);
-   initializeFonts("/System/Library/Fonts/Monaco.ttf");
    udinit_();
    g0pinit_();
    startup_();

@@ -28,7 +28,7 @@ C
       CHARACTER*6 KEYTYP
       CHARACTER*20 ATSIZE
       CHARACTER*20 ARGTMP
-      CHARACTER*80 FFONT
+      CHARACTER*100 FFONT
       REAL ATIME
       Real SCALE
       CHARACTER*6 APPEND
@@ -48,6 +48,8 @@ C
       INTEGER TTSIZE, XTSIZE
       Integer firstframe, numframes
       EXTERNAL TRIM
+      External initialize_fonts
+      Integer initialize_fonts
       Integer GETDIR, CD
       Logical gotsw, LWORK(WORKSIZE)
       Equivalence (WORK,LWORK)
@@ -60,7 +62,7 @@ C
      &    'DEFAULT','SENSITIVITY','WATCH','NOWATCH',
      &    'COLLECT','NOCOLLECT','FILMPAUSE','FULLERROR',
      &    'NOFULLERROR',
-     &    'TEXTSIZE','AUTOCLEAR','NOAUTOCLEAR','OVERLAP',
+     &    'TEXTFONT','AUTOCLEAR','NOAUTOCLEAR','OVERLAP',
      &    'NOOVERLAP','DISPLAY','NODISPLAY','SPILL',
      &    'MAXDEPTH','FRAMECOUNT','ECHO','NOECHO',
      &    'LOWERCASE','NOLOWERCASE','REPORT','NOREPORT',
@@ -325,20 +327,20 @@ C
  85   FULLERR = .FALSE.
       RETURN
 c
-C   CHANGE THE DEFAULT TEXT SIZE FOR THE TEXT COMMAND
+C   CHANGE THE DEFAULT TEXT FONT FOR THE TEXT COMMAND
 C
  90   CONTINUE
       VPOINT=POINT
-      CALL GETVLU(ARG,POINT,IVAL,DUMMY)
+      CALL GETSTR(ARG,POINT,FFONT)
+      ival = Trim(FFONT)
+      FFONT(ival+1:ival+1) = CHAR(0)
       IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
-C  IF((IVAL.LE.0).OR.(IVAL.GT.8))THEN
-      IF(IVAL.LE.0)THEN
+      IF(initialize_fonts(FFONT) .EQ. 0)THEN
         POINT=VPOINT
-        CALL TELLUSER(BADVALUE,*999)
+        CALL TELLUSER(BADFONT,*999)
       END IF
-      CALL G0DTSIZE(IVAL)
-      Call G0DFONT(0)
-      DCHANGE=.TRUE.
+      G0FNTNAM=FFONT
+      DCHANGE=.FALSE.
       RETURN
 C
 C   ALLOW DISPLAY OUTPUT TO BE AUTOCLEARED - see advance
@@ -651,71 +653,14 @@ C
 C   SET SOFTWARE FONT
 C
  250  CONTINUE
-      IF(POINT.EQ.0)THEN
-        CALL G0DXTSCALE(100)
-        CALL G0DYTSCALE(100)
-        FFONT='Helvetica'
-      ELSE
-      VPOINT=POINT
-        CALL GETSTR(ARG,POINT,FFONT)
-C   CALL UPCASE(FFONT)
-        IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
-        IF (FFONT.EQ.BLANK)FFONT='Helvetica'
-      CALL G0DFONT(0)
-      If(ERROR.NE.0)Then
-        POINT=VPOINT
-        Call Telluser(ERROR, *999)
-      End If
-        DCHANGE=.TRUE.
-      End If
-C Could be zero because of no args, or one arg (zero after call to GETSTR)
-      IF(POINT.NE.0)THEN
-        VPOINT=POINT
-        CALL GETSTR(ARG,POINT,ATSIZE)
-        IF(ERROR.EQ.0)TTSIZE=A2I(ATSIZE,ERROR)
-        IF(TTSIZE.LE.0.)ERROR=BADVALUE
-        IF(ERROR.NE.0)THEN
-          POINT=VPOINT
-          CALL TELLUSER(ERROR,*999)
-        END IF
-        CALL G0DXTSCALE(TTSIZE)
-        IF(POINT.NE.0)THEN
-          VPOINT=POINT
-          CALL GETSTR(ARG,POINT,ATSIZE)
-          IF(ERROR.EQ.0)TTSIZE=A2I(ATSIZE,ERROR)
-          IF(TTSIZE.LE.0.)ERROR=BADVALUE
-          IF(ERROR.NE.0)THEN
-            POINT=VPOINT
-            CALL TELLUSER(ERROR,*999)
-          END IF
-          CALL G0DYTSCALE(TTSIZE)
-        ELSE
-          CALL G0DYTSCALE(XTSIZE)
-        END IF
-      END IF
-C
-      DCHANGE=.TRUE.
-      RETURN
-C
+      Call Telluser(NOTIMPL, *999)
+      Return
+
 C   BITMAP FONT
 C
  255  CONTINUE
-      IF(POINT.NE.0)THEN
-        VPOINT=POINT
-        CALL GETVLU(ARG,POINT,IVAL,ADDIT)
-        IF(ERROR.NE.0)THEN
-          POINT=VPOINT
-          CALL TELLUSER(ERROR,*999)
-        ELSE
-          CALL G0DFONT(IVAL)
-          If(ERROR.NE.0)Then
-            POINT=VPOINT
-            Call Telluser(ERROR, *999)
-          End If
-          DCHANGE=.TRUE.
-        END IF
-      END IF
-      RETURN
+      Call Telluser(NOTIMPL, *999)
+      Return
 C
  260  CONTINUE
       IF(POINT.EQ.0)THEN

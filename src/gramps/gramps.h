@@ -34,4 +34,4 @@ void setfrom_(int *outflag);
 void udinit_();
 void g0pinit_();
 void startup_();
-int initializeFonts(const char *font_path);
+int initialize_fonts_(char *font_path, int flen);

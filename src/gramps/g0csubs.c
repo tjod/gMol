@@ -24,7 +24,8 @@ C *************************************************************
 #include "gramps.h"
 #include <FTGL/ftgl.h>
 FTGLfont *font3D = NULL;
-FTGLfont *fontbitmap = NULL;
+FTGLfont *fontBitmap = NULL;
+FTGLfont *font2D = NULL;
 
 /* G0 routines that used to be in g0subs.f */
 
@@ -520,55 +521,79 @@ void g0blendf_(int *source, int *dest) {
 //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
-int initializeFonts(const char *font_path) {
-  font3D = ftglCreateExtrudeFont(font_path);
-  fontbitmap = ftglCreateBitmapFont(font_path);
-  if (font3D && fontbitmap) {
-    // i'm using my own display lists, thank you
-    ftglSetFontDisplayList(font3D, 0);
-    ftglSetFontDisplayList(fontbitmap, 0);
-    return 1;
-  } else {
-    return 0;
+int initialize_fonts_(char *font_path, int flen) {
+  int err1 = 0;
+  int err2 = 0;
+  int err3 = 0;
+  font3D     = ftglCreateExtrudeFont(font_path);
+  fontBitmap = ftglCreateBitmapFont (font_path);
+  font2D     = ftglCreatePolygonFont(font_path);
+  if (font3D && fontBitmap && font2D) {
+    err3 = ftglGetFontError(font3D);
+    err2 = ftglGetFontError(font2D);
+    err1 = ftglGetFontError(fontBitmap);
+    if ((err1 + err2 + err3) == 0) {
+        // i'm using my own display lists, thank you
+        ftglSetFontDisplayList(font3D, 0);
+        ftglSetFontDisplayList(fontBitmap, 0);
+        ftglSetFontDisplayList(font2D, 0);
+        return 1;
+    }
   }
+  printf("3D font error: %d\n", err3);
+  printf("2D font error: %d\n", err2);
+  printf("bitmap error: %d\n",  err1);
+  return 0;
 }
 
 void draw_3D_text(float *x, float *y, float *z, char *string, int *size, int slen) {
   if (font3D) {
-    glTranslatef(*x, *y, *z);
     int res = 72;
     ftglSetFontFaceSize(font3D, *size, res); // Base font size
     ftglSetFontDepth(font3D, 20.0);         // Depth of the 3D extrusion; let user scale later
+    glTranslatef(*x, *y, *z);
     //ftglSetFontOutset(font, 0.0f, 1.0f);  // Front/back outset smoothing
     glScalef(0.01f, 0.01f, 0.01f); // this is a reasonable guess to fit screen; user can scale later
     string[slen] = '\0';
     ftglRenderFont(font3D, string, FTGL_RENDER_ALL);
+  }
+}
+
+void draw_2D_text(float *x, float *y, float *z, char *string, int *size, int slen) {
+  if (font2D) {
+    int res = 72;
+    ftglSetFontFaceSize(font2D, *size, res); // Base font size
+    glDisable(GL_LIGHTING);
+    glTranslatef(*x, *y, *z);
+    glScalef(0.01f, 0.01f, 0.01f); // this is a reasonable guess to fit screen; user can scale later
+    string[slen] = '\0';
+    ftglRenderFont(font2D, string, FTGL_RENDER_ALL);
     glEnable(GL_LIGHTING);
   }
 }
 
+
 void draw_bitmap_text(float *x, float *y, float *z, char *string, int *size, int slen) {
-  if (fontbitmap) {
+  if (fontBitmap) {
       int res = 72;
-      ftglSetFontFaceSize(fontbitmap, *size, res);
+      ftglSetFontFaceSize(fontBitmap, *size, res);
       glDisable(GL_LIGHTING);
       glRasterPos3f(*x, *y, *z);
       string[slen] = '\0';
-      ftglRenderFont(fontbitmap, string, FTGL_RENDER_ALL);
+      ftglRenderFont(fontBitmap, string, FTGL_RENDER_ALL);
       glEnable(GL_LIGHTING);
   }
 }
 
-//#define FREETYPE_3D_FONTS
-#define FREETYPE_BITMAP_FONTS
-void g0drawtext_(float *x, float *y, float *z, char *string, int *size, int slen) {
-#if defined(FREETYPE_BITMAP_FONTS)
-  *size = 50;
-  draw_bitmap_text(x, y, z, string, size, slen);
-#elif defined(FREETYPE_3D_FONTS)
-  *size = 50;
-  draw_3D_text(x, y, z, string, size, slen);
-#endif
+
+void g0drawtext_(float *x, float *y, float *z, int *size, char *ftype, char *string, int flen, int slen) {
+  if ( strncmp(ftype, "3D", 2)  == 0) {
+    draw_3D_text(x, y, z, string, size, slen);
+  } else if ( strncmp(ftype, "2D", 2)  == 0) {
+    draw_2D_text(x, y, z, string, size, slen);
+  } else {
+   draw_bitmap_text(x, y, z, string, size, slen);
+  }
 }
 
 #if defined __APPLE__
