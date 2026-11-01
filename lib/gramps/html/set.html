@@ -1,5 +1,5 @@
 <HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>SET</H2>
-<script src="iscript.js" defer></script> 
+<script src="iscript.js" defer></script>
  The <SPAN CLASS=command>set</SPAN> command is used to set various system parameters and variables
  which may tailor the GRAMPS environment to your particular needs.
  Many of the parameters which may be set using the <SPAN CLASS=command>set</SPAN> command are
@@ -27,22 +27,22 @@
  "screen-door" patten to simulate transparency.  <SPAN CLASS=command>set</SPAN> NOALPHA is equivalent to
  <SPAN CLASS=command>set</SPAN> ALPHA -1, -1.
 <H4>Backface and nobackface</H4>
- For polygon and triangle mesh surfaces (including spheres), the backward facing 
-polygons can be switched off by giving the <SPAN CLASS=command>set</SPAN> nobackface 
-command. Set backface causes back-facing poygons to be shown. Nobackface means 
-they are not shown. Three optional arguments, after the backface keyword, specify 
-how bright the backfacing surfaces will be. For example set backface 0.5,1,0 causes 
-the back-facing surface to be shown at half ambient intensity, full diffuse intensity 
-and zero specular intensity. If the /color switch is used, the backfacing polygons 
-are shown in the color specified by three arguments (after the backface keyword). 
-These arguments are the hue, saturation and value. For example, set backface 120,0.5,0.5 
-shows the backfacing surfaces as a reddish grey. Removing back-facing polygons 
-can speed the display of objects. If your surface is totally enclosed, as is a 
-sphere, back-facing polygons will always be invisible anyway, so it behooves you 
-to use set backface in those cases. 
+ For polygon and triangle mesh surfaces (including spheres), the backward facing
+polygons can be switched off by giving the <SPAN CLASS=command>set</SPAN> nobackface
+command. Set backface causes back-facing poygons to be shown. Nobackface means
+they are not shown. Three optional arguments, after the backface keyword, specify
+how bright the backfacing surfaces will be. For example set backface 0.5,1,0 causes
+the back-facing surface to be shown at half ambient intensity, full diffuse intensity
+and zero specular intensity. If the /color switch is used, the backfacing polygons
+are shown in the color specified by three arguments (after the backface keyword).
+These arguments are the hue, saturation and value. For example, set backface 120,0.5,0.5
+shows the backfacing surfaces as a reddish grey. Removing back-facing polygons
+can speed the display of objects. If your surface is totally enclosed, as is a
+sphere, back-facing polygons will always be invisible anyway, so it behooves you
+to use set backface in those cases.
 <P>
 <H4>Background</H4>
- The  <SPAN CLASS=command>set</SPAN> BACKGROUND <A HREF=function.html><i>value</i></A>  command is  used to set the background color on 
+ The  <SPAN CLASS=command>set</SPAN> BACKGROUND <A HREF=function.html><i>value</i></A>  command is  used to set the background color on
  your window.  The <A HREF=function.html><i>value</i></A> ranges from 0 to 255.  0 is black, 255 is white
  and other colors are shades of grey.
 <H4>Backhsv</H4>
@@ -113,9 +113,9 @@ to use set backface in those cases.
 <BR 1>
 </P CLASS=indent> The <SPAN CLASS=command>set</SPAN> ECHO command causes GRAMPS to echo each command line received
  by GRAMPS. Normally, the line need not be echoed since it will have
- been typed in at the terminal. It is possible for a user-written 
+ been typed in at the terminal. It is possible for a user-written
  program to communicate with GRAMPS. For example, a program could
- construct GRAMPS command lines and send them to GRAMPS via the 
+ construct GRAMPS command lines and send them to GRAMPS via the
  interprocess communcation through which GRAMPS accepts commands. In
  that case, it may be useful to have the command lines echoed. The
  <SPAN CLASS=command>set</SPAN> NOECHO command causes command to no longer be echoed.
@@ -265,34 +265,34 @@ to use set backface in those cases.
  This command has no effect on the mouse since it is treated in GRAMPS
  as absolute rather than relative devices.
 <H4>Smoothline</H4>
- 
-<p>On a raster system, lines can appear jagged, especially those lines which are 
-  nearly but not exactly horizontal or vertical. This is an effect of using discreet 
-  pixels on a video screen. Using a method sometimes call anti-aliasing, this 
-  effect can be lessened. Use the command <SPAN CLASS=command>set</SPAN> SMOOTHLINE 
-  to enable anti-aliasing of lines. Use the command <SPAN CLASS=command>set</SPAN> 
-  NOSMOOTHLINE to disable anti-aliasing. *** BUT BEWARE **** Because of the way 
-  SMOOTHLINE is implemented, fewer colors are available when SMOOTHLINE is set 
-  on. Depth-cueing is also affected; there are fewer levels of intensity depth-cueing 
-  when <SPAN CLASS=command>set</SPAN> SMOOTHLINE is used. These effects are due 
-  to the color map modifications which are made to make smooth lines. Because 
-  the color map is modified, there are differences in the shades of colors corresponding 
-  to color values when SMOOTHLINE mode is set. FINALLY, <A HREF=text.html><SPAN CLASS=command>text</SPAN></A> 
-  AND POLYGONS ARE NOT DRAWN CORRECTLY WHEN SMOOTHLINE IS <SPAN CLASS=command>set</SPAN>. 
+
+<p>On a raster system, lines can appear jagged, especially those lines which are
+  nearly but not exactly horizontal or vertical. This is an effect of using discreet
+  pixels on a video screen. Using a method sometimes call anti-aliasing, this
+  effect can be lessened. Use the command <SPAN CLASS=command>set</SPAN> SMOOTHLINE
+  to enable anti-aliasing of lines. Use the command <SPAN CLASS=command>set</SPAN>
+  NOSMOOTHLINE to disable anti-aliasing. *** BUT BEWARE **** Because of the way
+  SMOOTHLINE is implemented, fewer colors are available when SMOOTHLINE is set
+  on. Depth-cueing is also affected; there are fewer levels of intensity depth-cueing
+  when <SPAN CLASS=command>set</SPAN> SMOOTHLINE is used. These effects are due
+  to the color map modifications which are made to make smooth lines. Because
+  the color map is modified, there are differences in the shades of colors corresponding
+  to color values when SMOOTHLINE mode is set. FINALLY, <A HREF=text.html><SPAN CLASS=command>text</SPAN></A>
+  AND POLYGONS ARE NOT DRAWN CORRECTLY WHEN SMOOTHLINE IS <SPAN CLASS=command>set</SPAN>.
 </p>
 <h4>Sphere</h4>
-<p>The sphere primitive is rendered as a set of shaded triangles. The set sphere 
-  command allows you to specify how high a resolution should be used. The set 
-  sphere command takes two arguments, each composed of two integers separated 
-  by a dot. For example, set sphere 2.2, 5.2. The first number (2.2 in the example) 
-  represents how the sphere should be rendered while the scene is being manipulated 
-  using the mouse (or dials) and the second represents how the spheres should 
-  be rendered when the scene is still (usually a higher resolution). For each 
-  value, the first integer to the left of the dot represents how many triangles 
-  (actually how many subdivisions of an icosohedron) should be used and the second 
-  number to the right of the dot represents the style (point, line, shaded triangle). 
-  So, a value of 1.1 would represent a sphere as an icosohedron using lines and 
-  5.2 would represent a sphere as a highly-subdivided icosohedron using shaded 
+<p>The sphere primitive is rendered as a set of shaded triangles. The set sphere
+  command allows you to specify how high a resolution should be used. The set
+  sphere command takes two arguments, each composed of two integers separated
+  by a dot. For example, set sphere 2.2, 5.2. The first number (2.2 in the example)
+  represents how the sphere should be rendered while the scene is being manipulated
+  using the mouse (or dials) and the second represents how the spheres should
+  be rendered when the scene is still (usually a higher resolution). For each
+  value, the first integer to the left of the dot represents how many triangles
+  (actually how many subdivisions of an icosohedron) should be used and the second
+  number to the right of the dot represents the style (point, line, shaded triangle).
+  So, a value of 1.1 would represent a sphere as an icosohedron using lines and
+  5.2 would represent a sphere as a highly-subdivided icosohedron using shaded
   triangles. The default values are 2.2 and 5.2.</p>
 <H4>Stereo **** use the stereo macro-command ****</H4>
 <P CLASS=indent><SPAN CLASS=command>set</SPAN> STEREO
@@ -319,14 +319,15 @@ to use set backface in those cases.
  Any transformations applying to LWorld at the time <SPAN CLASS=command>set</SPAN> STEREO is put
  into effect are copied to RWorld before the <A HREF=perspective.html><SPAN CLASS=command>perspective</SPAN></A>, <A HREF=translate.html><SPAN CLASS=command>translate</SPAN></A>,
  and <A HREF=move.html><SPAN CLASS=command>move</SPAN></A> commands are executed.
-<H4>Textsize </H4>
-<P CLASS=indent><SPAN CLASS=command>set</SPAN> TEXTSIZE value
+<H4>Textfont </H4>
+<P CLASS=indent><SPAN CLASS=command>set</SPAN> TEXTFONT file
 <BR 3>
-<BR 1>
-</P CLASS=indent> The <SPAN CLASS=command>set</SPAN> TEXTSIZE command requires a <A HREF=function.html><i>value</i></A> argument in the range 1 to
- 100. All subsequent <A HREF=text.html><SPAN CLASS=command>text</SPAN></A> commands will output characters to the screen
- using the text size specified here. 1 is small and 10 is large. The
- default value used by GRAMPS is 7.
+</P CLASS=indent> The <SPAN CLASS=command>set</SPAN> TEXTFONT command requires a filename argument.  This must be a
+<a href="https://en.wikipedia.org/wiki/TrueType"> TrueType</a> font file (.ttf or .ttc).
+ All subsequent <A HREF=text.html><SPAN CLASS=command>text</SPAN></A> commands will output characters to the screen
+ using the text font specified here.  On MacOS, /System/Library/Fonts contains many of these fonts.
+ You can also get hundreds of these from <a href="fonts.google.com">Google Fonts</a>.  Some fonts, for example Papyrus or others with 
+ a "raggedy" appearance can cause problems (crash!) when using <a href="text.html">text/3D</a>.
 <H4>Verify</H4>
 <P CLASS=indent><SPAN CLASS=command>set</SPAN> VERIFY
 <BR 3>

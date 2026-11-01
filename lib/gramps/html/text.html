@@ -1,5 +1,5 @@
 <HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>TEXT</H2>
-<script src="iscript.js" defer></script> 
+<script src="iscript.js" defer></script>
  The <SPAN CLASS=command>text</SPAN> command is used to draw text characters on the screen. The
  syntax of the command is:
 <P>
@@ -18,3 +18,24 @@
  are optional. For the <A HREF=function.html><i>values</i></A> which are omitted, an assumption is
  made. If the X or Y coordinate is missing, then the default value of
  0 is used. If the Z coordinate is missing, the default value used is 0.
+ <p>
+ You can also specify the coordinates using a <a href=pick.html>picked</a> point variable, e.g. #1.
+ <p>
+ The object created will have all 3D transformations applied to it, but only to the lower-left corner coordinate,
+ not to the body of the text itself.  The text will always appear front-facing and remain the same size.
+ You can <A HREF=translate.html>translate</a> this text after it is created.
+ If you want a smaller or larger size, use the /size switch.
+ <BR 3>
+ <H4>/size=<i>nn</i></H4>
+ The <SPAN CLASS=switch>/size=<i>nn</i></SPAN> switch, with a required number <i>nn</i>, will produce larger or smaller text.  The default
+ size is 36.
+ <BR 3>
+ <H4>/3D</H4>
+  The <SPAN CLASS=switch>/3D</SPAN> switch creates a 3D object having the text string extruded into the Z-dimension.  This
+  is an ordinary gramps 3D object.  It is transformed like any other gramps object.  It will NOT always remain front-facing.
+  The /size switch applies as well, but this text can be scaled after it is created, unlike the default text.
+  <BR 3>
+  <H4>/2D</H4>
+  The <SPAN CLASS=switch>/2D</SPAN> switch creates a flat 3D object.  This is an  ordinary gramps 3D object, albeit flat.
+  It is transformed like any other gramps object.  It will NOT always remain front-facing.
+  The /size switch applies as well, but this text can be scaled after it is created, unlike the default text.

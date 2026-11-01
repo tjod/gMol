@@ -36,9 +36,17 @@ C
 C
 	EXTERNAL TRIM
 C
-	DO 1 I=1,60
-	DLINE(I:I)='='
- 1    CONTINUE
+       CALL GETENV( 'gramps_lib', DLINE )
+       If (DLINE(1:1) .eq. ' ') Call Telluser(NOGRLIB, *999)
+       TMPLINE = "open " // DLINE(:TRIM(DLINE)) // '/html/index.html'
+       Call Syscall(TMPLINE)
+       Write(*,*) "If the help page does not open in your browser, try"
+       Write(*,*) TMPLINE
+       Return
+
+        DO I=1,60
+         DLINE(I:I)='='
+        End Do
 	SPACES=' '
 	NENT=0
 C     CALL GROUT('Picture Names: ')
