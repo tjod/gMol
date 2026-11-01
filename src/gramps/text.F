@@ -63,6 +63,7 @@ C      resolution is 72 in ftgl initialization, so 36 is biggish
        CALL SMATCH(SWITCHES,'SIZE',arg_size,PRESENT)
        IF(PRESENT)THEN
          size = A2I(arg_size,ERROR)
+         if (size .LE. 0) size = 36
        Else
          size = 36
        End If
