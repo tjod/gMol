@@ -247,7 +247,7 @@ C     NTEST=ABS(LDM2)
           MESH=.TRUE.
         END IF
         CALL G0POLY(ALIST(SPOT), WW, INT(N), JDIM,
-     &  NORML, CWISE, COLRV, MESH)
+     &    NORML, CWISE, COLRV, MESH)
         SPOT=SPOT+N*JDIM
 
         ELSE IF(LDM1.EQ.8)THEN
@@ -257,7 +257,7 @@ C     NTEST=ABS(LDM2)
             CWISE=.FALSE.
          END IF
           CALL G0MESH(ALIST(SPOT), WW, INT(N), JDIM,
-     &    NORML, CWISE, COLRV, INT(LDM2) )
+     &      NORML, CWISE, COLRV, INT(LDM2) )
           SPOT=SPOT+N*JDIM
 C
 C  Whoops...
