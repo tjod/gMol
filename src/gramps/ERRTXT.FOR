@@ -72,7 +72,7 @@ C
      &      'Synonyms nested too deeply or recursively',
      &      'Please finish picking',
      &      'I can''t decide which object was PICKed',
-     &      'I don''t recognize that font number',
+     &      'I don''t recognize that font filename',
      &      'That would create too many triangles',
      &      'Environment variable $gramps_lib is not defined'/
       DATA (ERRTXT(J),J=61,LASTERROR)/
