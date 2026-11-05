@@ -525,6 +525,9 @@ int initialize_fonts_(char *font_path, int flen) {
   int err1 = 0;
   int err2 = 0;
   int err3 = 0;
+  if (font3D)    ftglDestroyFont(font3D);
+  if (font2D)    ftglDestroyFont(font2D);
+  if (fontBitmap) ftglDestroyFont(fontBitmap);
   font3D     = ftglCreateExtrudeFont(font_path);
   fontBitmap = ftglCreateBitmapFont (font_path);
   font2D     = ftglCreatePolygonFont(font_path);
@@ -540,9 +543,9 @@ int initialize_fonts_(char *font_path, int flen) {
         return 1;
     }
   }
-  printf("3D font error: %d\n", err3);
-  printf("2D font error: %d\n", err2);
-  printf("bitmap error: %d\n",  err1);
+//  fprintf(stderr, "3D font error: %d\n", err3);
+//  fprintf(stderr, "2D font error: %d\n", err2);
+//  fprintf(stderr, "Bitmap font error: %d\n",  err1);
   return 0;
 }
 
@@ -766,9 +769,18 @@ void fmhard_() {
 void fmrestore_() {
 }
 
-void c3i_(int *r, int *g, int *b) { glColor3i(*r, *g, *b); }
-void c3f_(float *v) { glColor3fv(v); }
-void c4f_(float *v) { glColor4fv(v); }
+void c3i_(int *r, int *g, int *b) {
+// fprintf (stderr, "c %d %d %d\n",*r, *g, *b);
+ glColor3i(*r, *g, *b);
+}
+void c3f_(float *v) {
+// fprintf (stderr, "c %f %f %f\n", v[0], v[1], v[2]);
+ glColor3fv(v);
+}
+void c4f_(float *v) {
+// fprintf (stderr, "c4 %f %f %f %f\n", v[0], v[1], v[2], v[3]);
+ glColor4fv(v);
+}
 void n3f_(float *v) {
 // fprintf (stderr, "n %f %f %f\n", v[0], v[1], v[2]);
  glNormal3fv(v);
@@ -796,7 +808,10 @@ void bgnseg_() {
  glBegin(GL_LINES); /* segments */ 
 }
 
-void bgnpol_() { glBegin(GL_POLYGON); }
+void bgnpol_() {
+ glDisable(GL_LIGHTING);
+ glBegin(GL_POLYGON);
+}
 void bgntri_() { glBegin(GL_TRIANGLES); }
 void bgntst_() { glBegin(GL_TRIANGLE_STRIP); }
 void bgnqst_() { glBegin(GL_QUAD_STRIP); }
@@ -811,11 +826,12 @@ void endlin_() {
  glEnable(GL_LIGHTING);
 }
 void endpoi_() {
- glEnable(GL_LIGHTING);
  glEnd();
+ glEnable(GL_LIGHTING);
 }
 void endany_() {
  glEnd();
+ glEnable(GL_LIGHTING);
 }
 
 void delobj_(int *ob) {
