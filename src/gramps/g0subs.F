@@ -283,13 +283,13 @@ C Coords
       BUFF(2)= ALIST(2)/W
       BUFF(3)= ALIST(3)/W
 C Colors
-C      IHUE=MOD(INT(120+ALIST(4)),360)
-C      ISAT=MOD(INT(100*ALIST(5)),101)
-C      IVAL=MOD(INT(100*ALIST(6)),101)
-C      CALL HSVRGB(IHUE, ISAT, IVAL, BUFF(4), BUFF(5), BUFF(6) )
-      BUFF(7)= ALIST(7)
-      BUFF(8)= ALIST(8)
-      BUFF(9)= ALIST(9)
+!      IHUE=MOD(INT(120+ALIST(4)),360)
+!      ISAT=MOD(INT(100*ALIST(5)),101)
+!      IVAL=MOD(INT(100*ALIST(6)),101)
+!      CALL HSVRGB(IHUE, ISAT, IVAL, BUFF(4), BUFF(5), BUFF(6) )
+      BUFF(4)= ALIST(4) / 360.
+      BUFF(5)= ALIST(5)
+      BUFF(6)= ALIST(6)
       Return
 
       Entry AddBuff_LNC(ALIST,BUFF,W,NORML,CWISE)
@@ -304,7 +304,7 @@ C      IHUE=MOD(INT(120+ALIST(7)),360)
 C      ISAT=MOD(INT(100*ALIST(8)),101)
 C      IVAL=MOD(INT(100*ALIST(9)),101)
 C      CALL HSVRGB(IHUE, ISAT, IVAL, BUFF(7), BUFF(8), BUFF(9))
-      BUFF(7)= ALIST(7)
+      BUFF(7)= ALIST(7) / 360.
       BUFF(8)= ALIST(8)
       BUFF(9)= ALIST(9)
       Return
@@ -521,7 +521,10 @@ C     &      1.0, 0.4, 0.4, 0.4, 0.0, 0.3125, -1, g0bfrgb)
             Call G0COLOR(0)
           End If
        Else
-         If (COLRV)call c3f( BUFF(4,j) )
+         If (COLRV) Then
+           Call G0SETHSV(BUFF(4,j),BUFF(5,j),BUFF(6,j))
+           Call G0COLOR(0)
+         End If
        End If
        call v3f( BUFF(1,j) )
 c      If(j.eq.1) Call g0cexCoord1f(0.0);
@@ -537,7 +540,7 @@ c      If(j.eq.n) Call g0texCoord1f(1.0);
          call v3f( RTMP )
          call v3f( BUFF(1,j) )
        End If
-      END DO
+      ENd Do
       Call G0END(RSTYLE,1)
 C
       End
@@ -2038,7 +2041,7 @@ C
 
       Else If(OUTTING.EQ.OUTRAYS .OR. OUTTING.EQ.OUTRAYT .OR.
      &        OUTTING.EQ.OUTPOV)THEN
-        IHUE=MOD(INT(120+360*HUE),360)
+        IHUE=MOD(INT(120+HUE),360)
         ISAT=MOD(INT(100*SAT) ,101)
         IVAL=MOD(INT(100*VALU),101)
         CALL HSVRGB(IHUE, ISAT, IVAL, R, G, B)
@@ -2064,10 +2067,12 @@ C        If (HITTING.EQ.-1) Then
 C           Call c3i(0,iid,0)
 C        Else 
           IF(G0RGB)THEN
+C           write(*,*) hue, sat, val
            IHUE=MOD(INT(120+360*HUE), 360)
            ISAT=MOD(INT(100*SAT), 101)
            IVAL=MOD(INT(100*VALU),101)
            CALL HSVRGB(IHUE, ISAT, IVAL, R, G, B)
+C           write(*,*) ihue, isat, ival, r, g, b
            emissive = -1.0
 C set material seperately
            IF(G0SRCE.LT.0 .OR. G0DEST.LT.0) Then
