@@ -81,6 +81,7 @@ macx {
    INCLUDEPATH += /usr/local/include/QtWebKitWidgets # use with Qt5.15
    #INCLUDEPATH += /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1
    LIBS += ../gramps/qtgramps.a \
+    -L/usr/local/opt/ftgl/lib -lftgl \
     -L/opt/local/lib/gcc15 -lgfortran \
     -framework GLUT -framework OPENGL
    LIBS += -F/usr/local/lib -framework QtWebKit -framework QtWebKitWidgets # use with Qt5.15
