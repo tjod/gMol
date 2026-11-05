@@ -6,7 +6,7 @@ FFLAGS = -D__APPLE__ -DGL_SILENCE_DEPRECATION
 CC = cc
 #CFLAGS =  -IMesa/include -I/usr/X11R6/include
 #CFLAGS =  -I/home/tjo/Mesa-4.0.4/include
-CFLAGS =   -D__APPLE__ -DGL_SILENCE_DEPRECATION
+CFLAGS =   -D__APPLE__ -DGL_SILENCE_DEPRECATION -I/usr/local/opt/ftgl/include -I/usr/local/opt/freetype/include/freetype2
 
 #XLIBS =   -lXi -lXext -lXm -lXt -lX11 -lPW
 #XLIBS_s = -lXi -lXext -lXm_s -lXt_s -lX11_s -lPW
@@ -41,13 +41,13 @@ textxyz.o tident.o tpush.o translate.o objutil.o udinit.o update.o use.o utfm.o
 O3=net_openfile.o net_io.o 
 O4=openfile.o io.o
 #O5=/usr/local/lib/libgfortran.a
-GLUTOB= glut_8x13.o glut_bitmap.o glut_hel12.o glut_tr10.o glut_9x15.o glut_hel10.o glut_hel18.o glut_tr24.o
+#GLUTOB= glut_8x13.o glut_bitmap.o glut_hel12.o glut_tr10.o glut_9x15.o glut_hel10.o glut_hel18.o glut_tr24.o
 
 all: qtgramps.a
 
 qtgramps.a: FFLAGS += -DQT
 qtgramps.a: CFLAGS += -DQT
-qtgramps.a: $(O1) $(O2) $(O4) $(GLUTOB)
+qtgramps.a: $(O1) $(O2) $(O4)
 	rm -f $@
 	$(AR) -r $@ $(O1) $(O2) $(O4) $(GLUTOB)
 #	mv $@ ../qt/
