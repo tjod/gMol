@@ -2582,7 +2582,6 @@ C        call g0inten(LWORLD)
         call makeob(uniqid)
         Z1=0
         Z2=INT(Z'7F0000')
-C    CALL LSETDE(Z1, Z2)
         call dumpout( DLOC, DSIZE )
 C turn off any color material following that may have been activated
         call g0colormaterial(0)

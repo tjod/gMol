@@ -315,6 +315,7 @@ void g0texcoord1f_(float *c) {
 void g0colormaterial_(int *flag) {
 static int state=-1;
 
+ //printf("g0colormaterial flag %d\n", *flag);
  if (*flag == state) return;
  if (*flag == 1) {
   glEnable(GL_COLOR_MATERIAL);
@@ -327,13 +328,7 @@ static int state=-1;
 
 }
 
-#if defined __APPLE__
 void g0light_init_ () {
-#elif defined GFORTRAN
-void g0light_init_ () {
-#else
-void g0light_init__ () {
-#endif
 
  /* setup lighting, etc */
 
@@ -438,6 +433,8 @@ void g0material_ (float *red, float *green, float *blue, float *alpha,
  GLfloat ared, agreen, ablue;
  GLfloat aambi, adiff, aspec;
  int aface;
+
+  //printf ("g0material %f %f %f %f %d\n", *red, *green, *blue, *alpha, *backface);
  if (*backface == 1) {
   aface = GL_BACK;
   ared = bfcolor[0];
@@ -716,13 +713,7 @@ void loadnam_(GLuint *ob) {
 }
 
 
-#if defined __APPLE__
 void identity_matrix_() {
-#elif defined GFORTRAN
-void identity_matrix_() {
-#else
-void identity_matrix__() {
-#endif
  glLoadIdentity();
 }
 
@@ -812,15 +803,35 @@ void bgnpol_() {
  glDisable(GL_LIGHTING);
  glBegin(GL_POLYGON);
 }
-void bgntri_() { glBegin(GL_TRIANGLES); }
-void bgntst_() { glBegin(GL_TRIANGLE_STRIP); }
-void bgnqst_() { glBegin(GL_QUAD_STRIP); }
+void bgntri_() {
+ glBegin(GL_TRIANGLES);
+}
+void bgntst_() {
+ glBegin(GL_TRIANGLE_STRIP);
+}
+void bgnqst_() {
+ glBegin(GL_QUAD_STRIP);
+}
 
-void endpol_() { glEnd(); }
-void endclo_() { glEnd(); }
-void endtst_() { glEnd(); }
-void endqst_() { glEnd(); }
-void endtri_() { glEnd(); }
+void endpol_() {
+ glEnd();
+ glEnable(GL_LIGHTING);}
+void endclo_() {
+ glEnd();
+ glEnable(GL_LIGHTING);
+}
+void endtst_() {
+ glEnd();
+ glEnable(GL_LIGHTING);
+}
+void endqst_() {
+ glEnd();
+ glEnable(GL_LIGHTING);
+}
+void endtri_() {
+ glEnd();
+ glEnable(GL_LIGHTING);
+}
 void endlin_() {
  glEnd();
  glEnable(GL_LIGHTING);
