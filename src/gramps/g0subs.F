@@ -497,6 +497,7 @@ C Scale color value by z value, but not too much
       Logical COLRV
       Integer NORML
       Integer k,j
+      Integer ihue, isat, ival
       Real RTMP(3), NML(3)
 #include "G0COMMON.FOR"
 C
@@ -514,16 +515,19 @@ C
        If (NORML.NE.0) Then
          call f3n( BUFF(4,j) )
           If (COLRV) Then
-C           call c3f( BUFF(7,j) )
-C           call g0material(BUFF(7,j), BUFF(8,j), BUFF(9,j),
-C     &      1.0, 0.4, 0.4, 0.4, 0.0, 0.3125, -1, g0bfrgb)
             Call G0SETHSV(BUFF(7,j),BUFF(8,j),BUFF(9,j))
-            Call G0COLOR(0)
+            CALL HSVRGB(buff(7,j), buff(8,j), buff(9,j),
+     &                  rtmp(1),   rtmp(2),   rtmp(3))
+c           Call G0COLOR(0)
+            call c3f(rtmp)
           End If
        Else
          If (COLRV) Then
            Call G0SETHSV(BUFF(4,j),BUFF(5,j),BUFF(6,j))
-           Call G0COLOR(0)
+           CALL HSVRGB(buff(4,j), buff(5,j), buff(6,j),
+     &                 rtmp(1),   rtmp(2),   rtmp(3) )
+c           Call G0COLOR(0)
+           call c3f(rtmp)
          End If
        End If
        call v3f( BUFF(1,j) )
@@ -2041,10 +2045,10 @@ C
 
       Else If(OUTTING.EQ.OUTRAYS .OR. OUTTING.EQ.OUTRAYT .OR.
      &        OUTTING.EQ.OUTPOV)THEN
-        IHUE=MOD(INT(120+HUE),360)
-        ISAT=MOD(INT(100*SAT) ,101)
-        IVAL=MOD(INT(100*VALU),101)
-        CALL HSVRGB(IHUE, ISAT, IVAL, R, G, B)
+!        IHUE=MOD(INT(120+HUE),360)
+!        ISAT=MOD(INT(100*SAT) ,101)
+!        IVAL=MOD(INT(100*VALU),101)
+        CALL HSVRGB(HUE, SAT, VALU, R, G, B)
         G0RED=R
         G0GREEN=G
         G0BLUE=B
@@ -2064,14 +2068,13 @@ C
       ELSE IF(OUTTING.EQ.OUTWINDOW)THEN
 C HITTING = 1 means hit active, -1 means hit processing now
 C        If (HITTING.EQ.-1) Then
-C           Call c3i(0,iid,0)
-C        Else 
+C        Else
           IF(G0RGB)THEN
 C           write(*,*) hue, sat, val
-           IHUE=MOD(INT(120+360*HUE), 360)
-           ISAT=MOD(INT(100*SAT), 101)
-           IVAL=MOD(INT(100*VALU),101)
-           CALL HSVRGB(IHUE, ISAT, IVAL, R, G, B)
+!           IHUE=MOD(INT(120+360*HUE), 360)
+!           ISAT=MOD(INT(100*SAT), 101)
+!           IVAL=MOD(INT(100*VALU),101)
+           CALL HSVRGB(HUE, SAT, VALU, R, G, B)
 C           write(*,*) ihue, isat, ival, r, g, b
            emissive = -1.0
 C set material seperately
@@ -2398,23 +2401,28 @@ C
       RETURN
       END
 C
-      SUBROUTINE HSVRGB(IHUE,ISAT,IVAL, R,G,B)
+      SUBROUTINE HSVRGB(h, s, v, R,G,B)
+      REAL h, s, v, R, G, B
 C
-      REAL LS,CIRCLE,SIXTY,ONE,ZERO,HUE,VAL,SAT,R,G,B,F,P,Q,T
-C
-      INTEGER I,IHUE,IVAL,ISAT
+      REAL LS,CIRCLE,SIXTY,ONE,ZERO,HUE,VAL,SAT,F,P,Q,T
+      INTEGER I
 C
 C     CONVERT HSV TO RGB
 C
       DATA COLS/100./, CIRCLE/360./, SIXTY/60./, ONE/1.0/, ZERO/0.0/
 C
-      HUE = FLOAT(IHUE)
-      VAL = FLOAT(IVAL) / COLS
-      SAT = FLOAT(ISAT) / COLS
+      HUE=MOD(INT(120+360*h), 360)
+      SAT=MOD(INT(100*s),     101)
+      VAL=MOD(INT(100*v),     101)
+      SAT=s
+      VAL=v
+!      HUE = FLOAT(IHUE)
+!      VAL = FLOAT(IVAL) / COLS
+!      SAT = FLOAT(ISAT) / COLS
 C
 C     ACHROMATIC CASE ?
 C
-      IF (ISAT .NE. 0 ) GOTO 100
+      IF (SAT .NE. 0 ) GOTO 100
       R = VAL
       G = VAL
       B = VAL
@@ -2796,10 +2804,10 @@ c kludge for rayshade,pov ambient light, initial call
       End If
 c
       call huesat(LOBJ, hue, sat, valu)
-      IHUE=MOD(INT(120+360*HUE), 360)
-      ISAT=MOD(INT(100*SAT), 101)
-      IVAL=MOD(INT(100*VALU),101)
-      CALL HSVRGB(IHUE, ISAT, IVAL, R, G, B)
+!      IHUE=MOD(INT(120+360*HUE), 360)
+!      ISAT=MOD(INT(100*SAT), 101)
+!      IVAL=MOD(INT(100*VALU),101)
+      CALL HSVRGB(HUE, SAT, VALU, R, G, B)
       If(OUTTING.EQ.OUTWINDOW)Then
         call pushma
         call maketfm(LOBJ)

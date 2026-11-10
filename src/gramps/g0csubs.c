@@ -314,8 +314,8 @@ void g0texcoord1f_(float *c) {
 
 void g0colormaterial_(int *flag) {
 static int state=-1;
-
- //printf("g0colormaterial flag %d\n", *flag);
+    return;
+ printf("g0colormaterial flag %d; state %d\n", *flag, state);
  if (*flag == state) return;
  if (*flag == 1) {
   glEnable(GL_COLOR_MATERIAL);
@@ -334,7 +334,8 @@ void g0light_init_ () {
 
  int zero=0;
  glEnable(GL_LIGHTING);
- glDisable(GL_COLOR_MATERIAL);
+ glEnable(GL_COLOR_MATERIAL);
+ glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
  g0colormaterial_(&zero);
 }
 
@@ -718,6 +719,8 @@ void identity_matrix_() {
 }
 
 void callob_(int *ob) {
+// printf ("callob shows GL_COLOR_MATERIAL %d; GL_LIGHTING %d\n",
+//        glIsEnabled(GL_COLOR_MATERIAL), glIsEnabled(GL_LIGHTING));
   glCallList(*ob);
 }
 
@@ -782,25 +785,25 @@ void v3f_(float *v) {
 }
 
 void bgnpoi_() {
- glDisable(GL_LIGHTING);
+ //glDisable(GL_LIGHTING);
  glBegin(GL_POINTS);
 }
 
 void bgnclo_() {
- glDisable(GL_LIGHTING);
+ //glDisable(GL_LIGHTING);
  glBegin(GL_LINE_LOOP); /* closed, continuous line */ 
 }
 void bgnlin_() {
- glDisable(GL_LIGHTING);
+ //glDisable(GL_LIGHTING);
  glBegin(GL_LINE_STRIP); /* continuous line */
 }
 void bgnseg_() {
- glDisable(GL_LIGHTING);
+ //glDisable(GL_LIGHTING);
  glBegin(GL_LINES); /* segments */ 
 }
 
 void bgnpol_() {
- glDisable(GL_LIGHTING);
+ //glDisable(GL_LIGHTING);
  glBegin(GL_POLYGON);
 }
 void bgntri_() {
@@ -815,34 +818,35 @@ void bgnqst_() {
 
 void endpol_() {
  glEnd();
- glEnable(GL_LIGHTING);}
+ //glEnable(GL_LIGHTING);
+}
 void endclo_() {
  glEnd();
- glEnable(GL_LIGHTING);
+ //glEnable(GL_LIGHTING);
 }
 void endtst_() {
  glEnd();
- glEnable(GL_LIGHTING);
+ //glEnable(GL_LIGHTING);
 }
 void endqst_() {
  glEnd();
- glEnable(GL_LIGHTING);
+ //glEnable(GL_LIGHTING);
 }
 void endtri_() {
  glEnd();
- glEnable(GL_LIGHTING);
+ //glEnable(GL_LIGHTING);
 }
 void endlin_() {
  glEnd();
- glEnable(GL_LIGHTING);
+ //glEnable(GL_LIGHTING);
 }
 void endpoi_() {
  glEnd();
- glEnable(GL_LIGHTING);
+ //glEnable(GL_LIGHTING);
 }
 void endany_() {
  glEnd();
- glEnable(GL_LIGHTING);
+ //glEnable(GL_LIGHTING);
 }
 
 void delobj_(int *ob) {

@@ -497,10 +497,7 @@ C      write(*,*) 'push obj'
       if(outting.eq.OUTWINDOW) Then
         if (HITTING.EQ.HITNOW)call pushnam(i)
         if (HITOBJ .EQ. i) call gettfmmat(tmpmat)
-c          call g0refill(idobj(i))
           call callob (objfrid(idobj(i)))
-c  dumpout uses no display lists, required for text; could refill before callob too
-c          call dumpout (dlist(objfrloc(idobj(i))), objfrsiz(idobj(i)))
       else
         CALL COORMUL(I,IDOBJ(I))
         CALL DUMPBUFF
