@@ -4,7 +4,7 @@ deblank Light2
 deblank Light3
 ROTATE      Light1     X,-60
 ROTATE      Light1     Y, 90
-INTENSITY   Light1     D, 0.75   !diffuse  intensity
+INTENSITY   Light1     D, 0.5   !diffuse  intensity
 INTENSITY   Light1     A, 0.2  !ambient  intensity
 COLOR       Light1     H,0 S,0 V,1   !white
 !

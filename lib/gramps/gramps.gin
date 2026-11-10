@@ -15,7 +15,8 @@ FREEZE RWorld
 !
 !COLOR LWorld H 3000
 ! Brighten things up a bit
-INTEN LWorld A 0.3 D 0.6
+!INTEN LWorld A 0.3 D 0.6
+INTEN LW A 0 P 0.4 D 0.1 Y 0.75
 !
 !SET NOOVERLAP
 SET DISPLAY
