@@ -17,18 +17,17 @@ public:
 };
 #define NotR 1.5
 
+// Hue (0-360), Saturation (0-1), Value (0-1)
 #define GREEN  {0,1,1}
-#define BLUE   {120./360,1,1}
-#define RED    {240./360,1,1}
-#define YELLOW {300./360,1,1}
-#define CYAN   {60./360,1,1}
-#define PURPLE {180./360,1,1}
-#define ORANGE {270./360,1,1}
-#define WHITE  {0,0,1}
-#define GREY   {0,0,0.7}
-#define PINK   {210./360,0.7,1}
-#define BROWN   {260./360,1.0,0.9}
-#define NOCOLOR {0,0.25,1} // light green
+#define BLUE   {120.,1,1}
+#define RED    {240.,1,1}
+#define YELLOW {300.,1,1}
+#define CYAN   {60.,1,1}
+#define PURPLE {180.,1,1}
+#define ORANGE {270.,1,1}
+#define WHITE  {0.,0,1}
+#define GREY   {0.,0,0.7}
+#define PINK   {210.,0.7,1}
+#define BROWN   {260.,1.0,0.9}
+#define NOCOLOR {0.,0.25,1} // light green
 #define NotC   NOCOLOR
-
-

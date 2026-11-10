@@ -9,6 +9,8 @@ const float Atom::color[119][3] = {NotC,
                        NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,
                        NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC
                       };
+
+// from http://periodictable.com/
 const float Atom::radius[119] = {NotR,
                      1.20,1.40,
                      1.82,NotR,NotR,1.70,1.55,1.52,1.47,1.54,

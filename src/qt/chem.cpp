@@ -23,7 +23,7 @@
 #include <ios>
 #include <ctime>
 
-//#define PIXTMP YES
+//#define PIXTMP
 
 extern QString gmolLib;
 
@@ -2009,7 +2009,11 @@ int ChemWidget::lines(int imol, const QString molnam, unsigned int resnum, char 
 void ChemWidget::setAtomColor(int atnum) {
   // insert a color "command" into the gramps object for this atomic number
   float color[6] = {0,4,0,0.,0.,1.};
+#ifdef PIXTMP
   color[3] = Atom::color[atnum][0];
+#else
+  color[3] = Atom::color[atnum][0] / 360.;
+#endif
   color[4] = Atom::color[atnum][1];
   color[5] = Atom::color[atnum][2];
   getMemMore("", color, 6, 0);
@@ -2019,13 +2023,26 @@ void ChemWidget::setChargeColor(float charge) {
   // insert a color "command" into the gramps object for this atomic number
   float color[6] = {0,4,0,0.,0.,1.};
   QColor colr = COLOR_CARBON;
-  float hue=colr.hue(), sat=colr.saturation(), val=colr.value();
+#ifdef PIXTMP
+  float hue=colr.hue();
+#else
+  float hue=colr.hue() / 360.;
+#endif
+  float sat=colr.saturation(), val=colr.value();
   if (charge < 0) {
+#ifdef PIXTMP
       hue = Atom::color[8][0]; //red
+#else
+      hue = Atom::color[8][0] / 360.; //red
+#endif
       sat = 4 * -charge;
       val = 1;
   } else {
-       hue = Atom::color[7][0]; //blue
+#ifdef PIXTMP
+      hue = Atom::color[7][0]; //blue
+#else
+       hue = Atom::color[7][0] / 360.; //blue
+#endif
        sat = 4 * charge;
        val = 1;
   }
