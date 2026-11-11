@@ -427,7 +427,7 @@ void lmbind_(int *ilit, int *flag) {
 
 void g0material_ (float *red, float *green, float *blue, float *alpha,
  float *ambient, float *diffuse, float *specular, float *emissive,
- float *shiny, int *backface, float bfcolor[])  {
+ float *shiny, int *backface, float bfcolor[3])  {
 
  GLfloat tmp[4];
  tmp[3] = 1.0 - *alpha;
