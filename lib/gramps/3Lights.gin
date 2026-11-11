@@ -10,7 +10,7 @@ COLOR       Light1     H,0 S,0 V,1   !white
 !
 ROTATE      Light2     X, -45
 ROTATE      Light2     Y, -45
-INTENSITY   Light2     D, 0.6  !diffuse  intensity
+INTENSITY   Light2     D, 0.5  !diffuse  intensity
 INTENSITY   Light2     A, 0    !ambient  intensity
 COLOR       Light2     H,0 S,0 V,1   !white
 !
