@@ -794,7 +794,7 @@ void bgnclo_() {
  glBegin(GL_LINE_LOOP); /* closed, continuous line */ 
 }
 void bgnlin_() {
- //glDisable(GL_LIGHTING);
+ glDisable(GL_LIGHTING);
  glBegin(GL_LINE_STRIP); /* continuous line */
 }
 void bgnseg_() {
@@ -838,7 +838,7 @@ void endtri_() {
 }
 void endlin_() {
  glEnd();
- //glEnable(GL_LIGHTING);
+ glEnable(GL_LIGHTING);
 }
 void endpoi_() {
  glEnd();
