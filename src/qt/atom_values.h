@@ -2,7 +2,7 @@
 #define ATOM_VALUES
 const float Atom::color[119][3] = {NotC,
                        WHITE,NotC,
-                       NotC,NotC,NotC,GREY,BLUE,RED,CYAN,NotC,
+                       NotC,NotC,NotC,CARBON,BLUE,RED,CYAN,NotC,
                        NotC,NotC,NotC,NotC,ORANGE,YELLOW,GREEN,NotC,
                        NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,BROWN,NotC,
                        NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,NotC,PURPLE,NotC,

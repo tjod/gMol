@@ -1990,7 +1990,7 @@ int ChemWidget::lines(int imol, const QString molnam, unsigned int resnum, char 
         //spheres(imol, "", resnum, chain, colored, 0, brad, hrad);
         if (balls == COLOR_BY_ATOMS) {
             // uncolored H atoms
-            //setAtomColor(1); // color them white anyway
+            setAtomColor(1); // color them white anyway
             spheres(imol, NOATOM, "", resnum, chain, COLOR_BY_HATOM,  2, filter, hydrogens, brad, hrad);
             // colored hetero atoms
             spheres(imol, NOATOM, "", resnum, chain, COLOR_BY_HETERO, 2, filter, hydrogens, brad, hrad);

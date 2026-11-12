@@ -27,6 +27,7 @@ public:
 #define ORANGE {270.,1,1}
 #define WHITE  {0.,0,1}
 #define GREY   {0.,0,0.7}
+#define CARBON {0.,0,0.5}
 #define PINK   {210.,0.7,1}
 #define BROWN   {260.,1.0,0.9}
 #define NOCOLOR {0.,0.25,1} // light green
