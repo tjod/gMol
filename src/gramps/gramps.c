@@ -685,6 +685,6 @@ int main (int argc, char **argv) {
    glDepthFunc(GL_LESS);
    choose_cursor(NORMAL_CURSOR);
    setup_getcmd(setup_flag);
-//   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
    glutMainLoop();
 }
