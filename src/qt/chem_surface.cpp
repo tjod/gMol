@@ -39,7 +39,11 @@ int ChemWidget::drawSurface(int itemid) {
       buff[3] = vtx.nx; buff[4] = vtx.ny; buff[5] = vtx.nz;
       if (treeRow.colorBy == COLOR_BY_ATOMS) {
         if (vtx.atnum < 1) qDebug() << tr("unknown atom at vertex") << nvtx+1;
-        buff[6] = Atom::color[vtx.atnum][0]; buff[7] = Atom::color[vtx.atnum][1]; buff[8] = Atom::color[vtx.atnum][2];
+        // lessen intensity of colors.
+        // colors within gramps objects are not afffected by color or intensity commands or Lights
+        buff[6] = Atom::color[vtx.atnum][0]; // hue unaffected
+        buff[7] = Atom::color[vtx.atnum][1]; // saturation unaffectes
+        buff[8] = Atom::color[vtx.atnum][2] * 0.75; // value dimmer
       } else if (treeRow.colorBy == COLOR_BY_CHARGE) {
         if (vtx.vprop < 0) {
           hue = Atom::color[8][0]; // red
