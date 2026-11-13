@@ -327,7 +327,9 @@ void g0texcoord1f_(float *c) {
 //}
 
 void g0colormaterial_(int *flag) {
+// called when an object is read in (pix file) and contains colors
   if (*flag == 1) {
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glEnable(GL_COLOR_MATERIAL);
   } else {
     glDisable(GL_COLOR_MATERIAL);

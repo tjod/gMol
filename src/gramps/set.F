@@ -711,7 +711,7 @@ C
       RETURN
 C
  305  CONTINUE
-C backface set color or scales
+C backface set color or intensities
       If(MATCH(SWITCHES,'COLOR'))Then
 C parse HSV to set constant RGB backface color
         BACKFACE=1
@@ -809,6 +809,7 @@ C
       DCHANGE=.TRUE.
       RETURN
 C
+C Set backrgb
  370  CONTINUE
       CALL GETSTR(ARG,POINT,RTMP)
       RVAL=A2F(RTMP,ERROR)
@@ -823,9 +824,10 @@ C
       DCHANGE=.TRUE.
       RETURN
 C
+C Set backhsv
  380  CONTINUE
       CALL GETSTR(ARG,POINT,RTMP)
-      HUE=A2F(RTMP,ERROR)/UNITS(UCHUE)*360
+      HUE=A2F(RTMP,ERROR)/UNITS(UCHUE)
       IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
       CALL GETSTR(ARG,POINT,RTMP)
       SAT=A2F(RTMP,ERROR)/UNITS(UCSAT)

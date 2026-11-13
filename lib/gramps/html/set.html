@@ -38,8 +38,15 @@ are shown in the color specified by three arguments (after the backface keyword)
 These arguments are the hue, saturation and value. For example, set backface 120,0.5,0.5
 shows the backfacing surfaces as a reddish grey. Removing back-facing polygons
 can speed the display of objects. If your surface is totally enclosed, as is a
-sphere, back-facing polygons will always be invisible anyway, so it behooves you
-to use set backface in those cases.
+sphere, back-facing polygons will always be invisible anyway, so there is
+advantage in using set backface in those cases.
+<P>Examples
+<ul>
+<li>set nobackface ! all backfaces are not shown
+<li>set backface ! all backfaces are same color but dimmer using the default 0, 0.5, 0
+<li>set backface 0, 0.25, 0 ! dimmer than the default 0, 0.5, 0
+<li>set/color backface 120, 0.5, 0.5  !  all backfaces become dim blue-grey
+</ul>
 <P>
 <H4>Background</H4>
  The  <SPAN CLASS=command>set</SPAN> BACKGROUND <A HREF=function.html><i>value</i></A>  command is  used to set the background color on
