@@ -283,10 +283,6 @@ C Coords
       BUFF(2)= ALIST(2)/W
       BUFF(3)= ALIST(3)/W
 C Colors
-!      IHUE=MOD(INT(120+ALIST(4)),360)
-!      ISAT=MOD(INT(100*ALIST(5)),101)
-!      IVAL=MOD(INT(100*ALIST(6)),101)
-!      CALL HSVRGB(IHUE, ISAT, IVAL, BUFF(4), BUFF(5), BUFF(6) )
       BUFF(4)= ALIST(4) / 360.
       BUFF(5)= ALIST(5)
       BUFF(6)= ALIST(6)
@@ -300,10 +296,6 @@ C Coords
 C Normals
       CALL G0NMLZ( ALIST(4), BUFF(4), NORML )
 C Colors
-C      IHUE=MOD(INT(120+ALIST(7)),360)
-C      ISAT=MOD(INT(100*ALIST(8)),101)
-C      IVAL=MOD(INT(100*ALIST(9)),101)
-C      CALL HSVRGB(IHUE, ISAT, IVAL, BUFF(7), BUFF(8), BUFF(9))
       BUFF(7)= ALIST(7) / 360.
       BUFF(8)= ALIST(8)
       BUFF(9)= ALIST(9)
@@ -518,7 +510,6 @@ C
             Call G0SETHSV(BUFF(7,j),BUFF(8,j),BUFF(9,j))
             CALL HSVRGB(buff(7,j), buff(8,j), buff(9,j),
      &                  rtmp(1),   rtmp(2),   rtmp(3))
-c           Call G0COLOR(0)
             call c3f(rtmp)
           End If
        Else
@@ -531,8 +522,6 @@ c           Call G0COLOR(0)
          End If
        End If
        call v3f( BUFF(1,j) )
-c      If(j.eq.1) Call g0cexCoord1f(0.0);
-c      If(j.eq.n) Call g0texCoord1f(1.0);
        If(RSTYLE.eq.4)Then
          Do k=1,3
            If (NORML.NE.0) Then
@@ -584,7 +573,7 @@ C
 C
       IF(N.GT.G0PMAX)CALL TELLUSER(TOOBIG,*999)
       VCOLR=COLRV
-C      If (VCOLR) Call g0colormaterial(1)
+      If (VCOLR) Call g0colormaterial(1)
 C
 C Fill buffers with processed data, location/normal/color
 C
@@ -2070,10 +2059,6 @@ C HITTING = 1 means hit active, -1 means hit processing now
 C        If (HITTING.EQ.-1) Then
 C        Else
           IF(G0RGB)THEN
-C           write(*,*) hue, sat, val
-!           IHUE=MOD(INT(120+360*HUE), 360)
-!           ISAT=MOD(INT(100*SAT), 101)
-!           IVAL=MOD(INT(100*VALU),101)
            CALL HSVRGB(HUE, SAT, VALU, R, G, B)
 C           write(*,*) ihue, isat, ival, r, g, b
            emissive = -1.0
@@ -2253,6 +2238,9 @@ C
 #include "ERRORS.FOR"
 C
 C   SET THE BACK-FACING Polygon COLOR
+C    or ambient, diffuse, specular fractions
+C   SET/COLOR BACKFACE (colors) or SET BACKFACE (intensities)
+
       G0BFRGB(1)=R
       G0BFRGB(2)=G
       G0BFRGB(3)=B
@@ -2804,9 +2792,6 @@ c kludge for rayshade,pov ambient light, initial call
       End If
 c
       call huesat(LOBJ, hue, sat, valu)
-!      IHUE=MOD(INT(120+360*HUE), 360)
-!      ISAT=MOD(INT(100*SAT), 101)
-!      IVAL=MOD(INT(100*VALU),101)
       CALL HSVRGB(HUE, SAT, VALU, R, G, B)
       If(OUTTING.EQ.OUTWINDOW)Then
         call pushma

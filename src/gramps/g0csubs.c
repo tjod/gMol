@@ -312,31 +312,36 @@ void g0texcoord1f_(float *c) {
     return glTexCoord1f(*c);
 }
 
+//void g0colormaterial_(int *flag) {
+//static int state=-1;
+// printf("g0colormaterial flag %d; state %d\n", *flag, state);
+// if (*flag == state) return;
+// if (*flag == 1) {
+//  glEnable(GL_COLOR_MATERIAL);
+//  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+//  state = 1;
+// } else {
+//  glDisable(GL_COLOR_MATERIAL);
+//  state = 0;
+// }
+//}
+
 void g0colormaterial_(int *flag) {
-static int state=-1;
-    return;
- printf("g0colormaterial flag %d; state %d\n", *flag, state);
- if (*flag == state) return;
- if (*flag == 1) {
-  glEnable(GL_COLOR_MATERIAL);
-  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-  state = 1;
- } else {
-  glDisable(GL_COLOR_MATERIAL);
-  state = 0;
- }
-
+  if (*flag == 1) {
+    glEnable(GL_COLOR_MATERIAL);
+  } else {
+    glDisable(GL_COLOR_MATERIAL);
+  }
 }
-
 void g0light_init_ () {
 
  /* setup lighting, etc */
 
  int zero=0;
  glEnable(GL_LIGHTING);
- glEnable(GL_COLOR_MATERIAL);
- glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
- g0colormaterial_(&zero);
+ //glEnable(GL_COLOR_MATERIAL);
+ //glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+ //g0colormaterial_(&zero);
 }
 
 void g0initfog_() {
@@ -437,14 +442,18 @@ void g0material_ (float *red, float *green, float *blue, float *alpha,
 
   //printf ("g0material %f %f %f %f %d\n", *red, *green, *blue, *alpha, *backface);
  if (*backface == 1) {
+  // bfcolor (g0bfrgb) stores rgb color
   aface = GL_BACK;
   ared = bfcolor[0];
   agreen = bfcolor[1];
   ablue = bfcolor[2];
-  aambi = *ambient;
-  adiff = *diffuse;
-  aspec = *specular;
+  // judgement call that colored backface should not be specular
+  aambi = 0.5; // *ambient;
+  adiff = 0.5; // *diffuse;
+  aspec = 0.0; // *specular;
  } else if (*backface == -1) {
+// bfcolor (g0bfrgb) stores ambient, diffuse, specular intensities, not rgb color
+// can make backface specular, but with same color as frontface
   aface = GL_BACK;
   ared = *red;
   agreen = *green;
@@ -460,13 +469,13 @@ void g0material_ (float *red, float *green, float *blue, float *alpha,
   aambi = *ambient;
   adiff = *diffuse;
   aspec = *specular;
- /* kludge for lines */
-  tmp[0] = ared  *(aambi+adiff+aspec)*0.75;
-  tmp[1] = agreen*(aambi+adiff+aspec)*0.75;
-  tmp[2] = ablue *(aambi+adiff+aspec)*0.75;
-  glColor4fv(tmp);
-/* end of kludge for lines */
  }
+
+ // should affect backfaces ,too, but no :(
+ tmp[0] = ared;
+ tmp[1] = agreen;
+ tmp[2] = ablue;
+ glColor4fv(tmp);
 
  if (aambi >= 0) {
   tmp[0] = ared*aambi;

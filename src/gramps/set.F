@@ -716,18 +716,19 @@ C backface set color or scales
 C parse HSV to set constant RGB backface color
         BACKFACE=1
       Else
-C diffuse, specular scale factors
+C ambient, diffuse, specular scale factors
         BACKFACE=-1
       End If
       If (POINT.EQ.0) Then
 C default is quarter ambient, full diffuse, no specular
-        RVAL = 0.25
-        GVAL = 1.0
+C reuse RVAL,GVAL,BVAL (rgb) variables to store these values
+        RVAL = 0
+        GVAL = 0.5
         BVAL = 0.0
       Else
         CALL GETSTR(ARG,POINT,RTMP)
         If (BACKFACE .EQ. 1)Then
-          HUE=A2F(RTMP,ERROR)/UNITS(UCHUE)*360
+          HUE=A2F(RTMP,ERROR)/UNITS(UCHUE)
         Else
           RVAL=A2F(RTMP,ERROR)
         End If
@@ -750,9 +751,6 @@ C default is quarter ambient, full diffuse, no specular
         IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
 
         If (BACKFACE .EQ. 1)Then
-!          IHUE= MOD(INT(120+HUE),  360)
-!          ISAT= MOD(INT(100*SAT),  101)
-!          IVALU=MOD(INT(100*VALU), 101)
           CALL HSVRGB(HUE, SAT, VALU, RVAL, GVAL, BVAL)
         End If
       End If
@@ -835,9 +833,6 @@ C
       CALL GETSTR(ARG,POINT,RTMP)
       VALU=A2F(RTMP,ERROR)/UNITS(UCVAL)
       IF(ERROR.NE.0)CALL TELLUSER(ERROR,*999)
-!      IHUE= MOD(INT(120+HUE),  360)
-!      ISAT= MOD(INT(100*SAT),  101)
-!      IVALU=MOD(INT(100*VALU), 101)
       CALL HSVRGB(HUE, SAT, VALU, RVAL, GVAL, BVAL)
       CALL G0DBKCOL(RVAL,GVAL,BVAL)
       DCHANGE=.TRUE.
