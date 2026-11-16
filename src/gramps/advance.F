@@ -77,6 +77,11 @@ C
 C
 C   A NUMBER OF ZERO OR LESS IS IGNORED
       IF(NADV.LE.0)RETURN
+      If (.NOT. CONT) Then
+C  nothing to advance
+        NADVANCE = 0
+        Return
+      End If
 C
 C global for contupd
       NADVANCE = NADV
