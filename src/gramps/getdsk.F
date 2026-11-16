@@ -148,11 +148,11 @@ C
         XBASE=0.
         YBASE=0.
         ZBASE=0.
-      If     (TUNITS(AGF).EQ.NEWUNITS)Then
+        If     (TUNITS(AGF).EQ.NEWUNITS)Then
            WBASE=1.
-      Else If(TUNITS(AGF).EQ.OLDUNITS)Then
+        Else If(TUNITS(AGF).EQ.OLDUNITS)Then
           WBASE=32767.
-      End If
+        End If
       Else IF(LDM2.LT.0)THEN
         IF(QIX)THEN
           READ(PFILE,ERR=26,END=26)XBASE,YBASE,ZBASE,WBASE
