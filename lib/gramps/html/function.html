@@ -1,5 +1,5 @@
 <HEAD><LINK REL=STYLESHEET TYPE="text/css" HREF="styles.css"></HEAD><H2>Function</H2>
-<script src="iscript.js" defer></script> 
+<script src="iscript.js" defer></script>
  This section describes the <A HREF=function.html><i>device</i></A>, <A HREF=function.html><i>value</i></A>, and <A HREF=function.html><i>function</i></A> specifications
  in detail.
 <H4>Device</H4>
@@ -131,3 +131,7 @@ MOUSE:   X1, X2, X3, Y1, Y2, Y3
  step size varies sinusoidally so that it is initially small, then gets
  larger and finally becomes small again. The result is a somewhat
  smoother interpolation.
+ <p>Normally, these steps begin happening immediately.  You can also <a href="pause.html">pause</a>
+   and <a href="advance.html">advance</a> in order to coordinate these stepped transformations with others
+   you may have set up.  These delay function steps, along with pause and advance, form the core of the timing aspect of
+   gramps' animation capabilities.

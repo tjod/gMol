@@ -333,8 +333,15 @@ advantage in using set backface in those cases.
 <a href="https://en.wikipedia.org/wiki/TrueType"> TrueType</a> font file (.ttf or .ttc).
  All subsequent <A HREF=text.html><SPAN CLASS=command>text</SPAN></A> commands will output characters to the screen
  using the text font specified here.  On MacOS, /System/Library/Fonts contains many of these fonts.
- You can also get hundreds of these from <a href="fonts.google.com">Google Fonts</a>.  Some fonts, for example Papyrus or others with 
- a "raggedy" appearance can cause problems (crash!) when using <a href="text.html">text/3D</a>.
+ You can also get hundreds of these from <a href="fonts.google.com">Google Fonts</a>.
+ <p>Notes on 3D text:
+   <br>
+ Most fonts work brilliantly when using the <a href="text.html">text/3D</a> command.
+ However, some fonts, for example Papyrus or others with
+ a "raggedy" appearance can cause problems (read: crash!) when using <a href="text.html">text/3D</a>.  Some fonts produce backward normals
+ on some letters in some fonts when using 3D.  In this case, the lighting/shading will appear incorrectly, perhaps on one or two letters.
+ These 3D problems stem from the fact that fonts, in general, were not designed with 3D in mind.
+</p>
 <H4>Verify</H4>
 <P CLASS=indent><SPAN CLASS=command>set</SPAN> VERIFY
 <BR 3>
