@@ -796,7 +796,7 @@ void v3f_(float *v) {
 }
 
 void bgnpoi_() {
- //glDisable(GL_LIGHTING);
+ glDisable(GL_LIGHTING);
  glBegin(GL_POINTS);
 }
 
@@ -853,7 +853,7 @@ void endlin_() {
 }
 void endpoi_() {
  glEnd();
- //glEnable(GL_LIGHTING);
+ glEnable(GL_LIGHTING);
 }
 void endany_() {
  glEnd();
