@@ -123,13 +123,12 @@
   <tr>
     <td>N,8,3</td>
     <td><a href="#meshc">mesh connectivity</a></td>
-    <td>nx, ny, [0,1] for cc automesh</td>
+    <td>nx, ny, [0,1] for cc automesh<sup>*</sup></td>
   </tr>
   <tr>
     <td>N,8,-3</td>
     <td><a href="#meshc">mesh connectivity</a></td>
-    <td>nx, ny, [0,1] for cw automesh</td>
-  </tr>
+    <td>nx, ny, [0,1] for cw automesh<sup>*</sup>
   <tr>
     <td>N,9,1</td>
     <td><a href="#ccpoly">cc polygon</a></td>
@@ -176,6 +175,11 @@
     <td>X, Y, Z, H, S, V</td>
   </tr>
 </table>
+<sup>*</sup>For automesh, the mesh vertices are in nx strips each ny long.
+<br>
+nx,ny,1 means connect last strip to first, for example to enclose a surface.
+<br>
+nx,ny,0 connects only each strip.
 <p>If N=0, the following table shows what the values of L1 and L2 mean. Parameter
   type isspecified by values of L1 and parameter value by L2.</p>
 <table width="522" border="1" cellpadding="4">
