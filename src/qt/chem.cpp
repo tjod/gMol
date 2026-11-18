@@ -769,8 +769,8 @@ void ChemWidget::colorMolTransparent(bool makeTransparent) {
     int alpha;
     float transp;
     if (makeTransparent) {
-        alpha = 128;
-        transp = 0.5;
+        alpha = 100;
+        transp = 0.4;
     } else {
         alpha = 255;
         transp = 0.0;
