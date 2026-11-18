@@ -92,8 +92,9 @@ int trpat_(float *alpha) {
         return nbits;
     }
 
+    float transparency = 1.0 - *alpha;
     GLubyte mask[VAC_STIPPLE_BYTES];
-    vac_build_stipple_mask(*alpha, mask);
+    vac_build_stipple_mask(transparency, mask);
     glEnable(GL_POLYGON_STIPPLE);
     glPolygonStipple(mask);
     return nbits;
