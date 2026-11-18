@@ -16,6 +16,7 @@ set(SOURCE_FILES
     #headers
         gramps.h
         patterns.h
+        vac_stipple.h
     #main
         gramps.c
     #others .F and some .c

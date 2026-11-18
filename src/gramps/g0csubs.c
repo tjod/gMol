@@ -7,6 +7,7 @@ C It is unlawful to modify or remove this copyright notice.
 C See the accompanying LICENSE file for further information. 
 C *************************************************************
 */
+
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -20,6 +21,7 @@ C *************************************************************
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "gramps.h"
 #include <FTGL/ftgl.h>
@@ -29,7 +31,77 @@ FTGLfont *font2D = NULL;
 
 /* G0 routines that used to be in g0subs.f */
 
-#define MAXTPAT 9 
+
+//#define BAYER_TRANSPARENCY
+#define VOID_AND_CLUSTER
+#if defined BAYER_TRANSPARENCY
+
+static const uint8_t BAYER_8X8[8][8] = {
+    {  0, 32,  8, 40,  2, 34, 10, 42 },
+    { 48, 16, 56, 24, 50, 18, 58, 26 },
+    { 12, 44,  4, 36, 14, 46,  6, 38 },
+    { 60, 28, 52, 20, 62, 30, 54, 22 },
+    {  3, 35, 11, 43,  1, 33,  9, 41 },
+    { 51, 19, 59, 27, 49, 17, 57, 25 },
+    { 15, 47,  7, 39, 13, 45,  5, 37 },
+    { 63, 31, 55, 23, 61, 29, 53, 21 }
+};
+
+int trpat_(float *alpha) {
+    // Map alpha [0.0, 1.0] to 65 discrete states (0 to 64 active pixels per 8x8 tile)
+
+    int level = round(*alpha * 64.0f);
+    if (level < 1) {
+        glDisable(GL_POLYGON_STIPPLE);
+        return 0;
+    }
+
+    uint8_t mask1024[128];
+    int nbits = 1024 * (*alpha);
+
+    for (int y = 0; y < 8; ++y) {
+        // Build one 8-bit row from the Bayer matrix (MSB first)
+        uint8_t rowByte = 0;
+        for (int x = 0; x < 8; ++x) {
+            if (BAYER_8X8[y][x] < level) {
+                rowByte |= (1 << (7 - x));
+            }
+        }
+
+        // Tile 4 times horizontally (4 bytes = 32 bits) and 4 times vertically (32 rows)
+        for (int tileY = 0; tileY < 4; ++tileY) {
+            int rowOffset = (tileY * 8 + y) * 4;
+            mask1024[rowOffset + 0] = rowByte;
+            mask1024[rowOffset + 1] = rowByte;
+            mask1024[rowOffset + 2] = rowByte;
+            mask1024[rowOffset + 3] = rowByte;
+        }
+    }
+
+    glEnable(GL_POLYGON_STIPPLE);
+    glPolygonStipple(mask1024);
+    return nbits;
+}
+#elif defined VOID_AND_CLUSTER
+#include "vac_stipple.h"
+int trpat_(float *alpha) {
+    int nbits = 0;
+
+    if (*alpha <= 0.0f) {
+        glDisable(GL_POLYGON_STIPPLE);
+        return nbits;
+    }
+
+    GLubyte mask[VAC_STIPPLE_BYTES];
+    vac_build_stipple_mask(*alpha, mask);
+    glEnable(GL_POLYGON_STIPPLE);
+    glPolygonStipple(mask);
+    return nbits;
+}
+
+#else
+
+#define MAXTPAT 10
 int trpat_(float *transparency) {
 int i;
 int pattern;
@@ -45,7 +117,7 @@ static GLubyte mask[128]; /* 4 8-bit-bytes is 32 bits and 32*4 = 128 */
 /* 1024 bits in 32 by 32 mask */
  if (*transparency <= 0.0) {
  }
- pattern = *transparency*MAXTPAT + 0.99;
+ pattern = *transparency * (MAXTPAT + 0.5);
  if (pattern < 0) pattern = 0;
  if (pattern > MAXTPAT) pattern = MAXTPAT;
  switch (pattern) {
@@ -164,6 +236,7 @@ static GLubyte mask[128]; /* 4 8-bit-bytes is 32 bits and 32*4 = 128 */
  return nbits;
 
 }
+#endif
 
 void rayshow_(name, options, namelen, optlen)
 char *name;
