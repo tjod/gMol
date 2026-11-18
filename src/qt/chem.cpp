@@ -781,7 +781,7 @@ void ChemWidget::colorMolTransparent(bool makeTransparent) {
     //qDebug() << currentRow.rowname << currentRow.color;
     QString cmd;
     QTextStream(&cmd) << "inten " << currentRow.grampsName << " t," << transp;
-    cmdReady(cmd);
+    emit cmdReady(cmd);
     currentRow.updateColor(currentRow.itemId, color);
     //currentRow.getRow(currentRow.itemId);
 }
