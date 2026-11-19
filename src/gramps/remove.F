@@ -60,8 +60,9 @@ C       IF ITS NOT A GROUP, SHIFT UP THE TREE AND
 C       PUT THE OBJECTS ID AT THE END
 C
       IF(TYPOBJ(ID).NE.GROUP)THEN
-        DO 20 I=ASTART,TREEEND
-  20    TREE(I)=TREE(I+1)
+        DO I=ASTART,TREEEND
+          TREE(I)=TREE(I+1)
+        End Do
         TREE(TREEEND)=ID
         TCHANGE=.TRUE.
         RETURN
@@ -75,14 +76,15 @@ C
       SHIFT=TREEEND-AEND
       IF(SHIFT.EQ.0)RETURN
 C
-      DO 50 I=1,SHIFT
+      DO I=1,SHIFT
       TMP=TREE(AEND+I)
 C
-        DO 40 J=AEND+I,ASTART+I,-1
- 40     TREE(J)=TREE(J-1)
+        DO J=AEND+I,ASTART+I,-1
+          TREE(J)=TREE(J-1)
+        End DO
 C
       TREE(ASTART+I-1)=TMP
- 50   CONTINUE
+      End Do
 C
 C       LET DISPLAY KNOW A CHANGE HAS BEEN MADE
 C

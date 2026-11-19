@@ -166,6 +166,9 @@ bool getArgs(int argc, char **argv, QString *dbname, int *itemid, float *fTarget
             
         } else if (option == "-g") {
             *gradients = true;
+
+        } else if (option == "-a") {
+            *hetatm = true;
             
         } else if ((option == "-p") && (argc > (i+1))) {
             *padding = atof(argv[++i]);

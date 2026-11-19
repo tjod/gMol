@@ -47,7 +47,7 @@ int iopeek(int msec)
 
 void cdone_(){return;}
 
-cinit(file)
+int cinit(file)
 
 int *file;
 {

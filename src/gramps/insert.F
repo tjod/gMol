@@ -12,9 +12,9 @@ C
 #include "UDLIST.FOR"
 #include "ERRORS.FOR"
       INTEGER ASIZE,BSIZE
-	INTEGER VPOINT, AID, ASTART, AEND, ADEPTH, ALEVEL
-	INTEGER BID, BSTART, BEND, BDEPTH, BLEVEL
-	INTEGER I, J, SHIFT, TMP
+      INTEGER VPOINT, AID, ASTART, AEND, ADEPTH, ALEVEL
+      INTEGER BID, BSTART, BEND, BDEPTH, BLEVEL
+      INTEGER I, J, SHIFT, TMP
 C
       CHARACTER ARG*(*)
       CHARACTER SWITCHES*(*)
@@ -80,8 +80,9 @@ C
           MENUTREE(MENUEND)=AID
           KINDOBJ(AID)=IOR(KINDOBJ(AID),MENUBYTE)
           TREEEND=TREEEND-1
-          DO 8 I=ASTART,TREEEND
- 8        TREE(I)=TREE(I+1)
+          DO I=ASTART,TREEEND
+            TREE(I)=TREE(I+1)
+          End Do
           IF(POINT.EQ.0)THEN
             MCHANGE=.TRUE.
             TCHANGE=.TRUE.
@@ -99,14 +100,16 @@ C       PUT THE OBJECT NUMBER INTO THE HOLE.
 C
       IF(TYPOBJ(AID).NE.GROUP)THEN
         IF(ASTART.LT.BSTART)THEN
-          DO 10 I=ASTART,BSTART-1
- 10       TREE(I)=TREE(I+1)
+          DO I=ASTART,BSTART-1
+            TREE(I)=TREE(I+1)
+          End DO
           TREE(BSTART)=AID
           TCHANGE=.TRUE.
           RETURN
         ELSE
-          DO 20 I=ASTART,BSTART+1,-1
- 20       TREE(I)=TREE(I-1)
+          DO I=ASTART,BSTART+1,-1
+            TREE(I)=TREE(I-1)
+          End Do
           TREE(BSTART+1)=AID
           TCHANGE=.TRUE.
           RETURN
@@ -133,28 +136,30 @@ C       AID = BID, BUT THIS WAS CHECKED FOR ABOVE.
 C
         SHIFT=BSTART-AEND
         IF(SHIFT.GT.0)THEN
-          DO 50 I=1,SHIFT
-          TMP=TREE(AEND+I)
+          DO I=1,SHIFT
+            TMP=TREE(AEND+I)
 C
-          DO 40 J=AEND+I,ASTART+I,-1
- 40       TREE(J)=TREE(J-1)
+            DO J=AEND+I,ASTART+I,-1
+              TREE(J)=TREE(J-1)
+            End DO
 C
-          TREE(ASTART+I-1)=TMP
- 50       CONTINUE
+            TREE(ASTART+I-1)=TMP
+          End Do
           TCHANGE=.TRUE.
           RETURN
 C
         ELSE
           SHIFT=ASTART-BSTART-1
 C
-          DO 70 I=1,SHIFT
-          TMP=TREE(ASTART-I)
+          DO I=1,SHIFT
+            TMP=TREE(ASTART-I)
 C
-          DO 60 J=ASTART-I+1,AEND-I+1
- 60       TREE(J-1)=TREE(J)
+            DO J=ASTART-I+1,AEND-I+1
+              TREE(J-1)=TREE(J)
+            End DO
 C
-          TREE(AEND-I+1)=TMP
- 70       CONTINUE
+            TREE(AEND-I+1)=TMP
+          End Do
           TCHANGE=.TRUE.
           RETURN
         END IF

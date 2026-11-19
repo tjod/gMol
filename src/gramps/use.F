@@ -78,11 +78,12 @@ c	c3(4)=     ucoord(i,ABS(coord3))
 C
 C       THEN WRITE THE CHOSEN MATRICES INTO THE UDL
 C
-      DO 10 I=1,4
-      DO 10 J=1,4
-      ARBMAT(I,J,ID)=AMAT(I,J)
-      IARBMAT(I,J,ID)=IAMAT(I,J)
- 10   CONTINUE
+      DO  I=1,4
+        DO  J=1,4
+          ARBMAT(I,J,ID)=AMAT(I,J)
+          IARBMAT(I,J,ID)=IAMAT(I,J)
+        End Do
+      End Do
 C
 C       LET DISPLAY KNOW THAT A CHANGE HAS OCCURRED
 C

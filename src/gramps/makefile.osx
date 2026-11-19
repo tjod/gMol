@@ -14,7 +14,7 @@ CFLAGS =   -D__APPLE__ -DGL_SILENCE_DEPRECATION -I/usr/local/opt/ftgl/include -I
 
 #LIBDIR = -L/home/tjo/Mesa-4.0.4/lib -L/usr/X11R6/lib/
 #LIBDIR = -L/usr/X11R6/lib/
-LIBS = $(LIBDIR) -lreadline #-static -libgfortran libgcc_static.a
+LIBS = $(LIBDIR) -lreadline -L/usr/local/opt/ftgl/lib -lftgl #-static -libgfortran libgcc_static.a
 
 #FRAMEWORKS = -framework GLUT -framework OpenGL -framework Cocoa
 FRAMEWORKS = -framework OpenGL -framework GLUT

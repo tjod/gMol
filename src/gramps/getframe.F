@@ -17,8 +17,8 @@ C
 #include "FILES.FOR"
 #include "DEFVAL.FOR"
       INTEGER UDBEGIN
-	INTEGER VPOINT, BASESIZE, CELLMAX, FRNUM, NREAD, I
-	Integer SAVEAGF
+      INTEGER VPOINT, BASESIZE, CELLMAX, FRNUM, NREAD, I
+      Integer SAVEAGF
       CHARACTER OBJNAME*(NAMMAX)
       LOGICAL PRESENT
 C
@@ -178,7 +178,14 @@ C
       I= GETINIT()
       NREAD=GETMORE()
       IF( (ERROR.NE.0).OR.(MPSERR.NE.0) )GOTO 30
-      IF(NREAD)20,30,40
+c      IF(NREAD)20,30,40
+      If (NREAD .LT. 0) Then
+        Goto 20
+      Else If (NREAD .EQ. 0) Then
+        Goto 30
+      Else
+        Goto 40
+      End If
 C
 C       CLOSE THIS FRAME_CELL.
 C       FIND OUT THE SIZE OF JUST THIS FRAME_CELL AND UPDATE

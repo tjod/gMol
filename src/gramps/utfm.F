@@ -261,14 +261,15 @@ C
       REAL MATRIX(4,4)
       Integer i,j
 C
-      DO 10 I=1,4
-      DO 10 J=1,4
-      IF(I.EQ.J)THEN
-        MATRIX(I,I)=1.
-      ELSE
-        MATRIX(I,J)=0.
-      END IF
- 10   CONTINUE
+      DO I=1,4
+        DO J=1,4
+          IF(I.EQ.J)THEN
+            MATRIX(I,I)=1.
+          ELSE
+            MATRIX(I,J)=0.
+          END IF
+        End Do
+      End Do
 C
       RETURN
       END

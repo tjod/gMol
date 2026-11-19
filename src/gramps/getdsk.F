@@ -69,7 +69,14 @@ C
         READ(PFILE,*,END=999,ERR=26)N,LDM1,LDM2
       END IF
       SPOT=SPOT+1
-      IF(N)998,30,15
+c      IF(N)998,30,15
+      If (N .LT. 0) Then
+        Goto 998
+      Else If (N .EQ. 0) Then
+        Goto 30
+      Else
+        Goto 15
+      End If
 C
 C   PROCESS THE N POINTS THAT FOLLOW, IN GROUPS OF
 C   THE SIZE OF THE BUFFER.

@@ -160,8 +160,9 @@ C
       BLANK=' '
       IF(SWITCHES.EQ.BLANK)GOTO 998
 C
-      DO 10 I=1,MTFM+WTFM
- 10   LWORK(I)=.FALSE.
+      DO I=1,MTFM+WTFM
+        LWORK(I)=.FALSE.
+      End Do
 C
 	Call upcase(SWITCHES)
       CALL SMATCH(SWITCHES,'TRANSLATE',VALUE,PRESENT)
@@ -249,13 +250,15 @@ C       SWITCH WAS SPECIFIED.  SO ASSUME THAT ALL ARE
 C       TO BE RESET and return false.
 C
 	WRESET=.TRUE.
-      DO 20 I=1,MTFM+WTFM
- 20   IF( LWORK(I) )GOTO 999
+      DO I=1,MTFM+WTFM
+        IF( LWORK(I) )GOTO 999
+      End Do
 C
  998  CONTINUE
-      DO 30 I=1,MTFM+WTFM
- 30   LWORK(I)=.TRUE.
-	WRESET=.FALSE.
+      DO I=1,MTFM+WTFM
+        LWORK(I)=.TRUE.
+      End Do
+      WRESET=.FALSE.
 C
  999  RETURN
       END

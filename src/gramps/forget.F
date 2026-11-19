@@ -52,14 +52,17 @@ C
         IF( .NOT.BTEST(KINDOBJ(I),MENUBIT) )THEN
           CALL GROUPINFO(I,START,FINISH,DEPTH,LEVEL,NEWSIZE)
           IF(TYPOBJ(I).EQ.GROUP)THEN
-            DO 11 J=START,FINISH-1
- 11         TREE(J)=TREE(J+1)
-            DO 12 J=FINISH-1,TREEEND
- 12         TREE(J)=TREE(J+2)
+            DO J=START,FINISH-1
+              TREE(J)=TREE(J+1)
+            End Do
+            DO J=FINISH-1,TREEEND
+              TREE(J)=TREE(J+2)
+            End Do
             TREEEND=TREEEND-2
           ELSE
-            DO 13 J=FINISH,TREEEND
- 13         TREE(J)=TREE(J+1)
+            DO J=FINISH,TREEEND
+              TREE(J)=TREE(J+1)
+            End Do
             TREEEND=TREEEND-1
           END IF
         ELSE
@@ -88,10 +91,10 @@ C
           UDTO=NEXTLOC(I)-1
 C         LOCOBJ(I)=ISIGN(NFREE,LOCOBJ(I))
           OBJLOC=NFREE
-          DO 16 JAD=UDFROM,UDTO
-          DLIST(NFREE)=DLIST(JAD)
-          NFREE=NFREE+1
- 16       CONTINUE
+          DO JAD=UDFROM,UDTO
+            DLIST(NFREE)=DLIST(JAD)
+            NFREE=NFREE+1
+          End Do
         ELSE
           OBJLOC=LOCOBJ(MASTSYN(I))
         END IF
@@ -155,12 +158,13 @@ C
 C
 C       AND REARRANGE ARBITRARY AXIS AND FIX MATRIX.
 C
-        DO 19 J=1,4
-        DO 19 K=1,4
-        ARBMAT (J,K,NEWID)=ARBMAT (J,K,I)
-        IARBMAT(J,K,NEWID)=IARBMAT(J,K,I)
-        FIXMAT (J,K,NEWID)=FIXMAT (J,K,I)
- 19     CONTINUE
+        DO J=1,4
+          DO K=1,4
+            ARBMAT (J,K,NEWID)=ARBMAT (J,K,I)
+            IARBMAT(J,K,NEWID)=IARBMAT(J,K,I)
+            FIXMAT (J,K,NEWID)=FIXMAT (J,K,I)
+          End Do
+        End Do
 C
 C     AND CORRECT THE APPROPRIATE TREE.
 C

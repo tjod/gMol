@@ -141,7 +141,14 @@ C     DO WHILE(SPOT.LT.ASIZE)
  6    FORMAT(4G11.5)
  7    FORMAT(I5,',',I5,',',I5)
  8    FORMAT(I5,',',I5,',',I5,',',G11.5)
-      IF(N)999,25,15
+c      IF(N)999,25,15
+      If (N. LT. 0) Then
+        Goto 999
+      Else If (N .EQ. 0) Then
+        Goto 25
+      Else
+        Goto 15
+      End If
 C
 C       PROCESS THE N POINTS THAT FOLLOW, IN GROUPS OF
 C       THE SIZE OF THE BUFFER.

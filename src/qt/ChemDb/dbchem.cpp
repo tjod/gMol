@@ -69,7 +69,7 @@ int ChemDb::getMolid() {
 bool ChemDb::reportError(QSqlQuery q) {
   QSqlDatabase db = QSqlDatabase::database();
   qDebug() << q.lastQuery();
-  qDebug() << TR("error: ") << db.lastError().number() << db.lastError().text();
+  qDebug() << TR("error: ") << db.lastError().nativeErrorCode() << db.lastError().text();
   return false;
 }
 /*

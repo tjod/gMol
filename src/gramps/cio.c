@@ -14,19 +14,19 @@ C *************************************************************
 
 static int fd;
 
-fcopen_(file, fsize, flen)
+int fcopen_(file, fsize, flen)
 char *file;
 int *fsize;
 int flen;
 {
 file[*fsize]='\0';
-fd = open(file, O_CREAT|O_TRUNC|O_RDWR);
+fd = open(file, O_CREAT|O_TRUNC|O_RDWR, 0644);
 return(fd);
 }
 
-fcclose_() { close(fd); }
+int fcclose_() { return close(fd); }
 
-fcwrite_(buffer, bufsize)
+int fcwrite_(buffer, bufsize)
 int *buffer;
 int *bufsize;
 {
@@ -36,7 +36,7 @@ i = write(fd, buffer, nbytes);
 return(i);
 }
 
-fcread_(buffer, bufsize)
+int fcread_(buffer, bufsize)
 int *buffer;
 int *bufsize;
 {

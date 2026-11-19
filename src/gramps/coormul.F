@@ -77,7 +77,14 @@ C
       RDM1=DLIST(I+1)
       RDM2=DLIST(I+2)
       I=I+3
-      IF(N)999,40,30
+c      IF(N)999,40,30
+      If (N .LT. 0) Then
+        Goto 999
+      Else If (N .EQ. 0) Then
+        Goto 40
+      Else
+        Goto 30
+      End If
 C
 C       PROCESS THE N POINTS THAT FOLLOW.
 C

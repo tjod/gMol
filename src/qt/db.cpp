@@ -92,7 +92,7 @@ bool Db::tellError(QSqlQuery &query, QString msg) {
     QSqlDatabase db = QSqlDatabase::database();
     //qDebug() << query.lastError();
     qDebug() << msg << query.lastQuery();
-    qDebug() << TR("error: ") << db.lastError().number() << db.lastError().text();
+    qDebug() << TR("error: ") << db.lastError().nativeErrorCode() << db.lastError().text();
     return false;
 }
 bool Db::save(QString file) {
@@ -1074,9 +1074,9 @@ vertexQuery::~vertexQuery() {}
 bool vertexQuery::iter(int itemid, int imol, int /*resnum*/, char /*chain*/, int /*filter*/, int /*hydrogen*/, int colorBy, float /*nearAtom*/) {
     QString sql;
     if (colorBy == COLOR_BY_CHARGE) {
-        sql.sprintf("Select vid,atnum,sum(pcharge*abs(pcharge)/(dx*dx+dy*dy+dz*dz)) e2,vx,vy,vz,nx,ny,nz From (Select pcharge, vid, 0 atnum, v.x vx, v.y vy, v.z vz, nx, ny, nz, a.x-v.x dx, a.y-v.y dy, a.z-v.z dz From atom a Join vertex v On (itemid=%d And molid=%d) ) Group By vid,atnum,vx,vy,vz,nx,ny,vz Order By vid", itemid, imol);
+        sql = QString::asprintf("Select vid,atnum,sum(pcharge*abs(pcharge)/(dx*dx+dy*dy+dz*dz)) e2,vx,vy,vz,nx,ny,nz From (Select pcharge, vid, 0 atnum, v.x vx, v.y vy, v.z vz, nx, ny, nz, a.x-v.x dx, a.y-v.y dy, a.z-v.z dz From atom a Join vertex v On (itemid=%d And molid=%d) ) Group By vid,atnum,vx,vy,vz,nx,ny,vz Order By vid", itemid, imol);
     } else if (colorBy == COLOR_BY_ATOMS) {
-        sql.sprintf("Select vid,atnum,0.0,v.x,v.y,v.z,v.nx,v.ny,v.nz From vertex v Join (Select atid,atnum From atom Where molid=%i) Using (atid) Where itemid=%i Order By vid", imol, itemid);
+        sql = QString::asprintf("Select vid,atnum,0.0,v.x,v.y,v.z,v.nx,v.ny,v.nz From vertex v Join (Select atid,atnum From atom Where molid=%i) Using (atid) Where itemid=%i Order By vid", imol, itemid);
         // this will (slowly-ish) compute actual closest atom to vertex, rather than dbsurf's estimate of min(atomid) of vertex's several atom generators
         //      q.exec("Create Index vx On vertex(itemid,x,y,z)");
         //      if (chain == NOCHAIN) {
@@ -1087,7 +1087,7 @@ bool vertexQuery::iter(int itemid, int imol, int /*resnum*/, char /*chain*/, int
         //      //qDebug() << sql;
         //if (nearAtom > 0.0) exec("Drop Index If Exists vx");
     } else {
-        sql.sprintf("Select vid,0,0.0,x,y,z,nx,ny,nz From vertex Where itemid=%d Order By vid", itemid);
+        sql = QString::asprintf("Select vid,0,0.0,x,y,z,nx,ny,nz From vertex Where itemid=%d Order By vid", itemid);
     }
     if (exec(sql)) {
         valid = true;

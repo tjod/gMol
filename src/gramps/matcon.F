@@ -13,10 +13,11 @@ C
 C       THIS ROUTINE CONCATENATES T AND U SO THAT T=UT.
 C       S IS TEMPORARY, HOLDING T, UNTIL IT IS REPLACED.
 C
-      DO 10 J=1,4
-      DO 10 I=1,4
-      S(I,J)=T(I,J)
- 10   CONTINUE
+      DO J=1,4
+        DO I=1,4
+          S(I,J)=T(I,J)
+        End Do
+      End Do
 C
       DO 40 I=1,4
       DO 30 J=1,4

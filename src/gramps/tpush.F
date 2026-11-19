@@ -91,10 +91,11 @@ C
         RETURN
       END IF
 C
-      DO 10 I=1,4
-        DO 10 J=1,4
-        TFMMTX(I,J,CURRENT+1)=TFMMTX(I,J,CURRENT)
- 10   CONTINUE
+      DO  I=1,4
+        DO  J=1,4
+          TFMMTX(I,J,CURRENT+1)=TFMMTX(I,J,CURRENT)
+        End Do
+      End Do
 C
       CURRENT=CURRENT+1
 C
@@ -126,10 +127,11 @@ C
 C
 #include "TFMMAT.FOR"
 C
-      DO 10 I=1,4
-      DO 10 J=1,4
-      MATRIX(I,J)=TFMMTX(I,J,CURRENT)
- 10   CONTINUE
+      DO  I=1,4
+        DO  J=1,4
+          MATRIX(I,J)=TFMMTX(I,J,CURRENT)
+        End Do
+      End Do
 C
       RETURN
 C
@@ -137,10 +139,11 @@ C
 C
 C       THIS ROUTINE MAKES MATRIX BE THE CURRENT TFM MATRIX.
 C
-      DO 20 I=1,4
-      DO 20 J=1,4
-      TFMMTX(I,J,CURRENT)=MATRIX(I,J)
- 20   CONTINUE
+      DO  I=1,4
+        DO  J=1,4
+          TFMMTX(I,J,CURRENT)=MATRIX(I,J)
+        End Do
+      End Do
 C
       RETURN
 C
@@ -227,10 +230,11 @@ C
 C
 C     TRANSPOSE MATRIX (IRIS IS BACKWARDS FROM GRAMPS INTERNAL)
 C
-      DO 10 I=1,4
-      DO 10 J=1,4
-      XMATRIX(I,J)=MATRIX(J,I)
- 10   CONTINUE
+      DO  I=1,4
+        DO  J=1,4
+          XMATRIX(I,J)=MATRIX(J,I)
+        End Do
+      End Do
 C
       RETURN
       END
