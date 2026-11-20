@@ -83,7 +83,7 @@ macx {
    LIBS += ../gramps/qtgramps.a \
     -L/usr/local/opt/ftgl/lib -lftgl \
     -L/opt/local/lib/gcc15 -lgfortran \
-    -framework GLUT -framework OPENGL
+    -framework OPENGL # -framework GLUT
    LIBS += -F/usr/local/lib -framework QtWebKit -framework QtWebKitWidgets # use with Qt5.15
    #LIBS += -L/opt/local/lib/openssl-1.1 -lssl -lcrypto # use with Qt5.15
    QMAKE_RPATHDIR += /usr/local/lib/ # use with Qt5.15
