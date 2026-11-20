@@ -2488,7 +2488,7 @@ C
         IF(SKIPDISP)RETURN
         If(EFLAG.NE.0)CALL G0ERASE(EFLAG)
         CALL DISPLAY(0)
-		  Call swapbu
+        Call swapbu
       End If
 C Calling Display has dealt with any ?CHANGES, so set them FALSE now
       TCHANGE=.FALSE.
