@@ -116,11 +116,13 @@ set(SOURCE_FILES
 add_executable(gramps ${SOURCE_FILES}
 )
 set(CMAKE_BUILD_TYPE Debug)
-
+target_compile_definitions(gramps PRIVATE openjpeg)
 #target_link_libraries(gramps PRIVATE OpenGL::OpenGL)
 target_link_libraries(gramps PRIVATE "-framework OpenGL -framework GLUT -lreadline -L/usr/local/opt/ftgl/lib -lftgl")
+target_link_libraries(gramps PRIVATE "-L/usr/local/Cellar/openjpeg/2.5.4/lib -lopenjp2")
 #  -lftgl
 target_include_directories(gramps PRIVATE "/usr/local/opt/ftgl/include" "/usr/local/opt/freetype/include/freetype2")
+target_include_directories(gramps PRIVATE "/usr/local/Cellar/openjpeg/2.5.4/include/openjpeg-2.5")
 
 include(GNUInstallDirs)
 install(TARGETS gramps

@@ -35,9 +35,12 @@ C        openfile uses global DEFEXT and modifies global fullfile
         SNAPPING=.TRUE.
         SNAPFILE=fullfile
         call mkfname(fname, snapfile, fcount)
-        ERROR=OPENFILE(fname,PFILE,.TRUE.,' ')
+c        ERROR=OPENFILE(fname,PFILE,.TRUE.,' ')
       Else
-        ERROR=OPENFILE(file,PFILE,.TRUE.,' ')
+c        ERROR=OPENFILE(file,PFILE,.TRUE.,' ')
+C        openfile uses global DEFEXT and modifies global fullfile
+C        just parse/create fullfile.  no actual open/create
+        ERROR=OPENFILE(file,PFILE,.FALSE.,'PARSE')
         fname = fullfile
       End If
       IF(ERROR.NE.0)THEN
