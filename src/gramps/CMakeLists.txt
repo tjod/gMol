@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(CMAKE_Fortran_COMPILER "/opt/local/bin/gfortran")
+#set(CMAKE_Fortran_COMPILER "/opt/local/bin/gfortran")
 
-project(gramps LANGUAGES C Fortran)
+project(gramps LANGUAGES Fortran C CXX)
 find_package(OpenGL REQUIRED)
 
 set(CMAKE_Fortran_FLAGS_DEBUG "-g -O0 -gdwarf-2")
@@ -17,6 +17,8 @@ set(SOURCE_FILES
         gramps.h
         patterns.h
         vac_stipple.h
+        stb_wrapper.h
+        openjpeg_wrapper.h
     #main
         gramps.c
     #others .F and some .c
@@ -76,6 +78,7 @@ set(SOURCE_FILES
 	norm.F
         openfile.F
 	openobj.F
+        openjpeg_wrapper.c
 	ortotal.F
 	perspect.F
 	pick.F
@@ -98,6 +101,7 @@ set(SOURCE_FILES
 	show.F
 	showgl.c
 	showtree.F
+        stb_wrapper.cpp
 	synonym.F
 	telluser.F
 	text.F
@@ -116,13 +120,19 @@ set(SOURCE_FILES
 add_executable(gramps ${SOURCE_FILES}
 )
 set(CMAKE_BUILD_TYPE Debug)
-target_compile_definitions(gramps PRIVATE openjpeg)
-#target_link_libraries(gramps PRIVATE OpenGL::OpenGL)
-target_link_libraries(gramps PRIVATE "-framework OpenGL -framework GLUT -lreadline -L/usr/local/opt/ftgl/lib -lftgl")
-target_link_libraries(gramps PRIVATE "-L/usr/local/Cellar/openjpeg/2.5.4/lib -lopenjp2")
-#  -lftgl
+
+#target_link_libraries(gramps PRIVATE "-L/opt/local/lib/libgcc/ -lgfortran.5")
+
 target_include_directories(gramps PRIVATE "/usr/local/opt/ftgl/include" "/usr/local/opt/freetype/include/freetype2")
-target_include_directories(gramps PRIVATE "/usr/local/Cellar/openjpeg/2.5.4/include/openjpeg-2.5")
+target_link_libraries(gramps PRIVATE "-framework OpenGL -framework GLUT -lreadline -L/usr/local/opt/ftgl/lib -lftgl")
+
+# pick you poison for output jpeg using openjpeg or stb_write
+#target_compile_definitions(gramps PRIVATE openjpeg)
+#target_include_directories(gramps PRIVATE "/usr/local/Cellar/openjpeg/2.5.4_1/include/openjpeg-2.5")
+#target_link_libraries(gramps PRIVATE "-L/usr/local/Cellar/openjpeg/2.5.4_1/lib -lopenjp2")
+# pick you poison for output jpeg using openjpeg or stb_write
+target_compile_definitions(gramps PRIVATE STB_WRITE)
+
 
 include(GNUInstallDirs)
 install(TARGETS gramps
