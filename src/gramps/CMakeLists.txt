@@ -18,7 +18,8 @@ set(SOURCE_FILES
         patterns.h
         vac_stipple.h
         stb_wrapper.h
-        openjpeg_wrapper.h
+        jo_mpeg_wrapper.h
+        #openjpeg_wrapper.h
     #main
         gramps.c
     #others .F and some .c
@@ -61,6 +62,7 @@ set(SOURCE_FILES
 	insert.F
 	inten.F
         io.c
+        jo_mpeg_wrapper.cpp
 	json.F
 	grout.F
 	sockio.c
@@ -78,7 +80,7 @@ set(SOURCE_FILES
 	norm.F
         openfile.F
 	openobj.F
-        openjpeg_wrapper.c
+        #openjpeg_wrapper.c
 	ortotal.F
 	perspect.F
 	pick.F

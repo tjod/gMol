@@ -325,35 +325,43 @@ void savewin_(char *name, int *namlen, size_t nlen)
 
 #if defined openjpeg
 #include "openjpeg_wrapper.h"
-  save_framebuffer_to_jp2(filename, width, height);
 #elif defined STB_WRITE
 #include "stb_wrapper.h"
+#endif
+
   if (endsWith(filename, ".jpg") || endsWith(filename, ".jpeg")) {
+#if defined openjpeg
+#include "openjpeg_wrapper.h"
+     save_framebuffer_to_jp2(filename, width, height);
+#elif defined STB_WRITE
     int quality = 90;
     saveScreenshotJPEG(filename, width, height, quality);
-  } else {
+
+  } else if (endsWith(filename, ".png")) {
     saveScreenshotPNG(filename, width, height);
-  }
 #endif
 
-#if defined JO_MPEG
+  } else if (endsWith(filename, ".mpeg")) {
 #define JO_MPEG_HEADER_FILE_ONLY
-#includue "jo_mpeg.h"
-  jo_write_mpeg(fp, frame0_rgbx, width, height, 60);
-#else
- unsigned char *rgbbuf;
- FILE *fp;
+#include "jo_mpeg_wrapper.h"
+    FILE *fp = fopen(filename, "wb");
+    if (fp) {
+      save_framebuffer_to_mpeg(fp, width, height, 60);
+    }
+  }
 
- glPixelStorei(GL_PACK_ALIGNMENT, 1);
- rgbbuf = (unsigned char *)calloc(3*width*height, sizeof(unsigned char)); 
- if (NULL == rgbbuf) {
-  fprintf(stderr, "can't allocate rgb buffer\n");
-  return;
- }
- glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, rgbbuf);
- snprintf(filename, *namlen, "%s", name);
+// unsigned char *rgbbuf;
+// FILE *fp;
 
-#endif
+// glPixelStorei(GL_PACK_ALIGNMENT, 1);
+// rgbbuf = (unsigned char *)calloc(3*width*height, sizeof(unsigned char));
+// if (NULL == rgbbuf) {
+//  fprintf(stderr, "can't allocate rgb buffer\n");
+//  return;
+// }
+// glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, rgbbuf);
+// snprintf(filename, *namlen, "%s", name);
+
 }
 
 
@@ -965,7 +973,7 @@ void swapbu_() {
  glutSwapBuffers();
 #endif
 }
-void gflush_() { glFlush(); }
+//void gflush_() { glFlush(); }
 
 void setpat_(int pattern) {
  GLubyte stipple[] = {0x00, 0x00};
