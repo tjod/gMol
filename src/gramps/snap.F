@@ -28,8 +28,8 @@ C
       VPOINT=1
       CALL GETSTR(ARG,POINT,FILE)
       IF(ERROR.NE.0)CALL TELLUSER(ERROR, *999)
-      DEFEXT='jpg'
-C        openfile uses global DEFEXT and modifies global fullfile
+      DEFEXT='jpeg'
+C        openfile uses global DEFEXT and modifies global fullfile and global REST (extension)
       If(MATCH(SWITCHES,'ADVANCE'))THEN
         ERROR=OPENFILE(file,PFILE,.FALSE.,'PARSE')
         SNAPPING=.TRUE.

@@ -146,7 +146,8 @@ C
       External TRIM
 C
       FCOUNT=FCOUNT+1
-      If(SNAPPING)Then
+C     Chekc NADVANCE so as not to keep writing files during all continuous update
+      If(SNAPPING .AND. NADVANCE.GT.0) Then
        call mkfname(fname, SNAPFILE, fcount)
        call savewin(fname, TRIM(fname))
       End If

@@ -171,7 +171,7 @@ int setdevval_(int *dev, float *rval, int *state) {
   return 1;
 }
 
-void snapscreen_(char *filename, int width, int height, const uchar *rgbbuff) {
-  QImage screen = QImage(rgbbuff, width, height, width*3, QImage::Format_RGB888);
-  screen.mirrored().save(filename,0,100);
-}
+//void snapscreen_(char *filename, int width, int height, const uchar *rgbbuff) {
+//  QImage screen = QImage(rgbbuff, width, height, width*3, QImage::Format_RGB888);
+//  screen.mirrored().save(filename,0,100);
+//}

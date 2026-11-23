@@ -31,6 +31,26 @@ FTGLfont *font2D = NULL;
 
 /* G0 routines that used to be in g0subs.f */
 
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+
+bool endsWith(const char *str, const char *suffix) {
+    if (!str || !suffix) {
+        return false;
+    }
+
+    size_t str_len = strlen(str);
+    size_t suffix_len = strlen(suffix);
+
+    // If the suffix is longer than the string, it cannot match
+    if (suffix_len > str_len) {
+        return false;
+    }
+
+    // Compare the end of 'str' with 'suffix'
+    return strcmp(str + (str_len - suffix_len), suffix) == 0;
+}
 
 //#define BAYER_TRANSPARENCY
 #define VOID_AND_CLUSTER
@@ -308,9 +328,15 @@ void savewin_(char *name, int *namlen, size_t nlen)
   save_framebuffer_to_jp2(filename, width, height);
 #elif defined STB_WRITE
 #include "stb_wrapper.h"
-  int quality = 90;
-  saveScreenshotJPEG(filename, width, height, quality);
-#elif define JO_MPEG
+  if (endsWith(filename, ".jpg") || endsWith(filename, ".jpeg")) {
+    int quality = 90;
+    saveScreenshotJPEG(filename, width, height, quality);
+  } else {
+    saveScreenshotPNG(filename, width, height);
+  }
+#endif
+
+#if defined JO_MPEG
 #define JO_MPEG_HEADER_FILE_ONLY
 #includue "jo_mpeg.h"
   jo_write_mpeg(fp, frame0_rgbx, width, height, 60);
@@ -326,9 +352,6 @@ void savewin_(char *name, int *namlen, size_t nlen)
  }
  glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, rgbbuf);
  snprintf(filename, *namlen, "%s", name);
-#if defined QT
- snapscreen_(filename, width, height, rgbbuf);
-#endif QT
 
 #endif
 }

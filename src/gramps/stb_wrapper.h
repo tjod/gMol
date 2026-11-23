@@ -8,10 +8,9 @@ extern "C" {
 
 // Declare functions using only C-compatible types (primitives, pointers, structs)
 void saveScreenshotJPEG(const char* filename, int width, int height, int quality);
-
+void  saveScreenshotPNG(const char* filename, int width, int height);
 #ifdef __cplusplus
 }
 #endif
 
 #endif // STB_WRAPPER_H
-

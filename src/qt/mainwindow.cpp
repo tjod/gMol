@@ -504,7 +504,7 @@ void MainWindow::webViewConnections(WebWidget *view, bool allowAccess) {
 
 void MainWindow::snap()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, "Image file", gmolLib, tr("Images (*.jpg *.bmp *.tiff *.ppm)"));
+    QString fileName = QFileDialog::getSaveFileName(this, "Image file", "", tr("All Files (*);;JPEG Image (*.jpg *.jpeg);;PNG Image (*.png)"));
 
     if (!fileName.isEmpty()) {
         // snap screen to file
