@@ -118,15 +118,15 @@ C if we're doing a file, we gotta go on
         END IF
       END IF
 C
-      If(SNAPPING)Then
-       call mkfname(fname, SNAPFILE, fcount)
-       call savewin(fname, TRIM(fname))
-      End If
+c      If(SNAPPING)Then
+c       call savewin(snapfile, TRIM(snapfile), snaptype, -1)
+c      End If
+      Call ADVSNAP
       IF(OUTTING.EQ.OUTQIX)WRITE(OFILE)MINUSONE,ZERO,ZERO
       IF(OUTTING.EQ.OUTPIX)WRITE(OFILE,6)MINUSONE,ZERO,ZERO
       IF(OUTTING.EQ.OUTPOSTSCR)WRITE(OFILE,'(a)')'showpage'
       IF(FPAUSE.GT.0)CALL G0FPAUSE(FPAUSE)
-      FCOUNT=FCOUNT+1
+c      FCOUNT=FCOUNT+1
  10   Continue
 c  IF(OUTTING.GT.0)CALL G0ALPHA
 C
@@ -146,57 +146,8 @@ C
       External TRIM
 C
       FCOUNT=FCOUNT+1
-C     Chekc NADVANCE so as not to keep writing files during all continuous update
+C     Check NADVANCE so as not to keep writing files during all continuous update
       If(SNAPPING .AND. NADVANCE.GT.0) Then
-       call mkfname(fname, SNAPFILE, fcount)
-       call savewin(fname, TRIM(fname))
+       call savewin(snapfile, TRIM(snapfile), snaptype, fcount)
       End If
-      End
-
-      Subroutine mkfname(fname, snapfile, fcount)
-C
-      Implicit None
-      Character*(*) fname, snapfile
-      Integer fcount
-      Integer TRIM
-      External TRIM
-      Integer rindex
-      External rindex
-      Character*20 ext
-      Character*80 file
-      Integer dot
-C
-      dot = rindex(snapfile,".")
-      file = snapfile(:dot-1)
-      ext = snapfile(dot+1:)
-      Write(fname, '(a,i8.8,a)')FILE(:TRIM(FILE)), fcount,
-     &   "."//EXT(:TRIM(EXT))
-
-C      If(fcount .lt. 10)Then
-C       Write(fname, '(a,i1,a)')FILE(:TRIM(FILE)), fcount,
-C     &   "."//EXT(:TRIM(EXT))
-C      Else If(fcount .lt. 100)Then
-C       Write(fname, '(a,i2,a)')FILE(:TRIM(FILE)), fcount,
-C     &   "."//EXT(:TRIM(EXT))
-C      Else If(fcount .lt. 1000)Then
-C       Write(fname, '(a,i3,a)')FILE(:TRIM(FILE)), fcount,
-C     &   "."//EXT(:TRIM(EXT))
-C      Else If(fcount .lt. 10000)Then
-C       Write(fname, '(a,i4,a)')FILE(:TRIM(FILE)), fcount,
-C     &   "."//EXT(:TRIM(EXT))
-C      Else If(fcount .lt. 100000)Then
-C       Write(fname, '(a,i5,a)')FILE(:TRIM(FILE)), fcount,
-C     &   "."//EXT(:TRIM(EXT))
-C      Else If(fcount .lt. 1000000)Then
-C       Write(fname, '(a,i6,a)')FILE(:TRIM(FILE)), fcount,
-C     &   "."//EXT(:TRIM(EXT))
-C      Else If(fcount .lt. 1000000)Then
-C       Write(fname, '(a,i7,a)')FILE(:TRIM(FILE)), fcount,
-C     &   "."//EXT(:TRIM(EXT))
-C      Else If(fcount .lt. 10000000)Then
-C       Write(fname, '(a,i8,a)')FILE(:TRIM(FILE)), fcount,
-C     &   "."//EXT(:TRIM(EXT))
-C      End If
-C
-      Return
       End

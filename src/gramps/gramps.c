@@ -274,7 +274,7 @@ static void Idler(int timer_id) {
          // do continuous updates
          do_it = 0; do_flag = contupd_(&do_it);
          do_it = 1; g0redraw_(&do_it);
-         advsnap_(); //write snap file if necessary and advance frame count
+         //advsnap_(); //write snap file if necessary and advance frame count
          //glutPostRedisplay();
      } else {
          // pause command in effect or nothing to draw

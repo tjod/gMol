@@ -19,8 +19,11 @@ C
       LOGICAL ORDER
       EXTERNAL TRIM
 C
-      If(MATCH(SWITCHES,'NOADVANCE'))THEN
+      If(MATCH(SWITCHES,'NOADVANCE')) Then
+c  find mpeg process if necessary
+        Call close_ffmpeg()
         SNAPPING=.FALSE.
+        snaptype = ""
         GOTO 999
       End If
 C
@@ -28,50 +31,39 @@ C
       VPOINT=1
       CALL GETSTR(ARG,POINT,FILE)
       IF(ERROR.NE.0)CALL TELLUSER(ERROR, *999)
-      DEFEXT='jpeg'
-C        openfile uses global DEFEXT and modifies global fullfile and global REST (extension)
+      DEFEXT='png'
+C        openfile uses global DEFEXT and modifies global FULLFILE, DIR, NAME and REST (extension)
       If(MATCH(SWITCHES,'ADVANCE'))THEN
         ERROR=OPENFILE(file,PFILE,.FALSE.,'PARSE')
         SNAPPING=.TRUE.
-        SNAPFILE=fullfile
-        call mkfname(fname, snapfile, fcount)
-c        ERROR=OPENFILE(fname,PFILE,.TRUE.,' ')
+        snaptype = REST
+        If (snaptype .EQ. 'mpeg' .OR. snaptype .EQ. 'mp4') Then
+          SNAPFILE=fullfile
+        Else
+          SNAPFILE = DIR(1:TRIM(DIR)) // '/'
+     &           // NAME(1:TRIM(NAME)) // '%08d.' // REST
+        End If
       Else
-c        ERROR=OPENFILE(file,PFILE,.TRUE.,' ')
-C        openfile uses global DEFEXT and modifies global fullfile
+C        openfile uses global DEFEXT and modifies global FULLFILE and global REST
 C        just parse/create fullfile.  no actual open/create
         ERROR=OPENFILE(file,PFILE,.FALSE.,'PARSE')
-        fname = fullfile
+c       fname = fullfile
+        SNAPFILE=fullfile
+        snaptype = REST
       End If
       IF(ERROR.NE.0)THEN
         POINT=VPOINT
         CALL TELLUSER(ERROR,*999)
       END IF
-#ifdef __APPLE__
-      CLOSE(UNIT=PFILE)
-#elif GFORTRAN
-      CLOSE(UNIT=PFILE)
-#else
-C      CLOSE(UNIT=PFILE, DISPOSE='DELETE')
-      CLOSE(UNIT=PFILE)
-#endif
 C
-C      If(SWITCHES.EQ.' ' .OR. MATCH(SWITCHES,'IPASTE'))THEN
       If(OUTTING.NE.OUTWINDOW)Call Telluser(NOTDEV,*999)
-      fnamelen = trim(fname)
-      call savewin(fname, fnamelen)
-C      Else If(MATCH(SWITCHES,'ADVANCE'))THEN
-C       i=TRIM(fullfile)
-C       SNAPFILE=fullfile(:i-4)
-C       SNAPFILE=fullfile
-C      ELSE
-C        ORDER=MATCH(SWITCHES,'YX')
-C        i=TRIM(fullfile)
-C        i= fcopen(fullfile, i)
-C        CALL G0DUMP(ORDER)
-C        i= fcclose()
-C      END IF
-C
+
+      If (SNAPPING) Then
+        Call savewin(snapfile, TRIM(snapfile), snaptype, FCOUNT)
+      Else
+        Call savewin(snapfile, TRIM(snapfile), snaptype, -1)
+        Call close_ffmpeg()
+      End If
  999  CONTINUE
       RETURN
       END

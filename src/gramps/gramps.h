@@ -35,3 +35,8 @@ void udinit_();
 void g0pinit_();
 void startup_();
 int initialize_fonts_(char *font_path, int flen);
+
+void rayshow_(char *name, char *options,int namelen, int optlen);
+
+
+void psplot_(char *name, int *color, int namelen);

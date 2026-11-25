@@ -29,6 +29,9 @@ FTGLfont *font3D = NULL;
 FTGLfont *fontBitmap = NULL;
 FTGLfont *font2D = NULL;
 
+#include "ffmpeg_wrapper.h"
+FILE *ffmpeg; // popen-ed by savewin; must be closed adter SNAP/NOADVANCE
+
 /* G0 routines that used to be in g0subs.f */
 
 #include <stdio.h>
@@ -305,18 +308,22 @@ void commout_(char *string) {
 /* output to command window */
 }
 
-#if defined openjpeg
-
-#elif defined STB_WRITE
-
-#endif
-
-void savewin_(char *name, int *namlen, size_t nlen)
+int savewin_(char *snapfile, int *snaplen, char *snaptype, int *fcount, size_t slen)
 {
-
+// snaptype if fortran character*4, so padded with blanks to length; see strcmp below
   char filename[256];
-  int flen = *namlen + 1;
-  snprintf(filename, flen, "%s", name);
+  if (*fcount < 0) {
+    int flen = *snaplen + 1;
+    snprintf(filename, flen, "%s", snapfile);
+  } else {
+    // snapfile has %08d in it, but needs to be null-terminated
+    char snapformat[256];
+    int flen = *snaplen + 1; // to add the null
+    strncpy(snapformat, snapfile, flen);
+    snapformat[flen] = '\0';
+    // now replace the %08d with fcount
+    sprintf(filename, snapformat, *fcount);
+  }
 
   GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
@@ -329,27 +336,27 @@ void savewin_(char *name, int *namlen, size_t nlen)
 #include "stb_wrapper.h"
 #endif
 
-  if (endsWith(filename, ".jpg") || endsWith(filename, ".jpeg")) {
+  if (0 == strcmp(snaptype, "jpg ") || 0 == strcmp(snaptype, "jpeg")) {
 #if defined openjpeg
 #include "openjpeg_wrapper.h"
      save_framebuffer_to_jp2(filename, width, height);
 #elif defined STB_WRITE
     int quality = 90;
     saveScreenshotJPEG(filename, width, height, quality);
-
-  } else if (endsWith(filename, ".png")) {
+  } else if (0 == strcmp(snaptype, "png ")) {
     saveScreenshotPNG(filename, width, height);
 #endif
 
-  } else if (endsWith(filename, ".mpeg")) {
-#define JO_MPEG_HEADER_FILE_ONLY
-#include "jo_mpeg_wrapper.h"
-    FILE *fp = fopen(filename, "wb");
-    if (fp) {
-      save_framebuffer_to_mpeg(fp, width, height, 60);
-    }
+  } else if (0 == strcmp(snaptype, "mpeg") || 0 == strcmp(snaptype, "mp4 ")) {
+     if (ffmpeg == NULL) {
+      ffmpeg = open_framebuffer_to_ffmpeg(filename, width, height, 60);
+     }
+     // ffmpeg is left popen-ed for further calls (here) to save_framebuffer_to_ffmpeg
+     // SNAP/NOADVANCE call close_savewin which pcloses ffmpeg
+     if (ffmpeg) {
+       return save_framebuffer_to_ffmpeg(ffmpeg, width, height);
+     }
   }
-
 // unsigned char *rgbbuf;
 // FILE *fp;
 
@@ -361,9 +368,20 @@ void savewin_(char *name, int *namlen, size_t nlen)
 // }
 // glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, rgbbuf);
 // snprintf(filename, *namlen, "%s", name);
-
+// return (NULL);
+  return (0);
 }
 
+int close_ffmpeg_() {
+  // called by snap.F when SNAP/NOADVANCE
+  if (ffmpeg) {
+    pclose(ffmpeg);
+    ffmpeg = NULL;
+    return 1;
+  } else {
+    return 0;
+  }
+}
 
 void g0texture_(int *iobj) {
     return glCallList(*iobj);

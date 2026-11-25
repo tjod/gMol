@@ -34,7 +34,7 @@ O2=loop.o makecyl.o makesph.o makecopy.o makegroup.o maketfm.o \
 matcon.o move.o namid.o norm.o \
 openobj.o ortotal.o perspect.o pick.o plot.o putdsk.o puttfm.o raytracer.o \
 putwtfm.o remove.o rename.o rebuild.o reset.o restart.o rotate.o save.o \
-scale.o snap.o stb_wrapper.o jo_mpeg_wrapper.o \
+scale.o snap.o stb_wrapper.o ffmpeg_wrapper.o \
 set.o sframe.o show.o showgl.o showtree.o synonym.o telluser.o text.o \
 textxyz.o tident.o tpush.o translate.o objutil.o udinit.o update.o use.o utfm.o
 

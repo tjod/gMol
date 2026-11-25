@@ -18,7 +18,7 @@ set(SOURCE_FILES
         patterns.h
         vac_stipple.h
         stb_wrapper.h
-        jo_mpeg_wrapper.h
+        ffmpeg_wrapper.h
         #openjpeg_wrapper.h
     #main
         gramps.c
@@ -45,6 +45,7 @@ set(SOURCE_FILES
 	do.F
 	dofile.F
 	draw.F
+        ffmpeg_wrapper.cpp
 	fix.F
 	fnupdate.F
 	forget.F
@@ -62,7 +63,6 @@ set(SOURCE_FILES
 	insert.F
 	inten.F
         io.c
-        jo_mpeg_wrapper.cpp
 	json.F
 	grout.F
 	sockio.c
